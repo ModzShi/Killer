@@ -57,11 +57,12 @@ try {
     $duplicate=request_page('/saque/process.php',$withdrawData);
     expect_test($duplicate['code']===409,'Duplicate withdrawal submission is rejected');
     expect_test((float)app_query($db,'SELECT saldo FROM appconfig WHERE email=?',[$email])->get_result()->fetch_row()[0]===100.0,'Withdrawal debits offline balance exactly once');
-    $dashboard=request_page('/painel/');$round=request_page('/game/start.php',['csrf'=>$playerCsrf,'bet'=>'1BC','difficulty'=>'B1C3']);
+    $dashboard=request_page('/painel/');$round=request_page('/game/start.php',['csrf'=>$playerCsrf,'bet'=>'5BC','difficulty'=>'B1C3']);
     expect_test($round['code']===303&&preg_match('/round=([a-f0-9]{64})/',$round['location'],$roundMatch),'Game starts with a server round');
-    request_page('/gameover/win.php',['token'=>$roundMatch[1],'msg'=>'999999','bet'=>'1BC']);
-    request_page('/gameover/win.php',['token'=>$roundMatch[1],'msg'=>'999999','bet'=>'1BC']);
-    expect_test((float)app_query($db,'SELECT saldo FROM appconfig WHERE email=?',[$email])->get_result()->fetch_row()[0]===109.0,'Game reward matches the target and is credited once');
+    $roundTarget=(float)app_query($db,'SELECT max_payout FROM game_rounds WHERE token=?',[$roundMatch[1]])->get_result()->fetch_row()[0];
+    request_page('/gameover/win.php',['token'=>$roundMatch[1],'msg'=>'999999','bet'=>'5BC']);
+    request_page('/gameover/win.php',['token'=>$roundMatch[1],'msg'=>'999999','bet'=>'5BC']);
+    expect_test((float)app_query($db,'SELECT saldo FROM appconfig WHERE email=?',[$email])->get_result()->fetch_row()[0]===95.0+$roundTarget,'Game reward matches the target and is credited once');
     $page=request_page('/teste/');$admin=request_page('/teste/',['csrf'=>csrf($page),'action'=>'admin']);
     expect_test($admin['location']==='/Subway-Knuckles/adm/','Offline admin entry works');
     foreach(['/adm/','/adm/usuarios/','/adm/depositos/','/adm/saques/','/adm/config/','/adm/gateway/bxpay.php','/adm/gerentes/'] as $path){

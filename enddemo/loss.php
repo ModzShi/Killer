@@ -8,9 +8,12 @@ include "./../conectarbanco.php";
 $email = isset($_SESSION["email"]) ? $_SESSION["email"] : "";
 
 $betValues = [
-    "1BC" => 1.0,
-    "2BC" => 2.0,
-    "3BC" => 5.0,
+    "5BC" => 5.0,
+    "10BC" => 10.0,
+    "20BC" => 20.0,
+    "30BC" => 30.0,
+    "50BC" => 50.0,
+    "100BC" => 100.0,
 ];
 
 $bet =

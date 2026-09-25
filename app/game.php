@@ -15,7 +15,7 @@ function game_install(mysqli $db): void {
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $db->query("INSERT IGNORE INTO game_settings (id,difficulty,meta_multiplier) VALUES (1,'medio',10.00)");
-    foreach (['coin_value_demo'=>'0.35','coin_value_paid'=>'0.03'] as $column=>$default) {
+    foreach (['coin_value_demo'=>'0.11','coin_value_paid'=>'0.03'] as $column=>$default) {
         if (!$db->query("SHOW COLUMNS FROM game_settings LIKE '$column'")->num_rows) {
             $db->query("ALTER TABLE game_settings ADD $column DECIMAL(8,2) NOT NULL DEFAULT $default");
         }
@@ -26,10 +26,10 @@ function game_install(mysqli $db): void {
     if (!$db->query("SHOW COLUMNS FROM game_settings LIKE 'demo_coin_value_version'")->num_rows) {
         $db->query('ALTER TABLE game_settings ADD demo_coin_value_version TINYINT UNSIGNED NOT NULL DEFAULT 0');
     }
-    $db->query('UPDATE game_settings SET coin_value_demo=0.35,demo_coin_value_version=1 WHERE id=1 AND demo_coin_value_version<1');
+    $db->query('UPDATE game_settings SET coin_value_demo=0.11,demo_coin_value_version=2 WHERE id=1 AND demo_coin_value_version<2');
 }
 function game_start(mysqli $db,string $email,string $code): string {
-    $bets=['1BC'=>1.00,'2BC'=>2.00,'3BC'=>5.00];
+    $bets=['5BC'=>5.00,'10BC'=>10.00,'20BC'=>20.00,'30BC'=>30.00,'50BC'=>50.00,'100BC'=>100.00];
     if(!isset($bets[$code])) throw new InvalidArgumentException('Aposta inválida.');
     game_install($db); $bet=$bets[$code];
     $settings=$db->query('SELECT * FROM game_settings WHERE id=1')->fetch_assoc()?:[];

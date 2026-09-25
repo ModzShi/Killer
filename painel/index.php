@@ -26,9 +26,12 @@ $recentRounds = app_query(
 )->get_result()->fetch_all(MYSQLI_ASSOC);
 
 $bets = [
-    ['code' => '1BC', 'value' => 1.00, 'label' => 'R$ 1,00'],
-    ['code' => '2BC', 'value' => 2.00, 'label' => 'R$ 2,00'],
-    ['code' => '3BC', 'value' => 5.00, 'label' => 'R$ 5,00'],
+    ['code' => '5BC', 'value' => 5.00, 'label' => 'R$ 5,00'],
+    ['code' => '10BC', 'value' => 10.00, 'label' => 'R$ 10,00'],
+    ['code' => '20BC', 'value' => 20.00, 'label' => 'R$ 20,00'],
+    ['code' => '30BC', 'value' => 30.00, 'label' => 'R$ 30,00'],
+    ['code' => '50BC', 'value' => 50.00, 'label' => 'R$ 50,00'],
+    ['code' => '100BC', 'value' => 100.00, 'label' => 'R$ 100,00'],
 ];
 ?>
 <!doctype html>
@@ -114,7 +117,7 @@ $bets = [
                 <?php endforeach; ?>
             </div>
 
-            <?php if (!$isDemo && $balance < 1): ?>
+            <?php if (!$isDemo && $balance < 5): ?>
                 <div class="player-balance-callout">
                     <span class="player-balance-callout__icon"><?= ui_icon('wallet') ?></span>
                     <div><strong>Abasteça sua carteira e entre na corrida</strong><p>Faça um depósito para liberar as opções de partida.</p></div>
@@ -131,7 +134,7 @@ $bets = [
                     <span class="player-kicker"><i></i> Aqueça antes da corrida</span>
                     <h2>Treine os movimentos e encontre seu ritmo.</h2>
                     <p>Pratique trocas de trilho, saltos e rolamentos com o tutorial guiado.</p>
-                    <a href="<?= app_url('jogar/?demo=1&jogarsubway=1BC&SbSB1C2') ?>"><?= ui_icon('play') ?> Treinar agora</a>
+                    <a href="<?= app_url('jogar/?demo=1&jogarsubway=5BC&SbSB1C2') ?>"><?= ui_icon('play') ?> Treinar agora</a>
                 </div>
                 <div class="player-training-card__art" aria-hidden="true"><span><?= ui_icon('play') ?></span></div>
             </article>

@@ -7,14 +7,14 @@ if (params) {
     var paramArray = params.split("&");
 
     for (var i = 0; i < paramArray.length; i++) {
-        if (paramArray[i] === "1BC" || paramArray[i] === "2BC" || paramArray[i] === "3BC") {
+        if (["5BC", "10BC", "20BC", "30BC", "50BC", "100BC"].includes(paramArray[i])) {
             bet = paramArray[i];
             break;  
         }
     }
 } else {
     // Caso não haja parâmetros na URL, defina manualmente os valores padrão
-    var defaultBet = '1BC';
+    var defaultBet = '5BC';
 
     // Use esse valor padrão conforme necessário em sua aplicação
     bet = defaultBet;
@@ -51,14 +51,20 @@ function obterMultiplicador() {
   const jogarSubway = urlParams.get('jogarsubway');
 
   switch (jogarSubway) {
-    case '1BC':
-      return 1;
-    case '2BC':
-      return 2;
-    case '3BC':
-      return 3;
+    case '5BC':
+      return 5;
+    case '10BC':
+      return 10;
+    case '20BC':
+      return 20;
+    case '30BC':
+      return 30;
+    case '50BC':
+      return 50;
+    case '100BC':
+      return 100;
     default:
-      return 1;
+      return 5;
   }
 }
 
@@ -33179,8 +33185,8 @@ btnSair().addEventListener('click', () => {
         // O treino começa devagar e aumenta apenas um pouco durante a corrida.
         // Esta configuração nunca é usada nas rodadas valendo saldo.
         if (window.GAME_SLOW) {
-            c.baseSpeed.min = 105;
-            c.baseSpeed.max = 145;
+            c.baseSpeed.min = 145;
+            c.baseSpeed.max = 180;
         }
 
 

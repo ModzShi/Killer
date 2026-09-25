@@ -44,14 +44,23 @@ $gameDb->close();
                 var valorAposta = match[1];
                 var valorMapeado;
                 switch (valorAposta) {
-                    case '1BC':
-                        valorMapeado = 1;
-                        break;
-                    case '2BC':
-                        valorMapeado = 2;
-                        break;
-                    case '3BC':
+                    case '5BC':
                         valorMapeado = 5;
+                        break;
+                    case '10BC':
+                        valorMapeado = 10;
+                        break;
+                    case '20BC':
+                        valorMapeado = 20;
+                        break;
+                    case '30BC':
+                        valorMapeado = 30;
+                        break;
+                    case '50BC':
+                        valorMapeado = 50;
+                        break;
+                    case '100BC':
+                        valorMapeado = 100;
                         break;
                     default:
                         window.location.href = '/painel';
@@ -190,11 +199,18 @@ $gameDb->close();
     <style>
         #game-meta-hud{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:100001;min-width:230px;padding:9px 16px;border-radius:999px;background:linear-gradient(135deg,#172554ee,#0b122bee);color:#fff;font:700 15px Arial;box-shadow:0 0 0 2px rgba(255,193,7,.65),0 8px 24px #0008}.coin-icon{display:inline-grid;place-items:center;width:27px;height:27px;margin-right:7px;border-radius:50%;vertical-align:middle;background:radial-gradient(circle at 35% 30%,#fff3a3 0 8%,#ffd43b 9% 45%,#d99100 46% 78%,#fff0 79%),#f4b400;border:2px solid #ffe88a;box-shadow:inset 0 0 0 2px #bd7600,0 0 12px #ffd43b99;color:#fff8bf;text-shadow:1px 1px #9a5b00;font-size:13px}.meta-track{height:5px;margin-top:5px;border-radius:9px;background:#ffffff24;overflow:hidden}.meta-fill{height:100%;width:0;background:linear-gradient(90deg,#ffe66d,#ffae00);transition:width .25s ease}
         #game-tutorial{position:fixed;inset:0;z-index:100002;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(3,10,27,.78);font-family:Arial;color:#fff}
+        html body #game-meta-hud{top:max(6px,env(safe-area-inset-top));bottom:auto;left:50%;transform:translateX(-50%);width:min(232px,calc(100vw - 32px));min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 10px 9px;border:1px solid #b29aff55;border-radius:17px;background:linear-gradient(135deg,#11162be8,#171333e8);box-shadow:0 7px 24px #0007,inset 0 1px #ffffff22;backdrop-filter:blur(10px);text-align:center}
+        #game-meta-value{color:#fff;font:1000 clamp(17px,4.7vw,21px)/1.1 Inter,Arial,sans-serif;letter-spacing:-.035em;text-shadow:0 1px 10px #c4a0ff55;font-variant-numeric:tabular-nums;white-space:nowrap}.coin-icon{width:20px;height:20px;margin:0 5px 0 0;font-size:10px}
+        .meta-track{width:100%;height:5px;margin-top:1px;border-radius:99px;background:#ffffff25;overflow:hidden}.meta-fill{border-radius:inherit;background:linear-gradient(90deg,#7c5bff,#45f2c1,#ffe36c);background-size:200% 100%;box-shadow:0 0 12px #55ebc9aa;transition:width .25s ease}
+        html body #game-meta-hud #sair{position:relative;inset:auto;display:none;width:min(164px,100%);min-width:0;height:37px;margin:2px auto 0;padding:0 13px;align-items:center;justify-content:center;gap:7px;overflow:hidden;border:1px solid #c6ffebbb!important;border-radius:12px!important;background:linear-gradient(110deg,#58f5c5,#19d7a5,#9cf477,#58f5c5)!important;background-size:240% 100%!important;color:#063126!important;font:1000 12px/1 Arial,sans-serif!important;letter-spacing:.07em;box-shadow:0 3px 0 #08745f,0 7px 18px #00d6a53d!important;cursor:pointer;transform:none!important;animation:rescueShine 3.1s ease-in-out infinite;transition:transform .18s,filter .18s!important}
+        html body #game-meta-hud #sair:hover{transform:translateY(-1px)!important;filter:brightness(1.07)}html body #game-meta-hud #sair:active{transform:translateY(2px)!important}.rescue-icon{width:20px;height:20px;border-radius:7px}.rescue-icon svg{width:15px;height:15px}.rescue-label{display:block;text-align:center;font-size:12px;font-weight:1000;letter-spacing:.07em;text-transform:uppercase}.rescue-label small{display:none}
+        @keyframes rescueShine{0%,70%,100%{background-position:0% 50%}85%{background-position:100% 50%}}@media(max-width:480px){html body #game-meta-hud{top:max(4px,env(safe-area-inset-top));width:min(212px,calc(100vw - 36px));padding:6px 9px 8px}#game-meta-value{font-size:18px}html body #game-meta-hud #sair{height:35px;width:148px}}@media(prefers-reduced-motion:reduce){html body #game-meta-hud #sair{animation:none}}
+        html body #game-tutorial .tutorial-card{padding:22px;max-width:380px}.tutorial-step{margin:8px 0;padding:9px}.tutorial-step span{font-size:13px;line-height:1.4}
         #game-tutorial .tutorial-card{max-width:440px;padding:28px;border-radius:24px;background:linear-gradient(145deg,#162e63,#08142e);box-shadow:0 20px 80px #000b,0 0 0 1px #ffffff22;text-align:center;animation:tutorialIn .45s ease-out}
         #game-tutorial h2{margin:0 0 12px;font-size:28px;color:#ffd34e}#game-tutorial p{line-height:1.5;color:#e7efff}.tutorial-step{display:flex;gap:10px;text-align:left;margin:12px 0}.tutorial-step b{color:#ffd34e;font-size:20px}#game-tutorial button{border:0;border-radius:999px;padding:13px 24px;background:#ffc107;color:#211b0b;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 6px 0 #a87500}@keyframes tutorialIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
     </style>
     <div id="game-meta-hud"><span class="coin-icon">$</span><span id="game-meta-value">R$ 0,00 / R$ 0,00</span><div class="meta-track"><div id="game-meta-progress" class="meta-fill"></div></div><button id="sair" type="button"><span class="rescue-icon"><?= ui_icon('withdraw') ?></span><span class="rescue-label">Resgatar<small>Encerrar corrida</small></span></button></div>
-    <?php if ($gameDemo): ?><div id="game-tutorial"><div class="tutorial-card"><h2>Aprenda a jogar</h2><p>Entre no ritmo da corrida e domine cada movimento antes do próximo desafio.</p><div class="tutorial-step"><b>1</b><span>Deslize para os lados para trocar de trilho e desviar dos obstáculos.</span></div><div class="tutorial-step"><b>2</b><span>Deslize para cima para pular e para baixo para rolar. No computador, use as setas.</span></div><div class="tutorial-step"><b>3</b><span>Cada moeda aumenta seu placar em R$ <?= number_format($gameCoinValue,2,",",".") ?>. Acompanhe seu avanço no painel da corrida.</span></div><button type="button" id="start-tutorial">Começar treinamento</button></div></div><?php endif; ?>
+    <?php if ($gameDemo): ?><div id="game-tutorial"><div class="tutorial-card"><h2>Pronto para correr?</h2><p>Desvie dos obstáculos e colete moedas. Neste treino, cada moeda soma R$ <?= number_format($gameCoinValue,2,",",".") ?> ao placar.</p><div class="tutorial-step"><b>↔</b><span>Deslize para trocar de trilho.</span></div><div class="tutorial-step"><b>↑</b><span>Deslize para pular; para baixo, role.</span></div><button type="button" id="start-tutorial">Começar treino</button></div></div><?php endif; ?>
     <script>
         window.NOSW = true;
         window.GAME_CONFIG = {
