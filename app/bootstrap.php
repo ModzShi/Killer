@@ -94,7 +94,7 @@ if (PHP_SAPI !== 'cli') {
         $html = preg_replace('~</head>~i', '<link rel="stylesheet" href="'.app_escape(app_url('arquivos/mobile-polish.css')).'?v='.filemtime(SK_ROOT.'/arquivos/mobile-polish.css').'"></head>', $html, 1);
         $html = preg_replace('~<script\b[^>]*disable-devtool[^>]*>.*?</script>~is', '', $html);
         if (!empty($_SESSION['demo_account'])) {
-            $demoBanner = '<div style="position:relative;z-index:10002;padding:10px 16px;background:#163b78;color:#fff3c3;text-align:center;font:800 13px Arial;letter-spacing:.04em">CONTA DEMO · Saldo fictício · PIX e saque indisponíveis</div>';
+            $demoBanner = '<div style="position:relative;z-index:10002;padding:10px 16px;background:#163b78;color:#fff3c3;text-align:center;font:800 13px Arial;letter-spacing:.04em">CONTA DEMO · SALDO DE TREINO · PIX E SAQUE INDISPONÍVEIS</div>';
             $html = preg_replace('~(<body\b[^>]*>)~i', '$1' . $demoBanner, $html, 1);
         }
         return $html;

@@ -32197,7 +32197,7 @@ btnSair().addEventListener('click', () => {
 						if (metaProgress) metaProgress.style.width = Math.min(100, (Number(numberMoney) / Number(meta)) * 100) + '%';
     				this.distance.getText() <= t.score && this.distance.setText(t.score, 6), this.coins.setText(money), this.multiplier.text = "x" + (t.multiplier + t.missionMultiplier), this.ranking && this.ranking.update()
 			        if(numberMoney >= meta) {
-			            btnSair().style.display = 'block';
+			            btnSair().style.display = 'inline-flex';
 			        }
 			    }        
 			}

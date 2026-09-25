@@ -33,7 +33,7 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
                     Modo teste liberado
                 </div>
                 <h1 id="hero-title"><span>Subway</span> Run</h1>
-                <p class="home-hero__lead"><span>Corra pelos trilhos e desvie dos obstáculos.</span><span>Colete moedas e avance</span><span>em uma experiência feita para celular.</span></p>
+                <p class="home-hero__lead"><span>Corra pelos trilhos e desvie dos obstáculos.</span><span>Colete moedas e avance</span><span>em uma corrida eletrizante a qualquer hora.</span></p>
 
                 <div class="home-hero__actions">
                     <a class="home-button home-button--primary" href="presell/jogoteste/">
@@ -65,7 +65,7 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
                 <div class="home-game-card__footer">
                     <div>
                         <span>Treine no seu ritmo</span>
-                        <small>Valores do teste são simulados</small>
+                        <small>Treino separado do saldo da conta</small>
                     </div>
                     <a href="presell/jogoteste/" aria-label="Abrir modo teste"><?= ui_icon('arrow', 'home-svg-20') ?></a>
                 </div>
@@ -110,17 +110,17 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
                 <img src="arquivos/SubwaySurfers02.jpg" alt="Cenário de corrida entre trens">
                 <div class="home-experience__badge">
                     <?= ui_icon('spark', 'home-svg-21') ?>
-                    <div><strong>Experiência fluida</strong><span>Feita para iPhone e Android</span></div>
+                    <div><strong>Desafio em movimento</strong><span>Corra, colete e avance</span></div>
                 </div>
             </div>
             <div class="home-experience__content">
                 <span class="home-kicker">A corrida começa aqui</span>
-                <h2 id="experience-title">Visual vibrante, controles rápidos e foco total no jogo</h2>
-                <p>O Subway Run reúne uma interface limpa, tutorial completo e uma área pessoal para acompanhar suas partidas com clareza.</p>
+                <h2 id="experience-title">Cada corrida é uma nova chance de superar sua marca</h2>
+                <p>Acelere pelos trilhos, encontre o melhor caminho e acompanhe sua evolução a cada nova partida.</p>
                 <ul class="home-check-list">
-                    <li><?= ui_icon('check', 'home-svg-18') ?><span><strong>Modo teste completo</strong> para conhecer a jogabilidade.</span></li>
-                    <li><?= ui_icon('check', 'home-svg-18') ?><span><strong>Interface responsiva</strong> em telas pequenas e grandes.</span></li>
-                    <li><?= ui_icon('check', 'home-svg-18') ?><span><strong>Perfil organizado</strong> com histórico e informações da conta.</span></li>
+                    <li><?= ui_icon('check', 'home-svg-18') ?><span><strong>Treino guiado</strong> para dominar todos os movimentos.</span></li>
+                    <li><?= ui_icon('check', 'home-svg-18') ?><span><strong>Meta sempre visível</strong> durante toda a corrida.</span></li>
+                    <li><?= ui_icon('check', 'home-svg-18') ?><span><strong>Histórico completo</strong> para acompanhar cada partida.</span></li>
                 </ul>
                 <a class="home-text-link" href="presell/jogoteste/">Experimentar agora <?= ui_icon('arrow', 'home-svg-17') ?></a>
             </div>
@@ -148,7 +148,7 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
             <div class="home-faq">
                 <details open>
                     <summary>Como funciona o modo teste?<span>+</span></summary>
-                    <p>Ele apresenta os controles e a dinâmica da corrida sem exigir depósito. O saldo exibido nessa etapa é apenas uma simulação.</p>
+                    <p>Ele apresenta os controles e a dinâmica da corrida sem exigir depósito. A pontuação do treino fica separada do saldo da conta.</p>
                 </details>
                 <details>
                     <summary>Preciso criar uma conta para treinar?<span>+</span></summary>
