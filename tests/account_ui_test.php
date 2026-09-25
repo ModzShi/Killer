@@ -25,6 +25,9 @@ try {
             file_put_contents(__DIR__.'/../arquivos/qa-'.trim($route,'/').'.html',$body);
         }
     }
+    [$balanceCode,$balanceBody]=request_page('api/balance.php',$sessionId);
+    $balancePayload=json_decode($balanceBody,true);
+    account_check($balanceCode===200&&($balancePayload['ok']??false)===true&&is_string($balancePayload['formatted']??null),'Live balance endpoint returns authenticated balance');
     $user=app_query($db,'SELECT saldo_comissao FROM appconfig WHERE email=?',[$email])->get_result()->fetch_assoc();
     account_check((float)$user['saldo_comissao']===99.0,'Viewing affiliate wallet does not mutate balances');
     request_page('saque-afiliado/',$sessionId,['csrf'=>$csrf,'withdrawName'=>'Jogador de teste','withdrawCPF'=>'test@example.invalid']);

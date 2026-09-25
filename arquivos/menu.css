@@ -7,6 +7,9 @@
 .sk-brand-mark .ui-icon{width:21px;height:21px;display:block}
 .sk-brand span{overflow-wrap:anywhere;line-height:1.25}
 .sk-brand small{display:block;color:#cbd0e5;font-size:9px;letter-spacing:2px;font-weight:600;margin-top:5px}
+.sk-balance{display:flex;align-items:center;gap:9px;flex:0 0 auto;padding:8px 11px;border:1px solid #63f4d13b;border-radius:14px;background:linear-gradient(135deg,#143c42aa,#20264faa);text-decoration:none;color:#fff;box-shadow:inset 0 1px #ffffff12,0 8px 22px #0002}
+.sk-balance-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#30e8bb1c;color:#56f5ce}.sk-balance-icon .ui-icon{width:18px;height:18px}
+.sk-balance>span:last-child{display:grid;gap:2px;line-height:1.05}.sk-balance small{color:#9ca9c9;font-size:8px;font-weight:750;letter-spacing:.07em;text-transform:uppercase}.sk-balance strong{color:#fff;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}.sk-balance:hover{border-color:#63f4d178;background:linear-gradient(135deg,#185057cc,#283064cc)}
 .sk-navigation{display:flex;align-items:center;gap:7px}
 .sk-header a{transition:background .18s,color .18s,transform .18s}
 .sk-link,.sk-exit{display:inline-flex;align-items:center;gap:7px;padding:12px 13px;border-radius:11px;font-size:13px;font-weight:700;text-decoration:none;color:#dce2f7;white-space:nowrap}
@@ -22,7 +25,7 @@
 .sk-toggle span{display:block;height:2px;margin:4px 0;background:#fff;border-radius:2px;transition:transform .18s,opacity .18s}
 @media(max-width:1100px){
  .sk-header-inner{flex-wrap:wrap;gap:0;padding:14px 20px;min-height:76px}
- .sk-brand{max-width:calc(100% - 62px);font-size:18px}
+ .sk-brand{max-width:calc(100% - 210px);font-size:18px}
  .sk-brand-mark{width:40px;height:40px}
  .sk-header.sk-enhanced .sk-toggle{display:block}
  .sk-navigation{width:100%;align-items:stretch;flex-direction:column;gap:6px;padding-top:16px;margin-top:14px;border-top:1px solid #ffffff16}
@@ -39,11 +42,13 @@
  body:has(.sk-header--logged){padding-bottom:82px!important}
  .sk-header--logged{position:sticky;top:0;backdrop-filter:none}
  .sk-header--logged .sk-header-inner{min-height:68px;padding:10px 15px;flex-wrap:nowrap}
- .sk-header--logged .sk-brand{font-size:16px;max-width:calc(100% - 54px)}
+ .sk-header--logged .sk-brand{font-size:15px;max-width:none;flex:1 1 auto}
  .sk-header--logged .sk-brand-mark{width:38px;height:38px;border-radius:12px}
  .sk-header--logged .sk-brand small{font-size:7px;letter-spacing:1.5px;margin-top:3px}
+ .sk-header--logged .sk-balance{order:2;padding:7px 9px;gap:7px;border-radius:12px}
+ .sk-header--logged .sk-balance-icon{width:29px;height:29px}.sk-header--logged .sk-balance small{font-size:7px}.sk-header--logged .sk-balance strong{font-size:12px}
  .sk-header--logged.sk-enhanced .sk-toggle{display:none}
- .sk-mobile-exit{width:40px;height:40px;display:grid;place-items:center;flex:0 0 auto;border:1px solid #ffffff18;border-radius:12px;background:#ffffff08;color:#b8c2df}
+ .sk-mobile-exit{order:3;width:40px;height:40px;display:grid;place-items:center;flex:0 0 auto;border:1px solid #ffffff18;border-radius:12px;background:#ffffff08;color:#b8c2df}
  .sk-mobile-exit .ui-icon{width:19px;height:19px}
  .sk-header--logged .sk-navigation,.sk-header--logged.sk-enhanced .sk-navigation,.sk-header--logged.sk-open .sk-navigation{position:fixed;left:0;right:0;bottom:0;z-index:1100;width:100%;height:76px;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;gap:2px;margin:0;padding:7px max(7px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left));border-top:1px solid #ffffff1c;background:rgba(9,11,27,.97);box-shadow:0 -14px 40px #0007;backdrop-filter:blur(18px);overflow:visible}
  .sk-header--logged .sk-link,.sk-header--logged .sk-cta{min-width:0;min-height:58px;margin:0;padding:7px 2px;display:flex;flex-direction:column;gap:4px;border:0;border-radius:13px;background:transparent;box-shadow:none;color:#8f9abb;font-size:9px;font-weight:800;line-height:1.05}
@@ -53,4 +58,5 @@
  .sk-header--logged .sk-cta:hover{transform:translateY(-15px)}
  .sk-header--logged .sk-exit{display:none}
 }
+@media(max-width:390px){.sk-header--logged .sk-brand>span:last-child{display:none}.sk-header--logged .sk-brand{flex:1 1 auto}.sk-header--logged .sk-balance-icon{display:none}.sk-header--logged .sk-balance{padding-inline:10px}}
 @media(prefers-reduced-motion:reduce){.sk-header a,.sk-toggle span{transition:none}}

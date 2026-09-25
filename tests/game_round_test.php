@@ -2,7 +2,7 @@
 if(PHP_SAPI!=='cli'){http_response_code(404);exit;}
 require dirname(__DIR__).'/app/game.php';
 $db=app_db();
-$db->query("CREATE TEMPORARY TABLE game_settings(id TINYINT PRIMARY KEY,difficulty VARCHAR(16) DEFAULT 'medio',meta_multiplier DECIMAL(8,2) DEFAULT 10,coin_value_demo DECIMAL(8,2) DEFAULT 0.50,coin_value_paid DECIMAL(8,2) DEFAULT 0.03) ENGINE=InnoDB");
+$db->query("CREATE TEMPORARY TABLE game_settings(id TINYINT PRIMARY KEY,difficulty VARCHAR(16) DEFAULT 'medio',meta_multiplier DECIMAL(8,2) DEFAULT 10,coin_value_demo DECIMAL(8,2) DEFAULT 0.35,coin_value_paid DECIMAL(8,2) DEFAULT 0.03) ENGINE=InnoDB");
 $db->query("CREATE TEMPORARY TABLE appconfig(id VARCHAR(255),email VARCHAR(255),saldo DECIMAL(12,2),total_apostado DECIMAL(12,2),ganhos DECIMAL(12,2),percas DECIMAL(12,2)) ENGINE=InnoDB");
 $db->query("CREATE TEMPORARY TABLE game_rounds(token CHAR(64) PRIMARY KEY,email VARCHAR(255),bet DECIMAL(12,2),max_payout DECIMAL(12,2),status VARCHAR(16) DEFAULT 'PLAYING',payout DECIMAL(12,2),created_at DATETIME DEFAULT CURRENT_TIMESTAMP,settled_at DATETIME NULL) ENGINE=InnoDB");
 $db->query("INSERT INTO appconfig VALUES('1','test@example.test',10,0,0,0)");
@@ -28,6 +28,6 @@ try{game_settle($db,'other@example.test',$token,'WIN',1);check_game(false,'Round
 $_SESSION['demo_account']=true;
 $demoToken=game_start($db,'test@example.test','1BC');
 $demo=app_query($db,'SELECT coin_value FROM game_rounds WHERE token=?',[$demoToken])->get_result()->fetch_assoc();
-check_game((float)$demo['coin_value']===0.50,'Demo accounts use the independent 50-cent value');
+check_game((float)$demo['coin_value']===0.35,'Demo accounts use the independent 35-cent value');
 unset($_SESSION['demo_account']);
 $db->close();

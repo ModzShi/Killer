@@ -67,7 +67,7 @@ $bets = [
                     <a href="<?= app_url('perfil/') ?>">Ver perfil <?= ui_icon('arrow') ?></a>
                 </div>
                 <small>Saldo disponível</small>
-                <strong><?= account_money($balance) ?></strong>
+                <strong data-live-balance><?= account_money($balance) ?></strong>
                 <div class="player-wallet__actions">
                     <?php if (!$isDemo): ?>
                         <a class="player-action player-action--primary" href="<?= app_url('deposito/') ?>"><?= ui_icon('deposit') ?> Depositar</a>

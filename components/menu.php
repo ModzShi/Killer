@@ -10,14 +10,25 @@ $menuLinks = $menuLoggedIn
     ? ['painel/' => 'Jogar', 'saque/' => 'Sacar', 'afiliate/' => 'Afiliado', 'perfil/' => 'Perfil']
     : ['presell/jogoteste/' => 'Jogar agora', 'login/' => 'Entrar'];
 $menuEscape = static function ($value) { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); };
+$menuBalanceValue = null;
+if ($menuLoggedIn && !empty($_SESSION['email'])) {
+    try {
+        require_once __DIR__ . '/../app/auth.php';
+        $menuBalanceDb = app_db();
+        $menuBalanceRow = app_query($menuBalanceDb, 'SELECT saldo FROM appconfig WHERE email=? LIMIT 1', [(string) $_SESSION['email']])->get_result()->fetch_assoc();
+        if ($menuBalanceRow) $menuBalanceValue = (float) $menuBalanceRow['saldo'];
+        $menuBalanceDb->close();
+    } catch (Throwable $ignored) {}
+}
 ?>
 <link rel="stylesheet" href="<?= $menuEscape($menuBase) ?>arquivos/menu.css?v=<?= filemtime(__DIR__.'/../arquivos/menu.css') ?>">
-<header class="sk-header<?= $menuLoggedIn ? ' sk-header--logged' : '' ?>">
+<header class="sk-header<?= $menuLoggedIn ? ' sk-header--logged' : '' ?>"<?= $menuLoggedIn ? ' data-balance-url="' . $menuEscape($menuBase . 'api/balance.php') . '"' : '' ?>>
     <div class="sk-header-inner">
         <a class="sk-brand" href="<?= $menuEscape($menuBase . ($menuLoggedIn ? 'painel/' : '')) ?>" aria-label="Página inicial">
             <span class="sk-brand-mark" aria-hidden="true"><?= ui_icon('play') ?></span>
         <span>Subway Run<small>PLAY. RUN. REPEAT.</small></span>
         </a>
+        <?php if ($menuLoggedIn): ?><a class="sk-balance" href="<?= $menuEscape($menuBase) ?>painel/" aria-label="Saldo disponível"><span class="sk-balance-icon"><?= ui_icon('wallet') ?></span><span><small>Saldo disponível</small><strong data-live-balance><?= $menuBalanceValue === null ? 'R$ --' : 'R$ ' . number_format($menuBalanceValue, 2, ',', '.') ?></strong></span></a><?php endif; ?>
         <button class="sk-toggle" type="button" aria-expanded="false" aria-controls="sk-navigation" aria-label="Abrir menu" hidden>
             <span></span><span></span><span></span>
         </button>
