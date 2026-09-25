@@ -21,6 +21,9 @@ function ui_icon(string $name, string $class=''): string {
         'sound'=>'<path d="m11 4-6 5H2v6h3l6 5Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
         'muted'=>'<path d="m11 4-6 5H2v6h3l6 5Zm5 6 5 5m0-5-5 5"/>',
         'help'=>'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 5 2c-2 1-2 2-2 3m0 3h.01"/>',
+        'edit'=>'<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4M3 21h18"/>',
+        'eye'=>'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+        'search'=>'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
     ];
     return '<svg class="ui-icon '.htmlspecialchars($class,ENT_QUOTES,'UTF-8').'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.($paths[$name]??$paths['spark']).'</svg>';
 }

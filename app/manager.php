@@ -9,6 +9,8 @@ function manager_install(mysqli $db): void {
     $db->query("CREATE TABLE IF NOT EXISTS manager_demo_balance_log (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, manager_id INT UNSIGNED NOT NULL, email VARCHAR(254) NOT NULL, old_balance DECIMAL(12,2) NOT NULL, new_balance DECIMAL(12,2) NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, INDEX(manager_id,created_at), INDEX(email)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $db->query("CREATE TABLE IF NOT EXISTS manager_commissions (reference VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY, partner_id INT UNSIGNED NOT NULL, manager_id INT UNSIGNED NOT NULL, deposit_amount DECIMAL(12,2) NOT NULL, manager_percent DECIMAL(5,2) NOT NULL, influencer_percent DECIMAL(5,2) NOT NULL, manager_amount DECIMAL(12,2) NOT NULL, influencer_amount DECIMAL(12,2) NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, INDEX(manager_id), INDEX(partner_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $db->query("CREATE TABLE IF NOT EXISTS manager_payout_requests (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, manager_id INT UNSIGNED NOT NULL, amount DECIMAL(12,2) NOT NULL, pix_key VARCHAR(77) NOT NULL, status VARCHAR(16) NOT NULL DEFAULT 'PENDING', created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, processed_at DATETIME NULL, processed_by VARCHAR(254) NULL, INDEX(manager_id,status), INDEX(status,created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $demoNameColumn = $db->query("SHOW COLUMNS FROM manager_demos LIKE 'display_name'")->fetch_assoc();
+    if (!$demoNameColumn) $db->query("ALTER TABLE manager_demos ADD display_name VARCHAR(120) NOT NULL DEFAULT 'Conta demo' AFTER manager_id");
 }
 function manager_referral_record(mysqli $db,string $email,string $code): void {
     if (!preg_match('/^[a-f0-9]{24}$/D',$code)) return;
@@ -55,9 +57,39 @@ function manager_demo_create(mysqli $db,int $managerId,string $email,string $pas
     $phone='119'.str_pad((string)random_int(0,99999999),8,'0',STR_PAD_LEFT);
     app_register($db,['email'=>$email,'senha'=>$password,'password_confirmation'=>$password,'telefone_confirmation'=>$phone],'','',$managerId);
 }
+function manager_demo_create_auto(mysqli $db,int $managerId): array {
+    $suffix=bin2hex(random_bytes(5));
+    $email='demo-'.$managerId.'-'.$suffix.'@subwayrun.demo';
+    $alphabet='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+    $password='SR!';
+    for($i=0;$i<11;$i++) $password.=$alphabet[random_int(0,strlen($alphabet)-1)];
+    manager_demo_create($db,$managerId,$email,$password);
+    $name='Conta demo '.strtoupper(substr($suffix,-4));
+    app_query($db,'UPDATE manager_demos SET display_name=? WHERE manager_id=? AND email=?',[$name,(string)$managerId,$email]);
+    app_query($db,'UPDATE appconfig SET nome=? WHERE email=? AND demo=1',[$name,$email]);
+    return ['name'=>$name,'email'=>$email,'password'=>$password];
+}
+function manager_demo_update(mysqli $db,int $managerId,string $email,string $name,string $balance,string $password=''): void {
+    $email=strtolower(trim($email));
+    $name=trim($name);
+    if(strlen($name)<2||strlen($name)>120) throw new InvalidArgumentException('Informe um nome entre 2 e 120 caracteres.');
+    if(!preg_match('/^(?:0|[1-9][0-9]{0,5})(?:\.[0-9]{1,2})?$/D',$balance)) throw new InvalidArgumentException('Informe um saldo entre R$ 0,00 e R$ 999.999,99.');
+    if($password!==''&&(strlen($password)<8||strlen($password)>72)) throw new InvalidArgumentException('A nova senha deve ter de 8 a 72 caracteres.');
+    $newBalance=number_format((float)$balance,2,'.','');
+    $db->begin_transaction();
+    try {
+        $row=app_query($db,'SELECT a.saldo FROM manager_demos d JOIN appconfig a ON a.email COLLATE utf8mb4_unicode_ci=d.email COLLATE utf8mb4_unicode_ci WHERE d.manager_id=? AND d.email=? AND a.demo=1 FOR UPDATE',[(string)$managerId,$email])->get_result()->fetch_assoc();
+        if(!$row) throw new InvalidArgumentException('Conta demo não encontrada para este gerente.');
+        app_query($db,'UPDATE manager_demos SET display_name=? WHERE manager_id=? AND email=?',[$name,(string)$managerId,$email]);
+        app_query($db,'UPDATE appconfig SET nome=?,saldo=? WHERE email=? AND demo=1',[$name,$newBalance,$email]);
+        if($password!=='') app_query($db,'UPDATE appconfig SET senha=? WHERE email=? AND demo=1',[password_hash($password,PASSWORD_DEFAULT),$email]);
+        if((float)$row['saldo']!==(float)$newBalance) app_query($db,'INSERT INTO manager_demo_balance_log(manager_id,email,old_balance,new_balance) VALUES(?,?,?,?)',[(string)$managerId,$email,(string)$row['saldo'],$newBalance]);
+        $db->commit();
+    } catch(Throwable $error) { $db->rollback(); throw $error; }
+}
 function manager_demo_set_balance(mysqli $db,int $managerId,string $email,string $amount): void {
     $email=strtolower(trim($email));
-    if(!preg_match('/^(?:0|[1-9][0-9]{0,5})(?:\.[0-9]{1,2})?$/D',$amount)) throw new InvalidArgumentException('Informe um saldo fictício entre R$ 0,00 e R$ 999.999,99.');
+    if(!preg_match('/^(?:0|[1-9][0-9]{0,5})(?:\.[0-9]{1,2})?$/D',$amount)) throw new InvalidArgumentException('Informe um saldo de treino entre R$ 0,00 e R$ 999.999,99.');
     $newBalance=number_format((float)$amount,2,'.','');
     $db->begin_transaction();
     try {
