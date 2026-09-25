@@ -47,3 +47,4 @@ if ($menuLoggedIn && !empty($_SESSION['email'])) {
     </div>
 </header>
 <script src="<?= $menuEscape($menuBase) ?>arquivos/menu.js?v=<?= filemtime(__DIR__.'/../arquivos/menu.js') ?>" defer></script>
+<?php if($menuLoggedIn)require __DIR__.'/payout-toast.php'; ?>

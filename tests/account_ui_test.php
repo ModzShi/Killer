@@ -16,6 +16,9 @@ function account_check(bool $ok,string $name):void{if(!$ok)throw new RuntimeExce
 try {
     app_register($db,['email'=>$email,'senha'=>$password,'password_confirmation'=>$password,'telefone_confirmation'=>'11900000000'],'');
     app_query($db,'UPDATE appconfig SET nome=?,comissaofake=25.50,saldo_comissao=99 WHERE email=?',['Jogador de teste',$email]);
+    $payoutReference='ui-paid-'.bin2hex(random_bytes(5));$pendingReference='ui-pending-'.bin2hex(random_bytes(5));$now=date('d-m-Y H:i:s');
+    app_query($db,"INSERT INTO saques(email,externalreference,destino,chavepix,data,valor,status) VALUES(?,?,?,?,?,87.65,'PAID')",[$email,$payoutReference,'Marina Oliveira','00000000000',$now]);
+    app_query($db,"INSERT INTO saques(email,externalreference,destino,chavepix,data,valor,status) VALUES(?,?,?,?,?,999.99,'Processando')",[$email,$pendingReference,'Registro Pendente','00000000000',$now]);
     foreach(['afiliate/'=>'Sua rede, suas conquistas.','perfil/'=>'Histórico de','saque-afiliado/'=>'Sacar comissão','painel/'=>'Treinar','deposito/'=>'</html>','saque/'=>'</html>'] as $route=>$expected){
         [$code,$body]=request_page($route,$sessionId);
         account_check($code===200&&str_contains($body,$expected)&&!preg_match('/Warning|Fatal error|Deprecated/',$body),'Authenticated page renders: '.$route);
@@ -25,6 +28,8 @@ try {
             file_put_contents(__DIR__.'/../arquivos/qa-'.trim($route,'/').'.html',$body);
         }
     }
+    [$activityCode,$activityBody]=request_page('painel/',$sessionId);
+    account_check($activityCode===200&&str_contains($activityBody,'Marina O.')&&str_contains($activityBody,'R$ 87,65')&&!str_contains($activityBody,'Registro Pendente'),'Payout activity uses only verified withdrawals');
     [$balanceCode,$balanceBody]=request_page('api/balance.php',$sessionId);
     $balancePayload=json_decode($balanceBody,true);
     account_check($balanceCode===200&&($balancePayload['ok']??false)===true&&is_string($balancePayload['formatted']??null),'Live balance endpoint returns authenticated balance');
@@ -36,6 +41,7 @@ try {
     account_check((int)$row['n']===1&&(float)$row['amount']===25.50,'Duplicate submission reserves commission only once');
     [$code,$body]=request_page('perfil/','');account_check($code===302,'Profile requires authentication');
 }finally{
+    if(isset($payoutReference))app_query($db,'DELETE FROM saques WHERE externalreference IN (?,?)',[$payoutReference,$pendingReference]);
     app_query($db,'DELETE FROM saque_afiliado WHERE email=?',[$email]);
     app_query($db,'DELETE FROM appconfig WHERE email=?',[$email]);
     session_id($sessionId);session_start();session_destroy();$db->close();
