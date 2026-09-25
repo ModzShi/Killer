@@ -1,0 +1,109 @@
+<?php
+require_once __DIR__ . '/../app/bootstrap.php';
+
+
+include "./../conectarbanco.php";
+
+$conn = new mysqli($config['db_host'] ?? 'localhost',
+    $config["db_user"],
+    $config["db_pass"],
+    $config["db_name"]
+);
+
+if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+
+if (!isset($_SESSION["email"])) {
+    header("Location: ../");
+
+    exit();
+} elseif ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    exit();
+}
+
+$session = $_POST["session"];
+
+$action = $_GET["action"];
+
+$type = $_GET["type"];
+
+$bet = $_GET["bet"];
+
+$acumulado = $_GET["val"];
+
+if ($action == "game" && $type == "demo") {
+    /* log removido */
+
+    http_response_code(200);
+
+    exit();
+} elseif ($action != "game" || $type != "lose") {
+    /* log removido */
+
+    http_response_code(500);
+
+    exit();
+}
+
+$email = isset($_SESSION["email"]) ? $_SESSION["email"] : "";
+
+$updateStmt = $conn->prepare("UPDATE ggr SET total_percas = total_percas + ?");
+
+$updateStmt->bind_param("d", $bet);
+
+$updateStmt->execute();
+
+$updateStmt = $conn->prepare(
+    "UPDATE ggr SET ggr_total = total_percas*0.08, debito_ggr = total_percas*0.08 - ggr_pago"
+);
+
+$updateStmt->execute();
+
+$sqlGGR = sprintf("SELECT * FROM ggr limit 1");
+
+$resultGGR = $conn->query($sqlGGR);
+
+$GGR = $resultGGR->fetch_assoc();
+
+$debito = floatval($GGR["debito_ggr"]);
+
+$credito = floatval($GGR["credito_ggr"]);
+
+$pago = floatval($GGR["ggr_pago"]);
+
+if ($debito > 0) {
+    if ($credito > 0) {
+        if ($debito > $credito) {
+            $pago = $pago + $credito;
+
+            $debito = $debito - $credito;
+
+            $credito = 0;
+        } else {
+            $credito = $credito - $debito;
+
+            $pago = $pago + $debito;
+
+            $debito = 0;
+        }
+
+        $conn->query(sprintf("UPDATE ggr SET debito_ggr = '$debito'"));
+
+        $conn->query(sprintf("UPDATE ggr SET credito_ggr = '$credito'"));
+
+        $conn->query(sprintf("UPDATE ggr SET ggr_pago = '$pago'"));
+    }
+}
+
+if ($pago < $debito) {
+    $conn->query(sprintf("UPDATE ggr SET status_ggr = 'IRREGULAR'"));
+} else {
+    $conn->query(sprintf("UPDATE ggr SET status_ggr = 'REGULAR'"));
+}
+
+/* log removido */
+
+http_response_code(200);
+
+exit();
+
+?>

@@ -1,0 +1,1 @@
+(()=>{const el=document.querySelector('[data-online-count]');if(!el)return;let value=7083;const render=()=>{el.textContent=value.toLocaleString('pt-BR')};render();setInterval(()=>{if(document.hidden)return;value=Math.max(6500,Math.min(7800,value+Math.floor(Math.random()*19)-9));render()},5000)})();

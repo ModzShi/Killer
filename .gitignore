@@ -1,0 +1,63 @@
+# Configurações locais e credenciais
+.env
+.env.*
+!.env.example
+conectarbanco.php
+config/local.php
+config/local.*.php
+config/secrets.php
+config/credentials.php
+
+# Bancos, exportações e cópias de segurança
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.backup
+*.backup.*
+*.dump
+
+# Chaves, certificados privados e credenciais
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+credentials.json
+service-account*.json
+auth.json
+
+# Arquivos temporários, logs e sessões
+*.log
+logs/
+log/
+tmp/
+temp/
+cache/
+sessions/
+*.tmp
+*.swp
+*.swo
+
+# Dependências reconstruíveis
+vendor/
+node_modules/
+
+# Cobertura e saídas de teste
+coverage/
+.phpunit.cache/
+.phpunit.result.cache
+homepage-*.png
+
+# Editores e sistema operacional
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Pacotes locais de publicação
+*.zip
+*.tar
+*.tar.gz

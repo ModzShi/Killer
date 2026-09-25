@@ -1,0 +1,21 @@
+body.sk-admin{background:#0a0c1a;color:#edf0ff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.sk-admin .page-wrapper,.sk-admin .container-fluid{background:radial-gradient(ellipse at top right,#25204e 0,transparent 48%),#0b0d1c;color:#e9ebfb}
+.sk-admin .topbar,.sk-admin .left-sidebar,.sk-admin .navbar,.sk-admin .sidebar-nav{background:#111427!important;border-color:#42355f!important}
+.sk-admin .topbar{border-bottom:1px solid #ffffff17}.sk-admin .left-sidebar{border-right:1px solid #ffffff17;box-shadow:8px 0 30px #0003}
+.sk-admin .sidebar-nav a{transition:background .18s,color .18s,transform .18s}.sk-admin .sidebar-nav a:hover,.sk-admin .sidebar-nav .active>a{background:#342556!important;color:#fff!important;transform:translateX(3px)}
+.sk-admin .card,.sk-admin .modal-content,.sk-admin .dropdown-menu,.sk-admin .list-group-item{border:1px solid #4b3c75!important;border-radius:17px!important;background:linear-gradient(145deg,#1c2039,#14172c)!important;color:#eef0ff;box-shadow:0 15px 38px #0004}
+.sk-admin .card-hover{transition:transform .2s,box-shadow .2s!important}.sk-admin .card-hover:hover{transform:translateY(-4px);box-shadow:0 20px 38px #0006,0 0 22px #7140e833!important}
+.sk-admin .card-title,.sk-admin h1,.sk-admin h2,.sk-admin h3,.sk-admin h4,.sk-admin h5,.sk-admin label{color:#fff}.sk-admin p,.sk-admin small,.sk-admin .text-muted{color:#b9c0db!important}
+.sk-admin .form-control,.sk-admin .custom-select,.sk-admin select,.sk-admin textarea{border:1px solid #594982!important;border-radius:10px!important;background:#11152a!important;color:#fff!important}.sk-admin .form-control:focus,.sk-admin select:focus,.sk-admin textarea:focus{border-color:#ad8cff!important;box-shadow:0 0 0 3px #8c55ff32!important}
+.sk-admin .btn-primary,.sk-admin .btn-success{border:1px solid #ffffff61!important;border-radius:11px!important;background:linear-gradient(110deg,#13d68a,#06ac9b)!important;color:#082420!important;font-weight:800;box-shadow:0 4px 0 #087660;transition:transform .18s,filter .18s}.sk-admin .btn-primary:hover,.sk-admin .btn-success:hover{transform:translateY(-3px);filter:brightness(1.1)}
+.sk-admin .btn-secondary,.sk-admin .btn-info{border:1px solid #8e6fda!important;border-radius:10px!important;background:#332554!important;color:#eee5ff!important}
+.sk-admin table,.sk-admin .table{color:#e8ebfc}.sk-admin th,.sk-admin td{border-color:#ffffff1d!important}.sk-admin thead{background:#27203f;color:#ffdf74}.sk-admin tbody tr:hover{background:#ffffff08}.sk-admin .breadcrumb,.sk-admin .breadcrumb-item,.sk-admin .page-link{background:#1b1c34;color:#c9cced}
+.sk-admin :is(a,button,input,select,textarea):focus-visible{outline:3px solid #ffde76!important;outline-offset:3px}
+.sk-admin .card .box{border-radius:16px!important;padding:26px 22px!important;background:radial-gradient(ellipse at top right,#7760d433,transparent 70%),linear-gradient(135deg,#19253e,#17182f)!important;border-top:2px solid #8d7ce4;min-height:146px;overflow-wrap:anywhere}
+.sk-admin .card .box.bg-success{border-top-color:#48dfb4;background:radial-gradient(ellipse at top right,#26ad9a33,transparent 70%),linear-gradient(135deg,#142f37,#17182f)!important}
+.sk-admin .card .box.bg-warning,.sk-admin .card .box.bg-danger{border-top-color:#ffc47b;background:radial-gradient(ellipse at top right,#b7863533,transparent 70%),linear-gradient(135deg,#30283d,#17182f)!important}
+.sk-admin .card .box h1{font-size:clamp(25px,5vw,34px);font-weight:800;line-height:1.25}
+.sk-admin .card .box :is(h4,h6){font-size:15px;letter-spacing:.02em;color:#e0e7fb!important}
+.sk-admin .card-body a,.sk-admin .font-medium{color:#dad5ff!important}.sk-admin .list-style-none{padding-left:0}
+@media(prefers-reduced-motion:reduce){.sk-admin *{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+.sk-admin .ui-icon{display:inline-block;width:23px;height:23px;vertical-align:middle;flex-shrink:0;color:#b9d6ff}.sk-admin .sidebar-link>.ui-icon{margin-right:12px}.sk-admin .card :is(p,small,td,a){color:#dae4f8!important}

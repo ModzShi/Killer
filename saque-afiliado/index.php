@@ -1,0 +1,1 @@
+<?php require __DIR__.'/../app/affiliate_withdraw_page.php';
