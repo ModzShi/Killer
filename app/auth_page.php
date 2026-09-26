@@ -10,9 +10,10 @@ try {
         if (!app_check_csrf()) { http_response_code(403); $error = 'O formulário expirou. Tente novamente.'; }
         elseif (($_SESSION['auth_wait_until'] ?? 0) > time()) { http_response_code(429); $error = 'Aguarde um minuto antes de tentar novamente.'; }
         else {
-            if ($register) $email = app_register($db, ['email'=>$email,'senha'=>app_input('senha'),'telefone_confirmation'=>$phone,'password_confirmation'=>app_input('password_confirmation')], is_string($_GET['aff']??null) ? $_GET['aff'] : '', is_string($_GET['ref']??null) ? $_GET['ref'] : '');
+            if ($register) $email = app_register($db, ['email'=>$email,'senha'=>app_input('senha'),'telefone_confirmation'=>$phone,'password_confirmation'=>app_input('password_confirmation')], is_string($_GET['aff']??null) ? $_GET['aff'] : (string)($_SESSION['landing_affiliate']??''), is_string($_GET['ref']??null) ? $_GET['ref'] : (string)($_SESSION['landing_manager_code']??''));
             if (app_signin($db, strtolower($email), app_input('senha'), $admin)) {
                 unset($_SESSION['auth_failures'], $_SESSION['auth_wait_until']);
+                if ($register) unset($_SESSION['landing_affiliate'], $_SESSION['landing_manager_code']);
                 header('Location: ' . $destination, true, 303); exit;
             }
             $_SESSION['auth_failures'] = ($_SESSION['auth_failures'] ?? 0) + 1;

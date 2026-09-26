@@ -28,7 +28,7 @@ class BXPay
     protected function transport(string $path, array $payload, string $method): array
     {
         if (defined('SK_OFFLINE') && SK_OFFLINE) return ['body' => '', 'code' => 503];
-        if (!extension_loaded('curl')) return ['body' => '', 'code' => 0];
+        if (!extension_loaded('curl')) return ['body' => '', 'code' => 0, 'transport_error' => 'curl_missing'];
         if ($this->handle === null) {
             $this->handle = curl_init();
             curl_setopt($this->handle, CURLOPT_COOKIEFILE, '');
@@ -53,7 +53,9 @@ class BXPay
     {
         $response = $this->transport($path, $payload, $method);
         $code = $response['code'];
-        if ($code === 0) return $this->error('Falha de conexão com a BX Pay. Confira a operação no painel antes de tentar novamente.');
+        if ($code === 0) return $this->error(($response['transport_error'] ?? '') === 'curl_missing'
+            ? 'A extensão cURL do PHP não está ativa neste servidor.'
+            : 'Não foi possível abrir uma conexão HTTPS com a BX Pay. Confira o cURL, o certificado SSL e o acesso de saída da hospedagem.');
         if ($code === 401) $this->authenticated = false;
         if ($code < 200 || $code >= 300) {
             return $this->error($code === 429 ? 'Limite de consultas atingido. Aguarde antes de tentar novamente.' : 'A BX Pay recusou a operação (HTTP ' . $code . '). Confira os dados e as permissões da conta.', $code);
@@ -75,14 +77,27 @@ class BXPay
         if ($this->clientId === '' || $this->clientSecret === '') return $this->error('Configure o Client ID e o Client Secret da BX Pay.');
         $result = $this->request('/api/auth/login.php', ['client_id' => $this->clientId, 'client_secret' => $this->clientSecret]);
         if (!empty($result['_error'])) return $result;
-        if (($result['authenticated'] ?? false) !== true || (int) ($result['statusCode'] ?? 0) !== 200) return $this->error('A BX Pay não confirmou a autenticação.');
+        $result['authenticated'] = filter_var($result['authenticated'] ?? ($result['data']['authenticated'] ?? false), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === true;
+        $result['statusCode'] = $result['statusCode'] ?? ($result['_http_code'] ?? 0);
+        if (($result['authenticated'] ?? false) !== true || (int) ($result['statusCode'] ?? 0) !== 200) {
+            return $this->error('A BX Pay respondeu, mas não confirmou a autenticação. Confira o formato de resposta/API habilitada com o suporte da BX Pay.', (int) ($result['_http_code'] ?? 0));
+        }
         $this->authenticated = true;
         return [];
     }
     public function consultarSaldo(): array
     {
         $auth = $this->authenticate();
-        return $auth ?: $this->request('/api/user/balance.php', [], 'GET');
+        if ($auth) return $auth;
+        $result = $this->request('/api/user/balance.php', [], 'GET');
+        if (!empty($result['_error'])) return $result;
+        $balance = $result['balance'] ?? ($result['data']['balance'] ?? ($result['available'] ?? null));
+        if (is_array($balance)) $balance = $balance['available'] ?? ($balance['balance'] ?? ($balance['amount'] ?? null));
+        if (is_numeric($balance) && is_finite((float) $balance)) {
+            $result['balance'] = (float) $balance;
+            return $result;
+        }
+        return $this->error('A BX Pay respondeu, mas o saldo veio em um formato que o teste não reconhece.', (int) ($result['_http_code'] ?? 200));
     }
     public function listarTransacoes(int $page = 1, int $limit = 10): array
     {

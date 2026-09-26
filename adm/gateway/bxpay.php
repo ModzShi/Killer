@@ -31,14 +31,26 @@ try {
             else {
             $result = (new BXPay($saved))->consultarSaldo();
             $success = empty($result['_error']) && is_numeric($result['balance'] ?? null);
-            $message = $success ? 'Conexão confirmada! As credenciais foram aceitas pela BX Pay.' : ($result['_message'] ?? 'Não foi possível confirmar a conexão.');
+            if ($success) {
+                $message = 'Conexão confirmada. A BX Pay aceitou as credenciais e retornou o saldo.';
+            } else {
+                $httpCode = (int) ($result['_http_code'] ?? 0);
+                $message = match ($httpCode) {
+                    401 => 'A BX Pay recusou a autenticação (HTTP 401). Confira se Client ID e Client Secret são do mesmo ambiente e estão ativos.',
+                    403 => 'A BX Pay negou permissão (HTTP 403). Confira se a conta tem acesso à API e se o IP/domínio está autorizado.',
+                    404 => 'A BX Pay não encontrou o endpoint consultado (HTTP 404). Confirme com o suporte da BX Pay a URL e a versão corretas da API.',
+                    429 => 'A BX Pay limitou as consultas (HTTP 429). Aguarde um pouco e tente novamente.',
+                    0 => $result['_message'] ?? 'Não houve resposta da BX Pay. Confira se a hospedagem permite conexões HTTPS de saída e se o cURL/SSL está ativo.',
+                    default => 'A BX Pay não confirmou o teste (HTTP ' . $httpCode . '). ' . ($result['_message'] ?? 'Confira as credenciais, o ambiente e as permissões da API.'),
+                };
+            }
             }
         } elseif (($_POST['action'] ?? '') === 'save') {
             $clientId = trim(is_string($_POST['client_id'] ?? null) ? $_POST['client_id'] : '');
             $secret = trim(is_string($_POST['client_secret'] ?? null) ? $_POST['client_secret'] : '');
             if ($secret === '' && $clientId === ($saved['client_id'] ?? '')) $secret = $saved['client_secret'] ?? '';
-            if (!preg_match('/^pk_\S{1,252}$/D', $clientId) || !preg_match('/^sk_\S{1,252}$/D', $secret)) {
-                $message = 'Informe o Client ID (pk_) e o Client Secret (sk_) da mesma credencial.';
+            if ($clientId === '' || $secret === '' || strlen($clientId) > 255 || strlen($secret) > 255 || preg_match('/\s/', $clientId . $secret)) {
+                $message = 'Informe o Client ID e o Client Secret válidos, sem espaços, da mesma conta BX Pay.';
             } else {
                 $db->begin_transaction();
                 $statement = $db->prepare('INSERT INTO bxpay_config (id, client_id, client_secret) VALUES (1, ?, ?) ON DUPLICATE KEY UPDATE client_id = VALUES(client_id), client_secret = VALUES(client_secret)');
@@ -89,8 +101,8 @@ $escape = static function ($value) { return htmlspecialchars($value, ENT_QUOTES,
             <form method="post">
                 <input type="hidden" name="csrf" value="<?= $escape($_SESSION['bxpay_csrf']) ?>">
                 <label for="base-url">Endereço da API</label><input id="base-url" value="https://bxpay.shop" readonly>
-                <label for="client-id">Client ID</label><input id="client-id" name="client_id" placeholder="pk_..." autocomplete="off" maxlength="255" value="<?= $escape($saved['client_id'] ?? '') ?>" required>
-                <label for="client-secret">Client Secret</label><input id="client-secret" name="client_secret" type="password" autocomplete="new-password" maxlength="255" placeholder="<?= !empty($saved['client_secret']) ? 'Credencial salva — deixe vazio para manter' : 'sk_...' ?>">
+                <label for="client-id">Client ID</label><input id="client-id" name="client_id" placeholder="Client ID da sua conta BX Pay" autocomplete="off" maxlength="255" value="<?= $escape($saved['client_id'] ?? '') ?>" required>
+                <label for="client-secret">Client Secret</label><input id="client-secret" name="client_secret" type="password" autocomplete="new-password" maxlength="255" placeholder="<?= !empty($saved['client_secret']) ? 'Credencial salva — deixe vazio para manter' : 'Client Secret da sua conta BX Pay' ?>">
                 <p class="hint">A chave secreta salva não é exibida nesta página.</p>
                 <label class="enable-option"><input type="checkbox" name="enabled" value="1" <?= $enabled ? 'checked' : '' ?>> Usar BX Pay nos depósitos PIX</label><button name="action" value="save" <?= !$dbReady ? 'disabled' : '' ?>>Salvar credenciais <span aria-hidden="true">↗</span></button>
             </form>
