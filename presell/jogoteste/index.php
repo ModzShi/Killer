@@ -8,9 +8,12 @@ if (!empty($_SESSION['email'])) {
 
 $affiliate = is_string($_GET['aff'] ?? null) && preg_match('/^\d{1,12}$/D', $_GET['aff']) ? $_GET['aff'] : '';
 $managerCode = is_string($_GET['ref'] ?? null) && preg_match('/^[A-Za-z0-9_-]{1,80}$/D', $_GET['ref']) ? $_GET['ref'] : '';
-if ($affiliate !== '') $_SESSION['landing_affiliate'] = $affiliate;
-if ($managerCode !== '') $_SESSION['landing_manager_code'] = $managerCode;
-$signupQuery = array_filter(['aff' => $affiliate, 'ref' => $managerCode, 'continuar' => '1']);
+$managerInfluencerId = is_string($_GET['by'] ?? null) && preg_match('/^\d{1,12}$/D', $_GET['by']) ? $_GET['by'] : '';
+if ($affiliate === '' && $managerCode === '') unset($_SESSION['landing_affiliate'], $_SESSION['landing_manager_code'], $_SESSION['landing_manager_influencer']);
+if ($affiliate !== '') $_SESSION['landing_affiliate'] = $affiliate; else unset($_SESSION['landing_affiliate']);
+if ($managerCode !== '') $_SESSION['landing_manager_code'] = $managerCode; else unset($_SESSION['landing_manager_code'], $_SESSION['landing_manager_influencer']);
+if ($managerCode !== '' && $managerInfluencerId !== '') $_SESSION['landing_manager_influencer'] = $managerInfluencerId; elseif ($managerCode !== '') unset($_SESSION['landing_manager_influencer']);
+$signupQuery = array_filter(['aff' => $affiliate, 'ref' => $managerCode, 'by' => $managerInfluencerId, 'continuar' => '1']);
 $signupUrl = app_url('cadastrar/?' . http_build_query($signupQuery));
 $demoToken = 'demo_' . bin2hex(random_bytes(8));
 $gameUrl = app_url('jogar/?demo=1&jogarsubway=5BC&SbSB1C2&round=' . rawurlencode($demoToken));

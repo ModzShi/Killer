@@ -11,21 +11,31 @@ function manager_install(mysqli $db): void {
     $db->query("CREATE TABLE IF NOT EXISTS manager_payout_requests (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, manager_id INT UNSIGNED NOT NULL, amount DECIMAL(12,2) NOT NULL, pix_key VARCHAR(77) NOT NULL, status VARCHAR(16) NOT NULL DEFAULT 'PENDING', created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, processed_at DATETIME NULL, processed_by VARCHAR(254) NULL, INDEX(manager_id,status), INDEX(status,created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $demoNameColumn = $db->query("SHOW COLUMNS FROM manager_demos LIKE 'display_name'")->fetch_assoc();
     if (!$demoNameColumn) $db->query("ALTER TABLE manager_demos ADD display_name VARCHAR(120) NOT NULL DEFAULT 'Conta demo' AFTER manager_id");
+    $partnerInfluencerColumn = $db->query("SHOW COLUMNS FROM manager_partners LIKE 'influencer_email'")->fetch_assoc();
+    if (!$partnerInfluencerColumn) $db->query("ALTER TABLE manager_partners ADD influencer_email VARCHAR(254) NULL AFTER code");
+    $refInfluencerColumn = $db->query("SHOW COLUMNS FROM manager_referrals LIKE 'influencer_email'")->fetch_assoc();
+    if (!$refInfluencerColumn) $db->query("ALTER TABLE manager_referrals ADD influencer_email VARCHAR(254) NULL AFTER partner_id");
+    $commissionInfluencerColumn = $db->query("SHOW COLUMNS FROM manager_commissions LIKE 'influencer_email'")->fetch_assoc();
+    if (!$commissionInfluencerColumn) $db->query("ALTER TABLE manager_commissions ADD influencer_email VARCHAR(254) NULL AFTER manager_id, ADD INDEX idx_manager_commission_influencer (influencer_email)");
 }
-function manager_referral_record(mysqli $db,string $email,string $code): void {
+function manager_referral_record(mysqli $db,string $email,string $code,string $influencerEmail=''): void {
     if (!preg_match('/^[a-f0-9]{24}$/D',$code)) return;
-    $stmt=app_query($db,'SELECT id FROM manager_partners WHERE code=? AND active=1',[$code]);
+    $stmt=app_query($db,'SELECT id,influencer_email FROM manager_partners WHERE code=? AND active=1',[$code]);
     $partner=$stmt->get_result()->fetch_assoc();
-    if($partner) app_query($db,'INSERT INTO manager_referrals(email,partner_id) VALUES(?,?)',[$email,(string)$partner['id']]);
+    if($partner) {
+        $owner=(string)($partner['influencer_email']??'');
+        if($owner===''||!hash_equals(strtolower($owner),strtolower($influencerEmail))) return;
+        app_query($db,'INSERT INTO manager_referrals(email,partner_id,influencer_email) VALUES(?,?,?)',[$email,(string)$partner['id'],$owner]);
+    }
 }
 function manager_commission_record(mysqli $db,string $reference,string $email,float $amount): void {
-    $stmt=app_query($db,'SELECT p.*,m.active AS manager_active FROM manager_referrals r JOIN manager_partners p ON p.id=r.partner_id JOIN manager_accounts m ON m.id=p.manager_id WHERE r.email=?',[$email]);
+    $stmt=app_query($db,'SELECT p.*,r.influencer_email,m.active AS manager_active FROM manager_referrals r JOIN manager_partners p ON p.id=r.partner_id JOIN manager_accounts m ON m.id=p.manager_id WHERE r.email=?',[$email]);
     $p=$stmt->get_result()->fetch_assoc();
     if(!$p || !(int)$p['manager_active']) return;
     $mp=(float)$p['manager_percent']; $ip=(float)$p['influencer_percent'];
     if($mp<0 || $ip<0 || abs($mp+$ip-MANAGER_BUDGET_PERCENT)>.0001) { error_log('Divisão de gerente inválida no convite '.$p['id']); return; }
     $ma=round($amount*$mp/100,2); $ia=round($amount*$ip/100,2);
-    app_query($db,'INSERT INTO manager_commissions(reference,partner_id,manager_id,deposit_amount,manager_percent,influencer_percent,manager_amount,influencer_amount) VALUES(?,?,?,?,?,?,?,?)',[$reference,(string)$p['id'],(string)$p['manager_id'],(string)$amount,(string)$mp,(string)$ip,(string)$ma,(string)$ia]);
+    app_query($db,'INSERT INTO manager_commissions(reference,partner_id,manager_id,influencer_email,deposit_amount,manager_percent,influencer_percent,manager_amount,influencer_amount) VALUES(?,?,?,?,?,?,?,?,?)',[$reference,(string)$p['id'],(string)$p['manager_id'],(string)$p['influencer_email'],(string)$amount,(string)$mp,(string)$ip,(string)$ma,(string)$ia]);
 }
 function manager_login(mysqli $db,string $email,string $password): bool {
     manager_install($db);

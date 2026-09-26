@@ -134,7 +134,7 @@ function app_signin(mysqli $db, string $email, string $password, bool $admin = f
     app_auth_remember($db,$admin?'admin':'player',(string)$user['email'],!empty($_POST['remember_me']));
     return true;
 }
-function app_register(mysqli $db, array $input, string $affiliate, string $managerCode = '', ?int $demoManagerId = null): string {
+function app_register(mysqli $db, array $input, string $affiliate, string $managerCode = '', ?int $demoManagerId = null, string $managerInfluencerId = ''): string {
     $email = strtolower(trim($input['email'])); $password = $input['senha'];
     $phone = preg_replace('/\D/', '', $input['telefone_confirmation']);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254) throw new InvalidArgumentException('Informe um e-mail válido.');
@@ -148,12 +148,34 @@ function app_register(mysqli $db, array $input, string $affiliate, string $manag
         if (app_query($db, 'SELECT id FROM appconfig WHERE email = ?', [$email])->get_result()->num_rows) throw new InvalidArgumentException('Já existe uma conta com esse e-mail. Entre na sua conta.');
         $app = $db->query('SELECT cpa, revenue_share FROM app LIMIT 1')->fetch_assoc() ?: [];
         $id = (string) ((int) $db->query('SELECT MAX(CAST(id AS UNSIGNED)) FROM appconfig')->fetch_row()[0] + 1);
+        $managerPartner = null; $managerInfluencerEmail = '';
+        if ($managerCode !== '') {
+            if (!preg_match('/^[a-f0-9]{24}$/D', $managerCode)) throw new InvalidArgumentException('Este link de parceria não é válido.');
+            $partnerStmt = app_query($db, 'SELECT id,manager_id,name,influencer_email,active FROM manager_partners WHERE code=? FOR UPDATE', [$managerCode]);
+            $managerPartner = $partnerStmt->get_result()->fetch_assoc();
+            if (!$managerPartner || !(int)$managerPartner['active']) throw new InvalidArgumentException('Este link de parceria está indisponível.');
+            if ($managerInfluencerId !== '') {
+                $ownerStmt = app_query($db, 'SELECT id,email FROM appconfig WHERE id=? LIMIT 1', [$managerInfluencerId]);
+                $owner = $ownerStmt->get_result()->fetch_assoc();
+                if (!$owner || empty($managerPartner['influencer_email']) || !hash_equals(strtolower((string)$managerPartner['influencer_email']), strtolower((string)$owner['email']))) throw new InvalidArgumentException('O link do influenciador não corresponde a uma parceria ativa.');
+                $managerInfluencerEmail = (string)$owner['email'];
+            } elseif (empty($managerPartner['influencer_email'])) {
+                $demoManagerId = (int)$managerPartner['manager_id'];
+                $managerInfluencerEmail = $email;
+            } else {
+                throw new InvalidArgumentException('Este convite já foi ativado pelo influenciador. Use o link pessoal que ele compartilhou.');
+            }
+        }
         if ($managerCode !== '') $affiliate = '';
         if ($affiliate !== '' && !app_query($db, 'SELECT id FROM appconfig WHERE id = ?', [$affiliate])->get_result()->num_rows) $affiliate = '';
         $demo = $demoManagerId !== null;
         app_query($db, "INSERT INTO appconfig (id,email,senha,telefone,saldo,linkafiliado,indicados,plano,cpa,data_cadastro,afiliado,afiliado_ativo,demo,jogo_demo,total_apostado) VALUES (?,?,?,?,?,?,0,?,?,?,?,0,?,?,0)", [$id,$email,password_hash($password,PASSWORD_DEFAULT),$phone,$demo?'1000.00':'0',app_url('cadastrar/?aff=' . urlencode($id)),(string)($app['revenue_share']??0),(string)($app['cpa']??0),date('d-m-Y H:i'),$affiliate,$demo?'1':'0',$demo?'1':'0']);
-        if ($demo) app_query($db,'INSERT INTO manager_demos(email,manager_id) VALUES(?,?)',[$email,(string)$demoManagerId]);
-        elseif ($managerCode !== '') manager_referral_record($db,$email,$managerCode);
+        if ($demo) app_query($db,'INSERT INTO manager_demos(email,manager_id,display_name) VALUES(?,?,?)',[$email,(string)$demoManagerId,(string)($managerPartner['name']??'Conta de demonstração')]);
+        if ($managerPartner && $managerInfluencerId === '') {
+            app_query($db,'UPDATE manager_partners SET influencer_email=? WHERE id=? AND influencer_email IS NULL',[$email,(string)$managerPartner['id']]);
+            if ($db->affected_rows !== 1) throw new InvalidArgumentException('Este convite já foi ativado por outra conta.');
+            app_query($db,'UPDATE appconfig SET nome=? WHERE email=?',[(string)$managerPartner['name'],$email]);
+        } elseif ($managerCode !== '') manager_referral_record($db,$email,$managerCode,$managerInfluencerEmail);
         $db->commit(); return $email;
     } catch (Throwable $error) { $db->rollback(); throw $error; }
     finally { $db->query("SELECT RELEASE_LOCK('sk_account_registration')"); }
