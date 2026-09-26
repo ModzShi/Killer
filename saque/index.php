@@ -260,17 +260,8 @@ $conn->close();
                         });
                     });
                 </script>
-                <style>
-                    .menu-button2 {
-                        border-radius: 15px;
-                        background-color: #000;
-                    }
-                </style>
-                <div class="w-nav-button" style="-webkit-user-select: text;" aria-label="menu" role="button"
-                    tabindex="0" aria-controls="w-nav-overlay-0" aria-haspopup="menu" aria-expanded="false">
-                    <div class="" style="-webkit-user-select: text;">
-                        <a href="../deposito/" class="menu-button2 w-nav-dep nav w-button">DEPOSITAR</a>
-                    </div>
+                <div class="header-deposit-wrap">
+                    <a href="../deposito/" class="header-deposit-link"><?= ui_icon('deposit') ?><span>Depositar</span></a>
                 </div>
                 <div class="menu-button w-nav-button" style="-webkit-user-select: text;" aria-label="menu" role="button"
                     tabindex="0" aria-controls="w-nav-overlay-0" aria-haspopup="menu" aria-expanded="false">
@@ -392,25 +383,6 @@ $conn->close();
 
 
 
-        <div class="intermission wf-section"></div>
-        <div id="about" class="comic-book white wf-section">
-            <div class="minting-container left w-container">
-                <div class="w-layout-grid grid-2">
-                    <img src="arquivos/money.png" loading="lazy" width="240" alt="Roboto #6340"
-                        class="mint-card-image v2">
-                    <div>
-                        <h2>Indique um amigo e ganhe R$ no PIX</h2>
-                        <h3>Como funciona?</h3>
-                        <p>Convide seus amigos que ainda não estão na plataforma. Você receberá R$5 por cada amigo que
-                            se inscrever e fizer um depósito. Não há limite para quantos amigos você pode convidar. Isso
-                            significa que também não há limite para quanto você pode ganhar!</p>
-                        <h3>Como recebo o dinheiro?</h3>
-                        <p>O saldo é adicionado diretamente ao seu saldo no painel abaixo, com o qual você pode sacar
-                            via PIX.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="footer-section wf-section">
             <div class="domo-text">
                 <?= $nomeUm ?> <br>

@@ -49,5 +49,11 @@ body.sk-premium .withdrawal-panel .rarity-heading{margin:14px 0 7px}
 body.sk-premium .withdrawal-panel .primary-button{width:100%;margin-top:5px}
 body.sk-premium .withdrawal-panel .withdrawal-terms{margin:12px 0 0;color:#bfc5dc!important;font-size:11px;line-height:1.55;text-align:center}
 body.sk-premium .withdrawal-panel .withdrawal-terms a{color:#c9b7ff;text-decoration:underline;text-underline-offset:3px}
+body.sk-premium .navbar .header-deposit-wrap{display:flex;align-items:center;margin-left:auto;padding:0 10px}
+body.sk-premium .navbar .header-deposit-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 15px;border:1px solid #9a84d5;border-radius:13px;background:linear-gradient(135deg,#30245b,#1b2544);color:#f7f4ff;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.04em;box-shadow:0 4px 0 #111027;transition:transform .18s,filter .18s}
+body.sk-premium .navbar .header-deposit-link .ui-icon{width:18px;height:18px;color:#74f1cd}
+body.sk-premium .navbar .header-deposit-link:hover{transform:translateY(-2px);filter:brightness(1.12)}
+body.sk-premium .navbar .header-deposit-link:active{transform:translateY(1px)}
+@media(max-width:767px){body.sk-premium .navbar .header-deposit-wrap{margin-left:auto;padding:0 8px}body.sk-premium .navbar .header-deposit-link{min-height:40px;padding:0 11px;font-size:11px}body.sk-premium .navbar .header-deposit-link .ui-icon{width:16px;height:16px}}
 @media(max-width:520px){body.sk-premium #hero .withdrawal-panel{margin:16px 12px!important;padding:21px 16px!important;border-radius:22px!important}body.sk-premium .withdrawal-panel .withdrawal-balance{padding:14px;border-radius:14px}}
 @media(prefers-reduced-motion:reduce){body.sk-premium .withdrawal-panel *{animation:none!important;transition:none!important}}
