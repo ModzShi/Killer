@@ -61,4 +61,4 @@ $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
   </section>
 </div>
 <?php endif; ?>
-<script>window.RESULT_ICONS=<?= json_encode(["sound"=>ui_icon("sound"),"muted"=>ui_icon("muted")],JSON_HEX_TAG) ?>;</script><script src="<?= app_escape(app_url('gameover/result.js')) ?>?v=4" defer></script></body></html>
+<script>window.RESULT_ICONS=<?= json_encode(["sound"=>ui_icon("sound"),"muted"=>ui_icon("muted")],JSON_HEX_TAG) ?>;</script><script src="<?= app_escape(app_url('gameover/result.js')) ?>?v=5" defer></script></body></html>

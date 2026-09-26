@@ -49,7 +49,7 @@
       if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
     });
-    setTimeout(()=>{previousFocus=document.activeElement;prompt.hidden=false;document.body.classList.add('prompt-open');if(page)page.inert=true;close?.focus()},1150);
+    setTimeout(()=>{previousFocus=document.activeElement;prompt.hidden=false;document.body.classList.add('prompt-open');if(page)page.inert=true;close?.focus()},4500);
   }
   window.addEventListener('pagehide',()=>{clearInterval(loop);context?.close?.()},{once:true});
 })();
