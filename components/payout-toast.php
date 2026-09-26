@@ -1,5 +1,4 @@
 <?php
-if(empty($menuLoggedIn))return;
 $verifiedPayouts=[];
 try{
     require_once __DIR__.'/../app/auth.php';
@@ -17,13 +16,27 @@ $maskPayoutName=static function($name):string{
     $last=$parts[count($parts)-1];$initial=function_exists('mb_substr')?mb_substr($last,0,1,'UTF-8'):substr($last,0,1);
     return $first.' '.strtoupper($initial).'.';
 };
-$toastItems=array_map(static fn($item):array=>['name'=>$maskPayoutName($item['destino']??''),'amount'=>'R$ '.number_format((float)$item['valor'],2,',','.')],$verifiedPayouts);
+$formatPayoutDate=static function($value):string{
+    $value=trim((string)$value);
+    foreach(['!d-m-Y H:i:s','!d-m-Y H:i','!Y-m-d H:i:s','!Y-m-d H:i'] as $format){
+        $date=DateTimeImmutable::createFromFormat($format,$value);
+        if($date!==false)return $date->format('d/m/Y H:i');
+    }
+    return '';
+};
+$toastItems=[];
+foreach($verifiedPayouts as $payout){
+    $amount=(float)($payout['valor']??0);$date=$formatPayoutDate($payout['data']??'');
+    if(!is_finite($amount)||$amount<=0||$date==='')continue;
+    $toastItems[]=['name'=>$maskPayoutName($payout['destino']??''),'amount'=>'R$ '.number_format($amount,2,',','.'),'date'=>$date];
+}
+if(!$toastItems)return;
 $first=$toastItems[0];
 ?>
 <link rel="stylesheet" href="<?=$menuEscape($menuBase)?>arquivos/payout-toast.css?v=<?=filemtime(__DIR__.'/../arquivos/payout-toast.css')?>">
-<aside class="payout-toast" data-payouts="<?=app_escape(json_encode($toastItems,JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT))?>" aria-live="polite" aria-label="Saques confirmados recentemente">
+<aside class="payout-toast" data-payouts="<?=app_escape(json_encode($toastItems,JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT))?>" aria-live="polite" aria-label="Registros de saques confirmados">
     <span class="payout-toast__icon"><?=ui_icon('withdraw')?><i></i></span>
-    <span class="payout-toast__copy"><small><i></i> SAQUE CONFIRMADO</small><strong data-payout-name><?=app_escape($first['name'])?></strong><span>acabou de sacar</span></span>
+    <span class="payout-toast__copy"><small><i></i> SAQUE CONFIRMADO</small><strong data-payout-name><?=app_escape($first['name'])?></strong><span>em <time data-payout-date><?=app_escape($first['date'])?></time></span></span>
     <b data-payout-amount><?=app_escape($first['amount'])?></b>
 </aside>
 <script src="<?=$menuEscape($menuBase)?>arquivos/payout-toast.js?v=<?=filemtime(__DIR__.'/../arquivos/payout-toast.js')?>" defer></script>
