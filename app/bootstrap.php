@@ -76,7 +76,7 @@ if (PHP_SAPI !== 'cli') {
         // dedicated result screen retain their own full-screen presentation.
         if (!preg_match('~^/adm/(?!login/)|^/(?:gerente|webhook|gameover)(?:/|$)~', $relativeFile)
             && stripos($html, '</head>') !== false && stripos($html, '<body') !== false) {
-            $theme = '<link rel="stylesheet" href="' . app_escape(app_url('arquivos/premium-ui.css')) . '?v=4"><link rel="stylesheet" href="' . app_escape(app_url('arquivos/premium-fixes.css')) . '?v=4"><link rel="stylesheet" href="' . app_escape(app_url('arquivos/account.css')) . '?v=4">';
+            $theme = '<link rel="stylesheet" href="' . app_escape(app_url('arquivos/premium-ui.css')) . '?v=4"><link rel="stylesheet" href="' . app_escape(app_url('arquivos/premium-fixes.css')) . '?v=5"><link rel="stylesheet" href="' . app_escape(app_url('arquivos/account.css')) . '?v=4">';
             $html = preg_replace_callback('~<script\b[^>]*>.*?</script>(*SKIP)(*F)|<img\b[^>]*src=["\']([^"\']+)["\'][^>]*>~is', static function(array $m): string {
                 $file=basename($m[1]);
                 if (!preg_match('~^(?:money\.(?:png|gif)|(?:deposit|with|jake|trofeu|trophy)\.gif|60f[0-9a-f]+_.*\.svg|61070a.*\.svg)$~i',$file)) return $m[0];

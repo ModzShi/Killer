@@ -297,14 +297,12 @@ $conn->close();
 
         <section id="hero" class="hero-section dark wf-section"
             style="background-image: url('/af835635b84ba0916d7c0ddd4e0bd25b.jpg') !important; background-attachment: fixed !important; background-position: center; background-size: cover;">
-            <div class="minting-container w-container">
-                <div class="finance-emblem" role="img" aria-label="Solicitar saque"><span class="finance-orbit"></span><img src="<?= app_escape(app_url('arquivos/icons/wallet-cards.svg')) ?>" alt="" width="72" height="72"><span class="finance-badge" aria-hidden="true">↑</span></div>
-                <h2>Saque</h2>
-                <p>PIX: saques instantâneos com muita praticidade. <br>
-                </p>
-                <p>SALDO: R$<b class="saldo">
-                        <?php echo isset($saldo) ? number_format($saldo, 2, ',', '.') : '0,00'; ?>
-                </p>
+            <div class="minting-container withdrawal-panel w-container">
+                <div class="withdrawal-emblem" aria-hidden="true"><?= ui_icon('withdraw') ?></div>
+                <p class="withdrawal-eyebrow">CARTEIRA · SAQUE VIA PIX</p>
+                <h2>Solicitar saque</h2>
+                <p class="withdrawal-description">Envie sua solicitação para análise. Após aprovação, o pagamento será feito pela chave PIX informada.</p>
+                <div class="withdrawal-balance"><span>Saldo disponível</span><strong>R$ <?= isset($saldo) ? number_format((float)$saldo, 2, ',', '.') : '0,00' ?></strong></div>
 
                 <?php if (isset($rollover_saque) && $rollover_saque > 0) { ?>
                 <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
@@ -334,57 +332,32 @@ $conn->close();
                     <input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
                     <input type="hidden" name="nonce" value="<?= app_escape($_SESSION['withdraw_nonce']) ?>">
                     <div class="properties">
-                        <h4 class="rarity-heading">Nome do destinatário:</h4>
+                        <h4 class="rarity-heading">Nome do destinatário</h4>
                         <div class="rarity-row roboto-type2">
                             <input type="text"
                                 class="large-input-field w-node-_050dfc36-93a8-d840-d215-4fca9adfe60d-9adfe605 w-input"
-                                maxlength="256" name="withdrawName" placeholder="Nome do Destinatario" id="withdrawName"
+                                maxlength="120" name="withdrawName" placeholder="Nome completo do titular" id="withdrawName" autocomplete="name"
                                 required="">
                         </div>
-                        <h4 class="rarity-heading">Chave PIX CPF:</h4>
+                        <h4 class="rarity-heading">CPF da chave PIX</h4>
                         <div class="rarity-row roboto-type2">
                             <input type="text"
                                 class="large-input-field w-node-_050dfc36-93a8-d840-d215-4fca9adfe60d-9adfe605 w-input"
-                                maxlength="256" name="withdrawCPF" placeholder="Seu número de CPF" id="withdrawCPF"
+                                maxlength="14" inputmode="numeric" name="withdrawCPF" placeholder="000.000.000-00" id="withdrawCPF" autocomplete="off"
                                 required="">
                         </div>
-                        <h4 class=" rarity-heading">Valor para saque</h4>
+                        <h4 class="rarity-heading">Valor do saque</h4>
                         <div class="rarity-row roboto-type2">
                             <input type="number" data-name="withdrawValue" id="withdrawValue"
-                                placeholder="Saque Mínimo: R$<?php echo $saqueMinimo; ?>"
-                                min="<?php echo $saqueMinimo; ?>" step="1" name="withdrawValue"
+                                placeholder="Mínimo: R$ <?= number_format((float)$saqueMinimo, 2, ',', '.') ?>"
+                                min="<?= app_escape((string)(float)$saqueMinimo) ?>" max="<?= app_escape((string)(float)($saldo ?? 0)) ?>" step="0.01" inputmode="decimal" name="withdrawValue"
                                 class="large-input-field w-node-_050dfc36-93a8-d840-d215-4fca9adfe60d-9adfe605 w-input"
                                 required>
                         </div>
                     </div>
                     <div class="">
-                        <button onclick="solicitarSaque()" class="primary-button w-button">Sacar via PIX</button>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <script>
-                            function solicitarSaque() {
-                                const withdrawName = document.getElementById('withdrawName').value;
-                                const withdrawCPF = document.getElementById('withdrawCPF').value;
-                                const withdrawValue = document.getElementById('withdrawValue').value;
-                                if (withdrawValue < <?php echo $saqueMinimo; ?>) {
-                                    alert("Saque mínimo: R$<?php echo $saqueMinimo; ?>")
-                                    window.location.href = '../painel/'
-                                }
-                                if (withdrawValue >= <?php echo $saqueMinimo; ?>) {
-                                    alert("Solicitação de saque realizada!");
-                                    const url = ``;
-                                    window.location.href = url;
-
-
-                                }
-
-                            }
-                        </script>
-                        <p>Ao solicitar saque você concorda com os <a href="../legal/"> termos de serviço</a> e a
-                            <br>taxa de 10% </span>
-                        </p>
+                        <button type="submit" class="primary-button w-button">Solicitar saque via PIX</button>
+                        <p class="withdrawal-terms">A solicitação fica pendente até a análise manual. Confira os dados e consulte os <a href="../legal/">termos de uso</a>.</p>
                     </div>
                 </form>
             </div>

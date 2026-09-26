@@ -34,3 +34,20 @@ html body.sk-premium #game-meta-hud button#sair{position:relative!important;inse
 html body.sk-premium #game-meta-hud button#sair:hover{transform:translateY(-2px)!important}html body.sk-premium #game-meta-hud button#sair:active{transform:translateY(2px)!important}
 @keyframes premiumIconFloat{50%{transform:translateY(-5px)}}
 @media(prefers-reduced-motion:reduce){.premium-symbol{animation:none!important}}
+body.sk-premium #hero .withdrawal-panel{max-width:620px!important;padding:clamp(22px,5vw,38px)!important;text-align:left!important}
+body.sk-premium .withdrawal-panel .withdrawal-emblem{display:grid;place-items:center;width:68px;height:68px;margin:0 auto 13px;border:1px solid #ad91ff;border-radius:21px;background:linear-gradient(145deg,#754dff,#29265e);color:#fff;box-shadow:0 10px 26px #7048e955,inset 0 1px #ffffff70}
+body.sk-premium .withdrawal-panel .withdrawal-emblem .ui-icon{width:34px;height:34px}
+body.sk-premium .withdrawal-panel .withdrawal-eyebrow{margin:0 0 8px;color:#b8a3ff!important;font-size:10px;font-weight:900;letter-spacing:.14em;text-align:center}
+body.sk-premium .withdrawal-panel h2,body.sk-premium .withdrawal-panel .withdrawal-description{text-align:center}
+body.sk-premium .withdrawal-panel .withdrawal-description{max-width:460px;margin:0 auto 18px;color:#c9cde2!important;font-size:14px}
+body.sk-premium .withdrawal-panel .withdrawal-balance{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 20px;padding:17px 18px;border:1px solid #4c3979;border-radius:17px;background:linear-gradient(120deg,#211c40,#131b31);box-shadow:inset 0 1px #ffffff10}
+body.sk-premium .withdrawal-panel .withdrawal-balance span{color:#c6cbe0;font-size:12px;font-weight:700}
+body.sk-premium .withdrawal-panel .withdrawal-balance strong{color:#61f0c5;font-size:clamp(21px,5vw,28px);font-weight:950;letter-spacing:-.035em}
+body.sk-premium .withdrawal-panel .properties{width:100%;margin:18px auto 12px}
+body.sk-premium .withdrawal-panel .rarity-row{margin:0 0 14px}
+body.sk-premium .withdrawal-panel .rarity-heading{margin:14px 0 7px}
+body.sk-premium .withdrawal-panel .primary-button{width:100%;margin-top:5px}
+body.sk-premium .withdrawal-panel .withdrawal-terms{margin:12px 0 0;color:#bfc5dc!important;font-size:11px;line-height:1.55;text-align:center}
+body.sk-premium .withdrawal-panel .withdrawal-terms a{color:#c9b7ff;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:520px){body.sk-premium #hero .withdrawal-panel{margin:16px 12px!important;padding:21px 16px!important;border-radius:22px!important}body.sk-premium .withdrawal-panel .withdrawal-balance{padding:14px;border-radius:14px}}
+@media(prefers-reduced-motion:reduce){body.sk-premium .withdrawal-panel *{animation:none!important;transition:none!important}}
