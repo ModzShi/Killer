@@ -33185,8 +33185,8 @@ btnSair().addEventListener('click', () => {
         // O treino começa devagar e aumenta apenas um pouco durante a corrida.
         // Esta configuração nunca é usada nas rodadas valendo saldo.
         if (window.GAME_SLOW) {
-            c.baseSpeed.min = 145;
-            c.baseSpeed.max = 180;
+            c.baseSpeed.min = 155;
+            c.baseSpeed.max = 190;
         }
 
 

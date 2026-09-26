@@ -76,7 +76,9 @@ function manager_demo_create_auto(mysqli $db,int $managerId): array {
     $password='SR!';
     for($i=0;$i<11;$i++) $password.=$alphabet[random_int(0,strlen($alphabet)-1)];
     manager_demo_create($db,$managerId,$email,$password);
-    $name='Conta demo '.strtoupper(substr($suffix,-4));
+    $firstNames=['Alice','Ana','Beatriz','Bruno','Camila','Caio','Clara','Daniel','Eduarda','Felipe','Gabriel','Helena','Igor','Isabela','João','Julia','Lucas','Mariana','Mateus','Rafaela','Thiago','Valentina'];
+    $lastNames=['Almeida','Barbosa','Carvalho','Costa','Dias','Fernandes','Ferreira','Lima','Martins','Mendes','Oliveira','Pereira','Ribeiro','Rocha','Santos','Silva'];
+    $name=$firstNames[random_int(0,count($firstNames)-1)].' '.$lastNames[random_int(0,count($lastNames)-1)];
     app_query($db,'UPDATE manager_demos SET display_name=? WHERE manager_id=? AND email=?',[$name,(string)$managerId,$email]);
     app_query($db,'UPDATE appconfig SET nome=? WHERE email=? AND demo=1',[$name,$email]);
     return ['name'=>$name,'email'=>$email,'password'=>$password];
