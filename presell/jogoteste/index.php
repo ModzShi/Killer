@@ -12,7 +12,9 @@ if ($affiliate !== '') $_SESSION['landing_affiliate'] = $affiliate;
 if ($managerCode !== '') $_SESSION['landing_manager_code'] = $managerCode;
 $signupQuery = array_filter(['aff' => $affiliate, 'ref' => $managerCode, 'continuar' => '1']);
 $signupUrl = app_url('cadastrar/?' . http_build_query($signupQuery));
-$gameUrl = app_url('jogar/?demo=1&jogarsubway=5BC&SbSB1C2');
+$demoToken = 'demo_' . bin2hex(random_bytes(8));
+$gameUrl = app_url('jogar/?demo=1&jogarsubway=5BC&SbSB1C2&round=' . rawurlencode($demoToken));
+header('Cache-Control: no-store, private');
 ?>
 <!doctype html>
 <html lang="pt-BR">
