@@ -26,6 +26,17 @@ if (PHP_SAPI !== 'cli') {
         session_set_cookie_params(['path' => app_url(), 'httponly' => true, 'samesite' => 'Lax', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
         session_start();
     }
+    if (isset($_COOKIE['SK_REMEMBER_PLAYER']) || isset($_COOKIE['SK_REMEMBER_ADMIN']) || isset($_COOKIE['SK_REMEMBER_MANAGER'])) {
+        try {
+            require_once SK_ROOT . '/app/auth.php';
+            $rememberDb=app_db();
+            app_auth_restore_remembered($rememberDb);
+            $rememberDb->close();
+        } catch (Throwable $rememberError) {
+            if (isset($rememberDb) && $rememberDb instanceof mysqli) $rememberDb->close();
+            error_log('remembered login restore failed: '.$rememberError->getMessage());
+        }
+    }
     if (!empty($_SESSION['email']) || !empty($_SESSION['emailadm']) || !empty($_SESSION['manager_id'])) header('Cache-Control: private, no-store');
     // All admin entry points, including JSON handlers, require an admin session.
     if (strpos($relativeFile, '/adm/') === 0 && strpos($relativeFile, '/adm/login/') !== 0 && empty($_SESSION['emailadm'])) {

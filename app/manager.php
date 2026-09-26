@@ -35,7 +35,19 @@ function manager_login(mysqli $db,string $email,string $password): bool {
     $row=$stmt->get_result()->fetch_assoc();
     if(!$row || !(int)$row['active'] || !password_verify($password,$row['password_hash'])) { app_auth_failed($db,'manager',$email); return false; }
     app_auth_clear($db,'manager',$email);
-    session_regenerate_id(true); $_SESSION['manager_id']=(int)$row['id']; return true;
+    session_regenerate_id(true); $_SESSION['manager_id']=(int)$row['id'];
+    app_auth_remember($db,'manager',(string)$row['id'],!empty($_POST['remember_me']));
+    return true;
+}
+function manager_register(mysqli $db,string $name,string $email,string $password,string $confirmation): int {
+    manager_install($db);$name=trim($name);$email=strtolower(trim($email));
+    if(strlen($name)<2||strlen($name)>120)throw new InvalidArgumentException('Informe seu nome (2 a 120 caracteres).');
+    if(!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($email)>254)throw new InvalidArgumentException('Informe um e-mail válido.');
+    if(strlen($password)<10||strlen($password)>72)throw new InvalidArgumentException('Use uma senha com pelo menos 10 caracteres.');
+    if(!hash_equals($password,$confirmation))throw new InvalidArgumentException('As senhas não coincidem.');
+    if(app_query($db,'SELECT id FROM manager_accounts WHERE email=? LIMIT 1',[$email])->get_result()->fetch_assoc())throw new InvalidArgumentException('Já existe um acesso de gerente com esse e-mail.');
+    app_query($db,'INSERT INTO manager_accounts(name,email,password_hash,active) VALUES(?,?,?,1)',[$name,$email,password_hash($password,PASSWORD_DEFAULT)]);
+    return (int)$db->insert_id;
 }
 function manager_current(mysqli $db): ?array {
     if(empty($_SESSION['manager_id'])) return null;

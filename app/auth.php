@@ -41,6 +41,82 @@ function app_auth_failed(mysqli $db,string $scope,string $email): void {
 function app_auth_clear(mysqli $db,string $scope,string $email): void {
     app_query($db,'DELETE FROM auth_attempts WHERE attempt_key=?',[app_auth_attempt_key($scope,$email)]);
 }
+function app_auth_remember_cookie_name(string $scope): string {
+    $names=['player'=>'SK_REMEMBER_PLAYER','admin'=>'SK_REMEMBER_ADMIN','manager'=>'SK_REMEMBER_MANAGER'];
+    if(!isset($names[$scope])) throw new InvalidArgumentException('Tipo de sessão inválido.');
+    return $names[$scope];
+}
+function app_auth_remember_install(mysqli $db): void {
+    $db->query("CREATE TABLE IF NOT EXISTS auth_remember_tokens (
+        selector CHAR(24) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY,
+        scope VARCHAR(16) NOT NULL,
+        subject VARCHAR(254) NOT NULL,
+        validator_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+        expires_at DATETIME NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        last_used_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX(scope,subject),
+        INDEX(expires_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+function app_auth_remember_clear_cookie(string $scope): void {
+    $params=session_get_cookie_params();
+    setcookie(app_auth_remember_cookie_name($scope),'',['expires'=>time()-3600,'path'=>$params['path']?:'/', 'secure'=>(bool)$params['secure'],'httponly'=>true,'samesite'=>'Lax']);
+    unset($_COOKIE[app_auth_remember_cookie_name($scope)]);
+}
+function app_auth_remember(mysqli $db,string $scope,string $subject,bool $enabled): void {
+    app_auth_remember_install($db);
+    $cookieName=app_auth_remember_cookie_name($scope);
+    $old=$_COOKIE[$cookieName]??'';
+    if(is_string($old)&&preg_match('/^([a-f0-9]{24})\\.[a-f0-9]{64}$/D',$old,$match)) app_query($db,'DELETE FROM auth_remember_tokens WHERE selector=? AND scope=?',[$match[1],$scope]);
+    app_auth_remember_clear_cookie($scope);
+    if(!$enabled)return;
+    $selector=bin2hex(random_bytes(12));$validator=bin2hex(random_bytes(32));
+    $days=$scope==='admin'?7:30;$expires=time()+$days*86400;
+    app_query($db,'INSERT INTO auth_remember_tokens(selector,scope,subject,validator_hash,expires_at) VALUES(?,?,?,?,?)',[$selector,$scope,$subject,hash('sha256',$validator),date('Y-m-d H:i:s',$expires)]);
+    $params=session_get_cookie_params();
+    setcookie($cookieName,$selector.'.'.$validator,['expires'=>$expires,'path'=>$params['path']?:'/', 'secure'=>(bool)$params['secure'],'httponly'=>true,'samesite'=>'Lax']);
+}
+function app_auth_forget(mysqli $db,string $scope): void {
+    $cookieName=app_auth_remember_cookie_name($scope);$raw=$_COOKIE[$cookieName]??'';
+    if(is_string($raw)&&preg_match('/^([a-f0-9]{24})\\.[a-f0-9]{64}$/D',$raw,$match)) {
+        app_auth_remember_install($db);
+        app_query($db,'DELETE FROM auth_remember_tokens WHERE selector=? AND scope=?',[$match[1],$scope]);
+    }
+    app_auth_remember_clear_cookie($scope);
+}
+function app_auth_restore_remembered(mysqli $db): void {
+    $regenerated=false;
+    foreach(['player','admin','manager'] as $scope) {
+        $sessionKey=['player'=>'email','admin'=>'emailadm','manager'=>'manager_id'][$scope];
+        $cookieName=app_auth_remember_cookie_name($scope);$raw=$_COOKIE[$cookieName]??'';
+        if(!empty($_SESSION[$sessionKey]))continue;
+        if(!is_string($raw)||$raw==='' )continue;
+        if(!preg_match('/^([a-f0-9]{24})\\.([a-f0-9]{64})$/D',$raw,$parts)){app_auth_remember_clear_cookie($scope);continue;}
+        $row=app_query($db,'SELECT subject,validator_hash FROM auth_remember_tokens WHERE selector=? AND scope=? AND expires_at>NOW() LIMIT 1',[$parts[1],$scope])->get_result()->fetch_assoc();
+        if(!$row||!hash_equals((string)$row['validator_hash'],hash('sha256',$parts[2]))) {
+            if($row)app_query($db,'DELETE FROM auth_remember_tokens WHERE selector=? AND scope=?',[$parts[1],$scope]);
+            app_auth_remember_clear_cookie($scope);continue;
+        }
+        $subject=(string)$row['subject'];$account=null;
+        if($scope==='player') {
+            $account=app_query($db,'SELECT id,email,demo,bloc FROM appconfig WHERE email=? LIMIT 1',[$subject])->get_result()->fetch_assoc();
+            if($account&&in_array(strtolower((string)($account['bloc']??'')),['on','1','true'],true))$account=null;
+        }elseif($scope==='admin') {
+            $account=app_query($db,'SELECT email FROM admlogin WHERE email=? LIMIT 1',[$subject])->get_result()->fetch_assoc();
+        }else {
+            $account=app_query($db,'SELECT id FROM manager_accounts WHERE id=? AND active=1 LIMIT 1',[$subject])->get_result()->fetch_assoc();
+        }
+        if(!$account) {
+            app_query($db,'DELETE FROM auth_remember_tokens WHERE selector=? AND scope=?',[$parts[1],$scope]);
+            app_auth_remember_clear_cookie($scope);continue;
+        }
+        if(!$regenerated){session_regenerate_id(true);$regenerated=true;}
+        if($scope==='player'){$_SESSION['email']=$account['email'];$_SESSION['user_id']=$account['id'];$_SESSION['demo_account']=(string)($account['demo']??'0')==='1';}
+        elseif($scope==='admin')$_SESSION['emailadm']=$account['email'];
+        else $_SESSION['manager_id']=(int)$account['id'];
+    }
+}
 function app_signin(mysqli $db, string $email, string $password, bool $admin = false): bool {
     $scope=$admin?'admin':'player';
     if(!app_auth_allowed($db,$scope,$email)) return false;
@@ -55,6 +131,7 @@ function app_signin(mysqli $db, string $email, string $password, bool $admin = f
     app_auth_clear($db,$scope,$email);
     $_SESSION[$admin ? 'emailadm' : 'email'] = $user['email'];
     if (!$admin) { $_SESSION['user_id'] = $user['id']; $_SESSION['demo_account'] = (string)($user['demo']??'0') === '1'; }
+    app_auth_remember($db,$admin?'admin':'player',(string)$user['email'],!empty($_POST['remember_me']));
     return true;
 }
 function app_register(mysqli $db, array $input, string $affiliate, string $managerCode = '', ?int $demoManagerId = null): string {

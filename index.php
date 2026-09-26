@@ -2,6 +2,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/app/bootstrap.php';
+if (!empty($_SESSION['emailadm'])) { header('Location: ' . app_url('adm/'), true, 303); exit; }
+if (!empty($_SESSION['manager_id'])) { header('Location: ' . app_url('gerente/'), true, 303); exit; }
+if (!empty($_SESSION['email'])) { header('Location: ' . app_url('painel/'), true, 303); exit; }
 
 $nomeUnico = 'Subway Run';
 $pageTitle = 'Subway Run · Corra. Desvie. Supere.';

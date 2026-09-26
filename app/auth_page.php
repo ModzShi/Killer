@@ -3,6 +3,7 @@ require_once __DIR__ . '/auth.php';
 $admin = $authMode === 'admin'; $register = $authMode === 'register';
 $destination = app_url($admin ? 'adm/' : 'painel/');
 if (!empty($_SESSION[$admin ? 'emailadm' : 'email'])) { header('Location: ' . $destination); exit; }
+$rememberDays = $admin ? 7 : 30;
 $error = ''; $email = trim(app_input('email')); $phone = app_input('telefone_confirmation');
 try {
     $db = app_db();
@@ -36,7 +37,8 @@ $title = $register ? 'Crie sua conta' : ($admin ? 'Acesso administrativo' : 'Ent
 <?php if ($register): ?><label for="telefone">Telefone com DDD</label><input id="telefone" name="telefone_confirmation" type="tel" autocomplete="tel" value="<?= app_escape($phone) ?>" required><?php endif; ?>
 <label for="senha">Senha</label><input id="senha" name="senha" type="password" autocomplete="<?= $register ? 'new-password' : 'current-password' ?>" <?= $register ? 'minlength="6" maxlength="72"' : '' ?> required>
 <?php if ($register): ?><label for="confirmar">Confirme sua senha</label><input id="confirmar" name="password_confirmation" type="password" autocomplete="new-password" minlength="6" maxlength="72" required><p class="hint">Ao se cadastrar, você declara ter pelo menos 18 anos e concordar com os <a style="color:inherit" href="<?= app_escape(app_url('legal/')) ?>">termos de uso</a>.</p><?php endif; ?>
+<?php if (!$register): ?><label class="enable-option"><input type="checkbox" name="remember_me" value="1" checked> Manter conectado neste dispositivo por <?= $rememberDays ?> dias</label><?php endif; ?>
 <label class="enable-option"><input id="show-password" type="checkbox"> Mostrar senha</label>
 <button type="submit"><?= $register ? 'Criar conta' : 'Entrar' ?></button></form>
-<?php if (!$admin): ?><p><a class="back-link" href="<?= app_escape(app_url($register ? 'login/' : 'cadastrar/')) ?>"><?= $register ? 'Já tenho conta — entrar' : 'Não tenho conta — cadastrar' ?></a></p><?php endif; ?>
+<?php if (!$admin): ?><p><a class="back-link" href="<?= app_escape(app_url($register ? 'login/' : 'cadastrar/')) ?>"><?= $register ? 'Já tenho conta — entrar' : 'Não tenho conta — cadastrar' ?></a></p><?php if(!$register): ?><p><a class="back-link" href="<?= app_escape(app_url('gerente/login.php')) ?>">Acesso do gerente</a></p><?php endif; ?><?php endif; ?>
 </section></main><script>document.getElementById('show-password').addEventListener('change',function(){for(const id of ['senha','confirmar']){const el=document.getElementById(id);if(el)el.type=this.checked?'text':'password';}});</script></body></html>
