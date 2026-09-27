@@ -196,5 +196,6 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
         <small>© <?= date('Y') ?> Subway Run. Todos os direitos reservados.</small>
     </div>
 </footer>
+<?php require __DIR__.'/components/menu-music.php'; ?>
 </body>
 </html>

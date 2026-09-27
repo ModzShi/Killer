@@ -165,5 +165,6 @@ $bets = [
         </div>
     </section>
 </main>
+<?php require __DIR__.'/../components/menu-music.php'; ?>
 </body>
 </html>
