@@ -1,46 +1,80 @@
 <?php
-require_once __DIR__ . '/../../app/bootstrap.php';
-require_once __DIR__ . '/../../app/withdrawal.php';
+require_once __DIR__ . '/../../app/auth.php';
 
-include './../../conectarbanco.php';
-if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-
-if (!isset($_SESSION['emailadm'])) {
+if (empty($_SESSION['emailadm'])) {
     http_response_code(403);
-    echo "Não autorizado";
-    exit;
+    exit('Não autorizado.');
 }
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = $_POST['id'];
-    $novoStatus = $_POST['novoStatus'];
-    $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : 'Jogo';
-
-    $conn = new mysqli($config['db_host'] ?? 'localhost', $config['db_user'], $config['db_pass'], $config['db_name']);
-    withdrawal_install($conn);
-
-    if ($conn->connect_error) {
-        die("Erro na conexão com o banco de dados: " . $conn->connect_error);
-    }
-
-    if ($tipo === 'Afiliado') {
-        $stmt = $conn->prepare("UPDATE saque_afiliado SET status = ? WHERE id = ?");
-        $stmt->bind_param("si", $novoStatus, $id);
-    } else {
-        $stmt = $conn->prepare("UPDATE saques SET status = ? WHERE externalreference = ?");
-        $stmt->bind_param("ss", $novoStatus, $id);
-    }
-
-    if ($stmt->execute()) {
-        echo "Status atualizado com sucesso!";
-    } else {
-        echo "Erro ao atualizar o status: " . $stmt->error;
-    }
-
-    $stmt->close();
-    $conn->close();
-} else {
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+    header('Allow: POST');
     http_response_code(405);
-    echo "Método não permitido";
+    exit('Método não permitido.');
 }
-?>
+$csrf = $_POST['csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+if (!is_string($csrf) || !hash_equals(app_csrf(), $csrf)) {
+    http_response_code(403);
+    exit('Formulário expirado. Recarregue a página.');
+}
+
+$id = is_string($_POST['id'] ?? null) ? trim($_POST['id']) : '';
+$status = is_string($_POST['novoStatus'] ?? null) ? trim($_POST['novoStatus']) : '';
+$type = is_string($_POST['tipo'] ?? null) ? $_POST['tipo'] : 'Jogo';
+$allowedStatuses = ['Aguardando Aprovação', 'Processando', 'Aprovado', 'Pago', 'Rejeitado'];
+if ($id === '' || strlen($id) > 255 || !in_array($type, ['Jogo', 'Afiliado'], true) || !in_array($status, $allowedStatuses, true)) {
+    http_response_code(400);
+    exit('Dados da solicitação inválidos.');
+}
+
+try {
+    $db = app_db();
+    $db->begin_transaction();
+    if ($type === 'Afiliado') {
+        if (!ctype_digit($id) || (int) $id < 1) throw new InvalidArgumentException('Identificador inválido.');
+        $stmt = $db->prepare('SELECT status FROM saque_afiliado WHERE id=? FOR UPDATE');
+        $numericId = (int) $id;
+        $stmt->bind_param('i', $numericId);
+    } else {
+        $stmt = $db->prepare('SELECT status FROM saques WHERE externalreference=? FOR UPDATE');
+        $stmt->bind_param('s', $id);
+    }
+    $stmt->execute();
+    $current = $stmt->get_result()->fetch_assoc();
+    if (!$current) throw new OutOfBoundsException('Solicitação de saque não encontrada.');
+    if (in_array(strtolower((string) $current['status']), ['pago', 'paid', 'rejeitado'], true)) {
+        if (strtolower((string) $current['status']) !== strtolower($status)) {
+            throw new DomainException('Uma solicitação concluída não pode ser alterada.');
+        }
+        $db->commit();
+        echo 'Status já registrado.';
+        exit;
+    }
+    if ($type === 'Afiliado') {
+        $stmt = $db->prepare('UPDATE saque_afiliado SET status=? WHERE id=?');
+        $stmt->bind_param('si', $status, $numericId);
+    } else {
+        $stmt = $db->prepare('UPDATE saques SET status=? WHERE externalreference=?');
+        $stmt->bind_param('ss', $status, $id);
+    }
+    $stmt->execute();
+    $db->commit();
+    echo 'Status atualizado com sucesso.';
+} catch (InvalidArgumentException $error) {
+    if (isset($db) && $db instanceof mysqli) $db->rollback();
+    http_response_code(400);
+    echo app_escape($error->getMessage());
+} catch (OutOfBoundsException $error) {
+    if (isset($db) && $db instanceof mysqli) $db->rollback();
+    http_response_code(404);
+    echo app_escape($error->getMessage());
+} catch (DomainException $error) {
+    if (isset($db) && $db instanceof mysqli) $db->rollback();
+    http_response_code(409);
+    echo app_escape($error->getMessage());
+} catch (Throwable $error) {
+    if (isset($db) && $db instanceof mysqli) $db->rollback();
+    error_log('withdrawal status update failed: ' . $error->getMessage());
+    http_response_code(500);
+    echo 'Não foi possível atualizar a solicitação.';
+} finally {
+    if (isset($db) && $db instanceof mysqli) $db->close();
+}

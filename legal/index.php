@@ -1,31 +1,20 @@
 <?php
-require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../app/auth.php';
 
-include '../conectarbanco.php';
-
-$conn = new mysqli($config['db_host'] ?? 'localhost', $config['db_user'], $config['db_pass'], $config['db_name']);
-
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
+try {
+    $conn = app_db();
+    $row = $conn->query('SELECT nome_unico, nome_um, nome_dois FROM app LIMIT 1')->fetch_assoc();
+    $conn->close();
+    if (!$row) throw new RuntimeException('Configuração de marca ausente.');
+    $nomeUnico = (string) $row['nome_unico'];
+    $nomeUm = (string) $row['nome_um'];
+    $nomeDois = (string) $row['nome_dois'];
+} catch (Throwable $error) {
+    if (isset($conn) && $conn instanceof mysqli) $conn->close();
+    error_log('legal page unavailable: ' . $error->getMessage());
+    http_response_code(503);
+    exit('Página temporariamente indisponível. Tente novamente em instantes.');
 }
-
-$sql = "SELECT nome_unico, nome_um, nome_dois FROM app";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-
-    $row = $result->fetch_assoc();
-
-
-    $nomeUnico = $row['nome_unico'];
-    $nomeUm = $row['nome_um'];
-    $nomeDois = $row['nome_dois'];
-
-} else {
-    return false;
-}
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -39,20 +28,21 @@ $conn->close();
             outline: none;
         }
     </style>
-    <meta charset="pt-br">
+    <meta charset="UTF-8">
     <title>
-        <?php echo $nomeUnico; ?>
+        <?= app_escape($nomeUnico) ?>
     </title>
 
     <meta property="og:image" content="../img/logo.png">
 
-    <meta content="<?php echo $nomeUnico; ?>" property="og:title">
+    <meta content="<?= app_escape($nomeUnico) ?>" property="og:title">
     <meta name="twitter:site" content="@daanrox">
     <meta name="twitter:image" content="../img/logo.png">
     <meta property="og:type" content="website">
 
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <link href="../arquivos/page.css" rel="stylesheet" type="text/css">
+    <link href="premium.css?v=1" rel="stylesheet" type="text/css">
     <link href="../arquivos/withdrawtable.css" rel="stylesheet" type="text/css">
     <script src="../arquivos/webfont.js" type="text/javascript"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -95,7 +85,7 @@ $conn->close();
                 <a href="../" aria-current="page" class="brand w-nav-brand" aria-label="home">
                     <img src="../arquivos/l2.png" loading="lazy" height="28" alt="" class="image-6">
                     <div class="nav-link logo">
-                        <?php echo $nomeUnico; ?>
+                        <?= app_escape($nomeUnico) ?>
                     </div>
                 </a>
                 <nav role="navigation" class="nav-menu w-nav-menu">
@@ -209,14 +199,14 @@ $conn->close();
                 <p>
                     Estes termos e condições e os documentos referidos abaixo (os
                     "Termos") aplicam-se ao uso da
-                    <?php echo $nomeUnico; ?> e seus serviços.
+                    <?= app_escape($nomeUnico) ?> e seus serviços.
                 </p>
                 <p>
                     Você deve revisar cuidadosamente estes Termos, pois eles contêm
                     informações importantes sobre seus direitos e obrigações relativas
                     ao uso do site e formam um acordo legal vinculativo entre você -
                     nosso cliente (o "Cliente") e nós. Ao usar este Site e/ou acessar a
-                    <?php echo $nomeUnico; ?>, você, seja você um convidado ou um usuário registrado com
+                    <?= app_escape($nomeUnico) ?>, você, seja você um convidado ou um usuário registrado com
                     uma conta (“Conta”), concorda em ficar vinculado por estes Termos,
                     juntamente com qualquer alterações, que podem ser publicadas de
                     tempos em tempos. Se não aceitar estes Termos, deverá abster-se de
@@ -231,14 +221,14 @@ $conn->close();
                     em vigor imediatamente após a publicação neste Site. Se você se
                     opuser a qualquer alterações, você deve parar imediatamente de usar
                     a
-                    <?php echo $nomeUnico; ?> e pedir encerramento na conta. Seu uso continuado do
+                    <?= app_escape($nomeUnico) ?> e pedir encerramento na conta. Seu uso continuado do
                     Site após tais publicação indicará sua concordância em ficar
                     vinculado aos Termos conforme alterados..
                 </p>
                 <h2>3. Suas obrigações</h2>
                 <p>
                     Você reconhece que em todos os momentos que acessar o site e usar a
-                    <?php echo $nomeUnico; ?> por qualquer motivo:
+                    <?= app_escape($nomeUnico) ?> por qualquer motivo:
                 </p>
                 <p>
                     3.1. Não fraudar em nenhum momento nosso sistema de afiliados,
@@ -248,7 +238,7 @@ $conn->close();
                 <p>
                     3.2. Você ser maior de idade. Você não deve acessar o site ou
                     apostar na
-                    <?php echo $nomeUnico; ?> se você não tiver 18 anos completos, sujeito a
+                    <?= app_escape($nomeUnico) ?> se você não tiver 18 anos completos, sujeito a
                     retenção do dinheiro até completar 18 anos e não alteramos dados
                     para terceiros maiores de idade.
                 </p>
@@ -269,7 +259,7 @@ $conn->close();
                 <p>
                     3.7. Ao fazer apostas, você pode perder parte ou todo o seu dinheiro
                     depositado na
-                    <?php echo $nomeUnico; ?> de acordo com estes Termos e você será
+                    <?= app_escape($nomeUnico) ?> de acordo com estes Termos e você será
                     totalmente responsável por essa perda.
                 </p>
                 <p>
@@ -280,14 +270,14 @@ $conn->close();
                 <p>
                     3.9. Você não deve tentar manipular qualquer mercado ou elemento
                     dentro da
-                    <?php echo $nomeUnico; ?> de má fé nem de uma maneira que afete
+                    <?= app_escape($nomeUnico) ?> de má fé nem de uma maneira que afete
                     adversamente a integridade da
-                    <?php echo $nomeUnico; ?>.
+                    <?= app_escape($nomeUnico) ?>.
                 </p>
                 <p>
                     3.10. Você deve geralmente agir de boa fé em relação a nós da
-                    <?php echo $nomeUnico; ?> em todos os momentos e para todas as apostas realizadas na
-                    <?php echo $nomeUnico; ?>.
+                    <?= app_escape($nomeUnico) ?> em todos os momentos e para todas as apostas realizadas na
+                    <?= app_escape($nomeUnico) ?>.
                 </p>
                 <p>
                     3.11. Você, ou, se aplicável, seus funcionários, empregadores,
@@ -296,7 +286,7 @@ $conn->close();
                 </p>
                 <h2>4. Uso restrito</h2>
                 <p>4.1. Você não deve usar a
-                    <?php echo $nomeUnico; ?> se:
+                    <?= app_escape($nomeUnico) ?> se:
                 </p>
                 <p>
                     4.1.1. Se você for menor de 18 anos (ou menor de idade, conforme
@@ -332,19 +322,19 @@ $conn->close();
                 <p>
                     4.1.5. interromper ou afetar ou influenciar indevidamente as
                     atividades de outros player ou parceiro ou a operação da
-                    <?php echo $nomeUnico; ?>
+                    <?= app_escape($nomeUnico) ?>
                     em geral;
                 </p>
                 <p>
                     4.1.6. para promover anúncios comerciais não solicitados, links
                     afiliados e outras formas de solicitação que pode ser removido da
-                    <?php echo $nomeUnico; ?> sem aviso prévio, em casos de fraudes;
+                    <?= app_escape($nomeUnico) ?> sem aviso prévio, em casos de fraudes;
                 </p>
                 <p>
                     4.1.7. qualquer forma que, em análise concluída seja constatada
                     tentativa de: (i) enganar a
-                    <?php echo $nomeUnico; ?> ou outro cliente usando o
-                    <?php echo $nomeUnico; ?> como publicidade enganosa; ou (ii) conspirar com qualquer
+                    <?= app_escape($nomeUnico) ?> ou outro cliente usando o
+                    <?= app_escape($nomeUnico) ?> como publicidade enganosa; ou (ii) conspirar com qualquer
                     outro player ou afiliado usando a SurfCashem para obter uma vantagem
                     desonesta;
                 </p>
@@ -364,7 +354,7 @@ $conn->close();
                 <p>
                     4.4. Podemos encerrar imediatamente sua conta mediante notificação
                     por e-mail ou Whatsapp a você se você usar a
-                    <?php echo $nomeUnico; ?> para fins não
+                    <?= app_escape($nomeUnico) ?> para fins não
                     autorizados. Também podemos tomar medidas legais contra você por
                     fazê-lo em determinadas circunstâncias.
                 </p>
@@ -373,20 +363,20 @@ $conn->close();
                     publicidade, ou outras agências, parceiros de mídia, contratados e
                     membros das famílias imediatas de cada um NÃO estão permitidas a
                     usar a
-                    <?php echo $nomeUnico; ?> com dinheiro real sem o consentimento prévio do
+                    <?= app_escape($nomeUnico) ?> com dinheiro real sem o consentimento prévio do
                     gerente de marketing. Deve tal atividade seja descoberta, a(s)
                     conta(s) será(ão) encerrada(s) imediatamente e todos os bônus/ganhos
                     serão perdido.
                 </p>
                 <h2>5. Registro</h2>
                 <p>Você concorda que em todos os momentos que usar a
-                    <?php echo $nomeUnico; ?>:
+                    <?= app_escape($nomeUnico) ?>:
                 </p>
                 <p>
                     5.1. Reservamo-nos o direito de recusar cadastros e/ou depósitos de
                     qualquer pessoa que se enquadre em nossa politica privada.
                     Reservamos que cadastros ou depósitos reembolsados, a
-                    <?php echo $nomeUnico; ?> não
+                    <?= app_escape($nomeUnico) ?> não
                     tem qualquer obrigação de comunicar um motivo específico.
                 </p>
                 <p>
@@ -422,7 +412,7 @@ $conn->close();
                 </p>
                 <p>
                     5.4. Você só tem direito para cadastrar uma conta para a
-                    <?php echo $nomeUnico; ?>,
+                    <?= app_escape($nomeUnico) ?>,
                     regra vale para players e afiliados. As contas estão sujeitas a
                     encerramento se for constatado que você tem várias contas
                     registradas conosco. Isso inclui o uso de representantes, parentes,
@@ -441,7 +431,7 @@ $conn->close();
                 </p>
                 <p>
                     5.6. Você deve manter sua senha para login na
-                    <?php echo $nomeUnico; ?> de modo
+                    <?= app_escape($nomeUnico) ?> de modo
                     confidencial. Desde que as informações da conta com algumm problema
                     for fornecida corretamente, temos o direito de assumir que as
                     apostas, depósitos e saques foram foi feito por você. Aconselhamos
@@ -579,7 +569,7 @@ $conn->close();
                     8.2. Taxas e encargos podem ser aplicados a depósitos e saques de
                     clientes, que podem ser encontrados no Site. Dentro na maioria dos
                     casos, absorvemos taxas de transação para depósitos em sua conta
-                    <?php echo $nomeUnico; ?>. Você é responsável por seus próprios encargos bancários
+                    <?= app_escape($nomeUnico) ?>. Você é responsável por seus próprios encargos bancários
                     que você pode incorrer devido ao depósito de fundos conosco.
                 </p>
                 <p>
@@ -587,14 +577,14 @@ $conn->close();
                     de pagamento eletrônico de terceiros para processar depósitos em
                     pix; eles não são processados ​​diretamente por nós. Se você
                     depositar qualquer saldo na
-                    <?php echo $nomeUnico; ?>, o prazo máximo de adicionar
+                    <?= app_escape($nomeUnico) ?>, o prazo máximo de adicionar
                     na sua conta é de 2 minutos. Se passar de 5 minutos e isso não se
                     resolver, chame o suporte ao-vivo com o comprovante do pagamento.
                 </p>
                 <p>
                     8.6. Os depósitos provenientes de atividades criminosas e/ou ilegais
                     e/ou não autorizadas não devem ser depositados na
-                    <?php echo $nomeUnico; ?>, em caso
+                    <?= app_escape($nomeUnico) ?>, em caso
                     de suspeita o reembolso e banimento é imediato. Acrescentamos que
                     será realizado um relatório e entregue para a polícia local sobre o
                     ocorrido.
@@ -680,11 +670,11 @@ $conn->close();
                     processos, todas as apostas serão anuladas. Você têm a obrigação de
                     nos informar imediatamente assim que tomar conhecimento de qualquer
                     erro com a
-                    <?php echo $nomeUnico; ?>. No caso de erros de comunicação ou do sistema
+                    <?= app_escape($nomeUnico) ?>. No caso de erros de comunicação ou do sistema
                     ou bugs ou vírus que ocorram em conexão com a
-                    <?php echo $nomeUnico; ?> e/ou
+                    <?= app_escape($nomeUnico) ?> e/ou
                     pagamentos feitos a você como resultado de um defeito ou erro no
-                    <?php echo $nomeUnico; ?>, não seremos responsáveis ​​perante você ou a terceiros
+                    <?= app_escape($nomeUnico) ?>, não seremos responsáveis ​​perante você ou a terceiros
                     por quaisquer custos, despesas, perdas ou reclamações diretas ou
                     indiretas decorrentes ou resultantes de tais erros, e nos reservamos
                     o direito de anular todos as apostas em questão e tomar qualquer
@@ -816,7 +806,7 @@ $conn->close();
                 </p>
                 <p>
                     Todos os ganhos obtidos com apostas através da
-                    <?php echo $nomeUnico; ?> enquanto
+                    <?= app_escape($nomeUnico) ?> enquanto
                     menor de idade devem ser pagos a nós sob demanda (se você não
                     cumprir esta disposição, procuraremos recuperar todos os custos
                     associados à recuperação de tais valores);
@@ -827,7 +817,7 @@ $conn->close();
                     critério. Reservamo-nos o direito de deduzir as taxas de transação
                     de pagamento do valor a ser devolvido, incluindo taxas de transação
                     para depósitos em sua conta
-                    <?php echo $nomeUnico; ?>.net que cobrimos.
+                    <?= app_escape($nomeUnico) ?>.net que cobrimos.
                 </p>
                 <p>
                     16.2. Esta condição também se aplica a você se tiver mais de 18
@@ -864,7 +854,7 @@ $conn->close();
                 <p>
                     18.2. Entre nós e você, somos os únicos proprietários dos direitos
                     sobre a
-                    <?php echo $nomeUnico; ?>, nossa tecnologia, software e sistemas de negócios
+                    <?= app_escape($nomeUnico) ?>, nossa tecnologia, software e sistemas de negócios
                     (os "Sistemas"), bem como nossas probabilidades. Você não deve usar
                     seu perfil pessoal para seu próprio ganho comercial (como vender sua
                     atualização de status para um anunciante); e ao selecionar um
@@ -886,7 +876,7 @@ $conn->close();
                     interesse especificamente retidos por nós e nossos licenciadores.
                     Você concorda em não usar nenhum sistema automático ou dispositivo
                     manual para monitorar ou copiar páginas da web ou conteúdo dentro da
-                    <?php echo $nomeUnico; ?>. Qualquer uso não autorizado ou reprodução pode resultar
+                    <?= app_escape($nomeUnico) ?>. Qualquer uso não autorizado ou reprodução pode resultar
                     em ação legal contra você.
                 </p>
                 <h2>19. Sua licença</h2>
@@ -894,7 +884,7 @@ $conn->close();
                     19.1. Sujeito a estes Termos e sua conformidade com eles, concedemos
                     a você uma licença não exclusiva, limitada, não licença transferível
                     e não sublicenciável para acessar e usar a
-                    <?php echo $nomeUnico; ?> para seu uso
+                    <?= app_escape($nomeUnico) ?> para seu uso
                     pessoal não comercial apenas propósitos. Nossa licença para você
                     termina se nosso contrato com você sob estes Termos terminar.
                 </p>
@@ -904,11 +894,11 @@ $conn->close();
                     vender, reproduzir, fazer upload, postar, distribuir, executar,
                     exibir, criar trabalhos derivados de ou em de qualquer outra forma
                     explorar, a
-                    <?php echo $nomeUnico; ?> e/ou qualquer conteúdo nele contido ou o
+                    <?= app_escape($nomeUnico) ?> e/ou qualquer conteúdo nele contido ou o
                     software nele contido, exceto conforme expressamente permitido
                     nestes Termos ou de outra forma no Site. Nenhuma informação ou
                     conteúdo no Serviço ou disponibilizado a você em conexão com a
-                    <?php echo $nomeUnico; ?> pode ser modificado ou alterado, fundido com outros dados
+                    <?= app_escape($nomeUnico) ?> pode ser modificado ou alterado, fundido com outros dados
                     ou publicados de qualquer forma, incluindo, por exemplo, captura de
                     tela ou banco de dados e qualquer outra atividade destinados a
                     coletar, armazenar, reorganizar ou manipular tais informações ou
@@ -925,9 +915,9 @@ $conn->close();
                 <p>
                     20.1. Para sua proteção e proteção de todos os nossos Clientes, a
                     publicação de qualquer conteúdo na
-                    <?php echo $nomeUnico; ?>, bem como conduta
+                    <?= app_escape($nomeUnico) ?>, bem como conduta
                     relacionada a ele e/ou a
-                    <?php echo $nomeUnico; ?>, que seja de alguma forma ilegal,
+                    <?= app_escape($nomeUnico) ?>, que seja de alguma forma ilegal,
                     inapropriada ou indesejável é estritamente proibido (“Comportamento
                     Proibido”).
                 </p>
@@ -943,7 +933,7 @@ $conn->close();
                 <p>
                     20.3. O comportamento proibido inclui, mas não se limita a, acessar
                     ou usar o
-                    <?php echo $nomeUnico; ?> para: promover ou compartilhar informações que
+                    <?= app_escape($nomeUnico) ?> para: promover ou compartilhar informações que
                     você sabe que são falsas, enganosas ou ilegais; realizar qualquer
                     atividade ilegal ou ilegal, como, mas não limitado a, qualquer
                     atividade que promova ou promova qualquer atividade ou
@@ -964,23 +954,23 @@ $conn->close();
                     de software ou outro computador ou código de programação (incluindo
                     HTML) projetado para interromper, destruir ou alterar a
                     funcionalidade da
-                    <?php echo $nomeUnico; ?>, sua apresentação ou qualquer outro
+                    <?= app_escape($nomeUnico) ?>, sua apresentação ou qualquer outro
                     site, software ou hardware de computador;
                 </p>
                 <p>
                     Interferir, interromper ou fazer engenharia reversa da
-                    <?php echo $nomeUnico; ?> de
+                    <?= app_escape($nomeUnico) ?> de
                     qualquer maneira, incluindo, sem limitação, interceptar, emular ou
                     redirecionar os protocolos de comunicação usados ​​por nós, criar ou
                     usar cheats, mods ou hacks ou qualquer outro software projetado para
                     modificar a
-                    <?php echo $nomeUnico; ?>, ou usando qualquer software que intercepte ou
+                    <?= app_escape($nomeUnico) ?>, ou usando qualquer software que intercepte ou
                     coleta informações de ou através da
-                    <?php echo $nomeUnico; ?>;
+                    <?= app_escape($nomeUnico) ?>;
                 </p>
                 <p>
                     Recuperar ou indexar qualquer informação da
-                    <?php echo $nomeUnico; ?> usando
+                    <?= app_escape($nomeUnico) ?> usando
                     qualquer robô, spider ou outro mecanismo automatizado;
                 </p>
                 <p>
@@ -1007,7 +997,7 @@ $conn->close();
                     nosso exclusivo critério, julgarmos apropriado ou necessário de
                     acordo com as circunstâncias, incluindo, sem limitação, a exclusão
                     do postagem(ões) da
-                    <?php echo $nomeUnico; ?> e/ou encerrar sua Conta, e tomar
+                    <?= app_escape($nomeUnico) ?> e/ou encerrar sua Conta, e tomar
                     qualquer ação contra qualquer Cliente ou terceiro que direta ou
                     indiretamente, ou conscientemente permite que qualquer terceiro,
                     direta ou indiretamente, se envolver em Comportamento Proibido, com
@@ -1016,7 +1006,7 @@ $conn->close();
                 <h2>21. Links para outros sites</h2>
                 <p>
                     O
-                    <?php echo $nomeUnico; ?> pode conter links para sites de terceiros que não são
+                    <?= app_escape($nomeUnico) ?> pode conter links para sites de terceiros que não são
                     mantidos ou relacionados a nós e sobre os quais não temos controle.
                     Os links para esses sites são fornecidos apenas para conveniência
                     dos Clientes e não são de forma alguma investigados, monitorados ou
@@ -1091,7 +1081,7 @@ $conn->close();
                 <p>
                     Sem limitar nossos outros recursos, podemos suspender ou encerrar
                     sua conta e nos recusar a continuar a fornecer a você a
-                    <?php echo $nomeUnico; ?>,
+                    <?= app_escape($nomeUnico) ?>,
                     em ambos os casos sem aviso prévio, se, em nossa opinião razoável,
                     você violar qualquer termo material destes Termos. A notificação de
                     qualquer ação tomada será, no entanto, prontamente fornecido a você.
@@ -1100,7 +1090,7 @@ $conn->close();
                 <p>
                     26.1. Termo de acordo. Estes Termos permanecerão em pleno vigor e
                     efeito enquanto você acessar ou usar a
-                    <?php echo $nomeUnico; ?> ou é um Cliente ou
+                    <?= app_escape($nomeUnico) ?> ou é um Cliente ou
                     visitante do Site. Estes Termos sobreviverão ao término de sua Conta
                     por qualquer motivo.
                 </p>
@@ -1156,7 +1146,7 @@ $conn->close();
                 </p>
                 <p>
                     26.4. Reconhecimento de culpa. Ao acessar ou usar A
-                    <?php echo $nomeUnico; ?>, você
+                    <?= app_escape($nomeUnico) ?>, você
                     reconhece ter lido, entendido e concordou com cada parágrafo destes
                     Termos. Como resultado, você renuncia irrevogavelmente a qualquer
                     argumentar, reivindicar, exigir ou proceder em contrário de qualquer
@@ -1166,49 +1156,20 @@ $conn->close();
                     26.5. Ao cadastrar e depositar, você concorda em seguir os termos.
                     Estes Termos constituem o acordo integral entre você e nós com
                     relação à sua acesso e uso da
-                    <?php echo $nomeUnico; ?> e substitui todos os outros
+                    <?= app_escape($nomeUnico) ?> e substitui todos os outros
                     acordos e comunicações anteriores, sejam verbais ou escrito em
                     relação ao assunto aqui tratado.
                 </p>
             </div>
         </section>
         <div class="footer-section wf-section">
-            <div class="domo-text">
-                <?php echo $nomeUm; ?> <br />
-            </div>
-            <div class="domo-text purple">
-                <?php echo $nomeDois; ?> <br />
-            </div>
-            <div class="follow-test">© Copyright xlk Limited, with registered offices at Dr. M.L. King Boulevard 117,
-                accredited by license GLH-16289876512. </div>
-            <div class="follow-test">
-
-            </div>
-            <div class="follow-test">contato@
-                <?php
-$nomeUnico = strtolower(str_replace(' ', '', $nomeUnico));
-echo $nomeUnico;
-?>.com
-            </div>
+            <div class="follow-test">© <?= date('Y') ?> <?= app_escape($nomeUnico) ?>. Todos os direitos reservados.</div>
         </div>
 
 
 
 
 
-        <script type="text/javascript">
-            <!-- Inclua a biblioteca jQuery -->
-            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-        <!-- Seu script jQuery -->
-        <script type="text/javascript">
-            $(document).ready(function () {
-                $("#withdrawValue").keyup(function (e) {
-                    var value = $("[name='withdrawValue']").val();
-                    var final = (value / 100) * 95;
-                    $('#updatedValue').text('' + final.toFixed(2));
-                });
-        });
-        </script>
     </div>
     <div id="imageDownloaderSidebarContainer">
         <div class="image-downloader-ext-container">

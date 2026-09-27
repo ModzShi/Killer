@@ -54,6 +54,8 @@ $escape = static function ($value) { return htmlspecialchars((string) $value, EN
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090b1a"><title>PIX | Subway Run</title>
 <style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px 14px 48px;background:radial-gradient(ellipse at 50% 0,#38206b85,transparent 48%),#090b1a;color:#f8f8ff;font-family:Inter,"Segoe UI",Arial,sans-serif}.pix-shell{width:100%;max-width:560px;margin:0 auto}.pix-back{display:inline-flex;align-items:center;gap:8px;margin:4px 0 20px;color:#c8c1e8;text-decoration:none;font-size:13px;font-weight:750}.pix-back:hover{color:#fff}.pix-card{padding:clamp(18px,5vw,28px);border:1px solid #a78bfa40;border-radius:24px;background:linear-gradient(145deg,#17172ff5,#101426f5);box-shadow:0 20px 55px #0006,inset 0 1px #ffffff10}.pix-brand{margin:0;color:#8eead7;font-size:10px;font-weight:900;letter-spacing:.17em}.pix-title{margin:7px 0 0;font-size:clamp(25px,7vw,34px);line-height:1.1;letter-spacing:-.04em}.pix-total{margin:18px 0;padding:15px 16px;border:1px solid #34dfbc42;border-radius:16px;background:linear-gradient(110deg,#0c352f,#102b37 75%,#171d3b)}.pix-total small{display:block;color:#bbd8d6;font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.pix-total strong{display:block;margin-top:3px;color:#5df0ca;font-size:30px;font-variant-numeric:tabular-nums}.pix-copy{display:block;width:100%;min-height:126px;padding:13px;border:1px solid #a78bfa50;border-radius:14px;background:#0b1022;color:#f2efff;font:500 13px/1.55 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;resize:vertical}.pix-label{display:block;margin:18px 0 8px;color:#e6e8f5;font-size:12px;font-weight:850}.pix-button{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:12px;padding:11px 15px;border:1px solid #a4ffe6;border-radius:14px;background:linear-gradient(105deg,#4df0c2,#16d7aa 52%,#75efa4);color:#062b26;font-size:14px;font-weight:900;cursor:pointer}.pix-button:hover{filter:brightness(1.06)}.pix-button.secondary{border-color:#a78bfa55;background:#211d43;color:#f5f1ff}.pix-instructions{margin:14px 0 0;color:#bbc3df;font-size:12px;line-height:1.55}.pix-notice{margin:0 0 16px;padding:12px 14px;border:1px solid #ffd86d55;border-radius:13px;background:#45361955;color:#ffedb0;font-size:13px;line-height:1.5}.pix-notice.success{border-color:#45e6c255;background:#103d35;color:#a9f8de}.pix-feedback{min-height:18px;margin:8px 0 0;color:#a7f1d9;font-size:12px;text-align:center}.pix-reference{margin:18px 0 0;color:#9ca6c3;font-size:10px;overflow-wrap:anywhere}.pix-reference strong{color:#cbd2e8}@media(max-width:420px){body{padding:18px 11px 32px}.pix-card{border-radius:20px}.pix-total strong{font-size:27px}}
+</style><style>
+.pix-qr-card{display:grid;justify-items:center;gap:10px;margin:18px 0 6px;padding:16px;border:1px solid #a78bfa45;border-radius:18px;background:linear-gradient(145deg,#211c42,#12182d)}.pix-qr-card strong{color:#f5f1ff;font-size:13px}.pix-qr{display:grid;place-items:center;width:min(252px,100%);aspect-ratio:1;padding:10px;border-radius:14px;background:#fff}.pix-qr canvas,.pix-qr img{display:block;max-width:100%;height:auto!important}.pix-qr-error{margin:0;color:#c8c8dc;font-size:12px;text-align:center}
 </style></head>
 <body><main class="pix-shell">
 <a class="pix-back" href="<?= app_escape(app_url('painel/')) ?>">← Voltar ao painel</a>
@@ -67,6 +69,7 @@ $escape = static function ($value) { return htmlspecialchars((string) $value, EN
 <?php elseif ($deposit['status'] === 'PENDING'): ?>
 <p class="pix-instructions">Copie o código e, no aplicativo do seu banco, escolha <strong>PIX Copia e Cola</strong>. Confira o valor antes de confirmar.</p>
 <label class="pix-label" for="pix-code">Código PIX</label><textarea class="pix-copy" id="pix-code" readonly rows="5"><?= $escape($deposit['pix_code']) ?></textarea>
+<div class="pix-qr-card"><strong>Escaneie com o app do seu banco</strong><div class="pix-qr" id="pix-qr" role="img" aria-label="QR Code do pagamento PIX"></div><p class="pix-qr-error" id="pix-qr-error" hidden>O QR Code não carregou. Você ainda pode copiar o código PIX acima.</p></div>
 <button class="pix-button" id="copy-pix" type="button">Copiar código PIX</button><p class="pix-feedback" id="copy-feedback" role="status" aria-live="polite"></p>
 <form method="post"><input type="hidden" name="csrf" value="<?= $escape($_SESSION['deposit_csrf']) ?>"><button class="pix-button secondary" type="submit">Já paguei · conferir status</button></form>
 <p class="pix-instructions">A confirmação é consultada na BX Pay. Aguarde pelo menos 20 segundos entre consultas. Se já pagou, não gere outro PIX.</p>
@@ -74,7 +77,14 @@ $escape = static function ($value) { return htmlspecialchars((string) $value, EN
 <p class="pix-reference">Referência: <strong><?= $escape($deposit['reference']) ?></strong></p>
 </section>
 <?php endif; ?>
-</main><script>
+</main><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
+const qrTarget = document.getElementById('pix-qr');
+const pixField = document.getElementById('pix-code');
+if (qrTarget && pixField && window.QRCode) {
+ new QRCode(qrTarget, {text: pixField.value, width: 232, height: 232, colorDark: '#11152a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M});
+} else if (qrTarget) {
+ document.getElementById('pix-qr-error').hidden = false;
+}
 const copy = document.getElementById('copy-pix');
 if (copy) copy.addEventListener('click', async () => {
  const input = document.getElementById('pix-code');

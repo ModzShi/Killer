@@ -3,7 +3,9 @@ if (defined('SK_BOOTSTRAPPED')) return;
 define('SK_BOOTSTRAPPED', true);
 define('SK_ROOT', dirname(__DIR__));
 require_once SK_ROOT . '/components/icons.php';
-if (getenv('APP_ENV') === 'production') { ini_set('display_errors', '0'); error_reporting(E_ALL); }
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL);
 define('SK_OFFLINE', false);
 $scriptFile = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
 $relativeFile = substr($scriptFile, strlen(str_replace('\\', '/', SK_ROOT)));
@@ -17,13 +19,17 @@ function app_check_csrf(): bool { return is_string($_POST['csrf'] ?? null) && ha
 if (PHP_SAPI !== 'cli') {
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
+    header('X-Permitted-Cross-Domain-Policies: none');
     header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
     header("Content-Security-Policy: frame-ancestors 'self'");
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') header('Strict-Transport-Security: max-age=15552000');
     if (session_status() !== PHP_SESSION_ACTIVE) {
         ini_set('session.use_strict_mode', '1');
+        ini_set('session.use_only_cookies', '1');
         session_name('SK_SESSION');
-        session_set_cookie_params(['path' => app_url(), 'httponly' => true, 'samesite' => 'Lax', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
+        $secureCookie = getenv('APP_ENV') === 'production' || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+        session_set_cookie_params(['path' => app_url(), 'httponly' => true, 'samesite' => 'Lax', 'secure' => $secureCookie]);
         session_start();
     }
     if (isset($_COOKIE['SK_REMEMBER_PLAYER']) || isset($_COOKIE['SK_REMEMBER_ADMIN']) || isset($_COOKIE['SK_REMEMBER_MANAGER'])) {

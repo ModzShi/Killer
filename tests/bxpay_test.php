@@ -21,7 +21,7 @@ function response($data, int $code = 200): array { return ['body' => is_array($d
 $login = response(['statusCode' => 200, 'authenticated' => true]);
 $api = client();
 $api->responses = [$login, response(['balance' => 20]), response(['balance' => 21])];
-check($api->consultarSaldo()['balance'] === 20 && $api->consultarSaldo()['balance'] === 21 && count($api->calls) === 3, 'Authenticated session is reused');
+check($api->consultarSaldo()['balance'] === 20.0 && $api->consultarSaldo()['balance'] === 21.0 && count($api->calls) === 3, 'Authenticated session is reused');
 $api = client();
 check(!empty($api->criarDeposito('', '', 4.99)['_error']) && !$api->calls, 'Reject deposits below minimum before calling provider');
 check(!empty($api->criarDeposito('', '', NAN)['_error']) && !$api->calls, 'Reject non-finite amounts');
