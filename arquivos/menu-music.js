@@ -17,7 +17,13 @@
   if(audio.paused){audio.play().then(()=>{try{localStorage.setItem('menuMusicEnabled','1')}catch(e){};update()}).catch(update)}
   else{audio.pause();try{localStorage.setItem('menuMusicEnabled','0')}catch(e){};update()}
  });
- let enabled=false;
- try{enabled=localStorage.getItem('menuMusicEnabled')==='1'}catch(e){}
- if(enabled)audio.play().then(update).catch(update);
+ let enabled=true;
+ try{enabled=localStorage.getItem('menuMusicEnabled')!=='0'}catch(e){}
+ const start=()=>audio.play().then(update).catch(update);
+ if(enabled){
+  start();
+  const resume=()=>{if(!audio.paused)return;start()};
+  document.addEventListener('pointerdown',resume,{once:true,passive:true});
+  document.addEventListener('keydown',resume,{once:true});
+ }
 })();
