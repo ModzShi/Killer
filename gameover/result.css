@@ -48,3 +48,10 @@ h1{position:relative;z-index:1;font-size:clamp(33px,8vw,49px);text-shadow:0 2px 
 @keyframes cardSweep{0%,58%{background-position:140% 0}82%,100%{background-position:-140% 0}}
 @media(max-width:430px){body{padding:12px 0}.result-card{width:min(94vw,560px);padding:19px 19px 22px;margin:12px auto}.halo{width:158px;height:158px;margin-top:12px}.emblem{width:108px;height:108px}.emblem .ui-icon{width:59px;height:59px}.subtitle{font-size:14px;margin:13px auto 18px}.reward{padding:15px 12px 13px}.actions{margin-top:22px}.button{min-height:55px}}
 @media(prefers-reduced-motion:reduce){.stage:after,.result-card:after{animation:none}.halo:before,.halo:after{animation:none}}
+
+/* Keep the celebration layer behind the result card and animate only transforms. */
+.confetti{z-index:0;contain:paint;}
+.result-card{z-index:1;}
+.confetti i{top:0;left:var(--x);width:clamp(6px,1.5vw,10px);height:clamp(11px,2.5vw,18px);opacity:0;border:1px solid #ffffff70;border-radius:3px 1px 3px 1px;will-change:transform,opacity;animation:confettiFall 3.8s linear infinite;animation-delay:var(--d);}
+@keyframes confettiFall{0%{opacity:0;transform:translate3d(0,-8vh,0) rotate(var(--r)) scale(.72)}10%{opacity:.95}80%{opacity:.88}100%{opacity:0;transform:translate3d(var(--drift,24px),112vh,0) rotate(calc(var(--r) + 540deg)) scale(1)}}
+@media(prefers-reduced-motion:reduce){.confetti i{display:none;animation:none}}

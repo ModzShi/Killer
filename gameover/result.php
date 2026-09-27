@@ -31,10 +31,10 @@ $win = $gameResult === 'WIN' && $error === '';
 $again = $demo ? app_url('presell/jogoteste/') : app_url('painel/');
 $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
 ?><!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07142c"><title><?= $error ? 'Resultado da corrida' : ($win ? 'Vitória!' : 'Fim da corrida') ?></title><link rel="stylesheet" href="<?= app_escape(app_url('gameover/result.css')) ?>?v=6"><link rel="stylesheet" href="<?= app_escape(app_url('gameover/prompt.css')) ?>"></head>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07142c"><title><?= $error ? 'Resultado da corrida' : ($win ? 'Vitória!' : 'Fim da corrida') ?></title><link rel="stylesheet" href="<?= app_escape(app_url('gameover/result.css')) ?>?v=7"><link rel="stylesheet" href="<?= app_escape(app_url('gameover/prompt.css')) ?>"></head>
 <body class="<?= $error ? 'error' : ($win ? 'win' : 'loss') ?>">
 <script>try{sessionStorage.setItem('finished:'+<?= json_encode($token, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,'1')}catch(e){}</script>
-<div class="stage" aria-hidden="true"></div><div class="confetti" aria-hidden="true"><?php if ($win): for($i=0;$i<24;$i++): ?><i style="--x:<?= ($i*47)%100 ?>%;--d:<?= ($i%8)*.15 ?>s;--r:<?= ($i*71)%340 ?>deg"></i><?php endfor; endif; ?></div>
+<div class="stage" aria-hidden="true"></div><div class="confetti" aria-hidden="true"><?php if ($win): for($i=0;$i<24;$i++): ?><i style="--x:<?= ($i*47)%100 ?>%;--d:<?= ($i%8)*.15 ?>s;--r:<?= ($i*71)%340 ?>deg;--drift:<?= (($i%7)-3)*18 ?>px"></i><?php endfor; endif; ?></div>
 <main class="result-card"><div class="topline"><span class="brand"><span class="brand-bolt">ϟ</span> SUBWAY <b>RUN</b></span><button id="sound" type="button" aria-label="Reproduzir som" title="Som"><?= ui_icon("sound") ?></button></div>
 <div class="halo"><div class="emblem" aria-hidden="true"><?= ui_icon($error ? 'help' : ($win ? 'trophy' : 'history')) ?></div></div>
 <p class="eyebrow"><?= $preview ? 'PRÉVIA VISUAL • SEM TRANSAÇÃO' : ($fictional ? 'MODO TREINO • RESULTADO SIMULADO' : 'RESULTADO DA CORRIDA') ?></p>
