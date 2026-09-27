@@ -3,7 +3,7 @@ $verifiedPayouts=[];
 try {
     require_once __DIR__.'/../app/auth.php';
     $payoutDb=app_db();
-    $verifiedPayouts=$payoutDb->query("SELECT destino,valor FROM saques WHERE status IN ('Pago','PAID','PAID_OUT','Concluído','Concluido') AND CAST(valor AS DECIMAL(12,2))>0 ORDER BY STR_TO_DATE(data,'%d-%m-%Y %H:%i:%s') DESC LIMIT 12")->fetch_all(MYSQLI_ASSOC);
+    $verifiedPayouts=$payoutDb->query("SELECT destino,valor FROM saques WHERE status IN ('Pago','PAID','PAID_OUT','Concluído','Concluido') AND CAST(valor AS DECIMAL(12,2)) BETWEEN 50 AND 800 ORDER BY STR_TO_DATE(data,'%d-%m-%Y %H:%i:%s') DESC LIMIT 12")->fetch_all(MYSQLI_ASSOC);
     $payoutDb->close();
 } catch(Throwable $error) { error_log('verified payout toast: '.$error->getMessage()); }
 if(!$verifiedPayouts)return;
