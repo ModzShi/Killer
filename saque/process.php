@@ -14,7 +14,8 @@ try{
     if($account && (string)$account['demo']==='1'){
         if($amount>(float)$account['saldo'])throw new InvalidArgumentException('O valor excede o saldo disponível da conta demo.');
         $db->close();
-        $_SESSION['withdraw_notice']='Simulação aprovada para R$ '.number_format($amount,2,',','.').'. Nenhum PIX foi enviado e o saldo não foi alterado.';
+        $_SESSION['withdraw_demo_success']=true;
+        $_SESSION['withdraw_notice']='R$ '.number_format($amount,2,',','.');
         header('Location: '.app_url('saque/'),true,303);exit;
     }
     withdrawal_install($db);

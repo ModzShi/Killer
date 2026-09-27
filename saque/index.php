@@ -15,7 +15,9 @@ $rolloverProgress = $demoAccount ? 100 : ($rolloverRequired > 0 ? min(100, max(0
 $rolloverComplete = $demoAccount || (float)($user['total_apostado'] ?? 0) >= $rolloverRequired;
 $canRequest = $demoAccount ? ($balance >= $minimum) : ($rolloverComplete && $balance > 0 && $balance >= $minimum);
 $notice = $_SESSION['withdraw_notice'] ?? '';
+$demoSuccess = $demoAccount && !empty($_SESSION['withdraw_demo_success']);
 unset($_SESSION['withdraw_notice']);
+unset($_SESSION['withdraw_demo_success']);
 $_SESSION['withdraw_nonce'] = bin2hex(random_bytes(16));
 $quickAmounts = array_values(array_filter([25, 50, 100, 200], static fn($value) => $value >= $minimum && $value <= $balance));
 $siteName = (string)($app['nome_unico'] ?? 'Subway Run');
@@ -29,6 +31,7 @@ $siteName = (string)($app['nome_unico'] ?? 'Subway Run');
     <link rel="stylesheet" href="<?= app_escape(app_url('arquivos/menu.css')) ?>?v=<?= filemtime(dirname(__DIR__) . '/arquivos/menu.css') ?>">
     <link rel="stylesheet" href="<?= app_escape(app_url('arquivos/wallet.css')) ?>?v=<?= filemtime(dirname(__DIR__) . '/arquivos/wallet.css') ?>">
     <style>
+        .withdraw-demo-success{display:grid;gap:5px;margin-bottom:16px;padding:14px 16px;border:1px solid #38d9a077;border-radius:14px;background:linear-gradient(135deg,#123d35,#14372f);color:#ebfff7;box-shadow:0 8px 22px #13b98120}.withdraw-demo-success strong{color:#7cf0bd;font-size:14px}.withdraw-demo-success span{color:#e2fff2;font-size:13px;font-weight:750}.withdraw-demo-success small{color:#c1e7d7;font-size:11px;line-height:1.45}
         .withdraw-rollover{margin:18px 0 4px;padding:16px;border:1px solid #8e78e64a;border-radius:17px;background:linear-gradient(145deg,#16162e,#111426)}.withdraw-rollover__top{display:flex;justify-content:space-between;gap:12px;color:#f2efff;font-size:13px;font-weight:850}.withdraw-rollover__top span:last-child{color:<?= $rolloverComplete ? '#5df0ca' : '#ffd86d' ?>}.withdraw-rollover__track{height:9px;margin:11px 0 8px;overflow:hidden;border-radius:99px;background:#ffffff16}.withdraw-rollover__fill{height:100%;width:<?= number_format($rolloverProgress,2,'.','') ?>%;border-radius:inherit;background:linear-gradient(90deg,#8b6cff,#36e6bd);transition:width .35s}.withdraw-rollover p{margin:0;color:#c5c9df;font-size:12px;line-height:1.55}.withdraw-rollover small{display:block;margin-top:7px;color:#aeb7d4;font-size:11px}.withdraw-safe{display:flex;gap:10px;align-items:flex-start;margin-top:17px;padding:12px 13px;border:1px solid #36e6bd30;border-radius:14px;background:#0c352f55;color:#cdeee7;font-size:12px;line-height:1.5}.withdraw-safe svg{width:18px;height:18px;flex:0 0 18px;color:#5df0ca}.field .withdraw-error{color:#ffd2d9}
         @media(max-width:680px){.withdraw-rollover{margin-top:14px;padding:13px}.withdraw-safe{margin-top:13px}}
     </style>
@@ -40,8 +43,7 @@ $siteName = (string)($app['nome_unico'] ?? 'Subway Run');
     <div class="deposit-layout">
         <section class="deposit-card" aria-label="Formulário de saque">
             <div class="wallet-summary"><div><span>Saldo disponível</span><strong>R$ <?= number_format($balance,2,',','.') ?></strong></div><span class="wallet-symbol" aria-hidden="true"><?= ui_icon('wallet') ?></span></div>
-            <?php if($notice!==''): ?><div class="deposit-alert" role="status"><p><?= app_escape($notice) ?></p></div><?php endif; ?>
-            <?php if($demoAccount): ?><div class="deposit-alert" role="status"><p>Modo demo: a aprovação é apenas para teste. Nenhum PIX será enviado e o saldo não será alterado.</p></div><?php endif; ?>
+            <?php if($notice!==''): ?><?php if($demoSuccess): ?><div class="withdraw-demo-success" role="status"><strong>Dinheiro fictício enviado com sucesso!</strong><span>Valor demonstrativo: <?= app_escape($notice) ?></span><small>Simulação: nenhum PIX foi enviado e o saldo demo não foi alterado.</small></div><?php else: ?><div class="deposit-alert" role="status"><p><?= app_escape($notice) ?></p></div><?php endif; ?><?php endif; ?>
             <?php if(!$rolloverComplete): ?><div class="deposit-alert" role="status"><p>Complete o requisito de apostas exibido abaixo para liberar o saque.</p></div><?php elseif($balance<$minimum): ?><div class="deposit-alert" role="status"><p>Seu saldo ainda não alcançou o saque mínimo de R$ <?= number_format($minimum,2,',','.') ?>.</p></div><?php endif; ?>
             <div class="withdraw-rollover" aria-label="Progresso do requisito de apostas">
                 <div class="withdraw-rollover__top"><span>Requisito de apostas<?= $rollover>0?' ('.$rollover.'x)':'' ?></span><span><?= $rolloverComplete?'Liberado':number_format($rolloverProgress,0,',','.').'%' ?></span></div>
