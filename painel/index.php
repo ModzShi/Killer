@@ -165,6 +165,5 @@ $bets = [
         </div>
     </section>
 </main>
-<?php require __DIR__.'/../components/simulated-activity.php'; ?>
 </body>
 </html>
