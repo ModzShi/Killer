@@ -4,16 +4,16 @@ if (empty($_SESSION['email'])) { header('Location: ' . app_url('login/'), true, 
 $db = app_db();
 $user = app_query($db, 'SELECT nome,saldo,total_apostado,depositou,demo FROM appconfig WHERE email=? LIMIT 1', [(string)$_SESSION['email']])->get_result()->fetch_assoc();
 if (!$user) { $db->close(); header('Location: ' . app_url('logout.php'), true, 303); exit; }
-if ((string)($user['demo'] ?? '0') === '1') { $db->close(); header('Location: ' . app_url('painel/'), true, 303); exit; }
+$demoAccount = (string)($user['demo'] ?? '0') === '1';
 $app = $db->query('SELECT nome_unico,saques_min,rollover_saque FROM app LIMIT 1')->fetch_assoc() ?: [];
 $db->close();
 $balance = (float)($user['saldo'] ?? 0);
-$minimum = max(0, (float)($app['saques_min'] ?? 0));
+$minimum = $demoAccount ? 0.01 : max(0, (float)($app['saques_min'] ?? 0));
 $rollover = max(0, (float)($app['rollover_saque'] ?? 0));
 $rolloverRequired = (float)($user['depositou'] ?? 0) * $rollover;
-$rolloverProgress = $rolloverRequired > 0 ? min(100, max(0, (float)$user['total_apostado'] / $rolloverRequired * 100)) : 100;
-$rolloverComplete = (float)($user['total_apostado'] ?? 0) >= $rolloverRequired;
-$canRequest = $rolloverComplete && $balance > 0 && $balance >= $minimum;
+$rolloverProgress = $demoAccount ? 100 : ($rolloverRequired > 0 ? min(100, max(0, (float)$user['total_apostado'] / $rolloverRequired * 100)) : 100);
+$rolloverComplete = $demoAccount || (float)($user['total_apostado'] ?? 0) >= $rolloverRequired;
+$canRequest = $demoAccount ? ($balance >= $minimum) : ($rolloverComplete && $balance > 0 && $balance >= $minimum);
 $notice = $_SESSION['withdraw_notice'] ?? '';
 unset($_SESSION['withdraw_notice']);
 $_SESSION['withdraw_nonce'] = bin2hex(random_bytes(16));
@@ -41,6 +41,7 @@ $siteName = (string)($app['nome_unico'] ?? 'Subway Run');
         <section class="deposit-card" aria-label="Formulário de saque">
             <div class="wallet-summary"><div><span>Saldo disponível</span><strong>R$ <?= number_format($balance,2,',','.') ?></strong></div><span class="wallet-symbol" aria-hidden="true"><?= ui_icon('wallet') ?></span></div>
             <?php if($notice!==''): ?><div class="deposit-alert" role="status"><p><?= app_escape($notice) ?></p></div><?php endif; ?>
+            <?php if($demoAccount): ?><div class="deposit-alert" role="status"><p>Modo demo: a aprovação é apenas para teste. Nenhum PIX será enviado e o saldo não será alterado.</p></div><?php endif; ?>
             <?php if(!$rolloverComplete): ?><div class="deposit-alert" role="status"><p>Complete o requisito de apostas exibido abaixo para liberar o saque.</p></div><?php elseif($balance<$minimum): ?><div class="deposit-alert" role="status"><p>Seu saldo ainda não alcançou o saque mínimo de R$ <?= number_format($minimum,2,',','.') ?>.</p></div><?php endif; ?>
             <div class="withdraw-rollover" aria-label="Progresso do requisito de apostas">
                 <div class="withdraw-rollover__top"><span>Requisito de apostas<?= $rollover>0?' ('.$rollover.'x)':'' ?></span><span><?= $rolloverComplete?'Liberado':number_format($rolloverProgress,0,',','.').'%' ?></span></div>
@@ -54,10 +55,10 @@ $siteName = (string)($app['nome_unico'] ?? 'Subway Run');
                 <div class="field"><label for="withdrawCPF">CPF da chave PIX</label><input id="withdrawCPF" name="withdrawCPF" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" required><small class="field-help">Use o CPF vinculado à chave PIX.</small></div>
                 <div class="field"><label for="withdrawValue">Valor do saque</label><input id="withdrawValue" name="withdrawValue" type="number" inputmode="decimal" min="<?= app_escape(number_format($minimum,2,'.','')) ?>" max="<?= app_escape(number_format($balance,2,'.','')) ?>" step="0.01" placeholder="Mínimo R$ <?= number_format($minimum,2,',','.') ?>" required><small class="field-help">Valor mínimo: R$ <?= number_format($minimum,2,',','.') ?>.</small></div>
                 <?php if($quickAmounts): ?><p class="quick-label">Escolha um valor rápido</p><div class="quick-amounts" aria-label="Valores sugeridos para saque"><?php foreach($quickAmounts as $quick): ?><button class="quick-amount" type="button" data-withdraw-amount="<?= (int)$quick ?>">R$ <?= (int)$quick ?></button><?php endforeach; ?></div><?php endif; ?>
-                <button class="deposit-submit" type="submit" <?= $canRequest?'':'disabled' ?>><?= ui_icon('withdraw') ?> Solicitar saque via PIX</button>
+                <button class="deposit-submit" type="submit" <?= $canRequest?'':'disabled' ?>><?= ui_icon('withdraw') ?> <?= $demoAccount ? 'Simular aprovação do saque' : 'Solicitar saque via PIX' ?></button>
             </form>
         </section>
-        <aside class="deposit-aside"><span class="aside-icon" aria-hidden="true"><?= ui_icon('help') ?></span><h2>Como funciona</h2><p>Depois de enviar o pedido, ele será analisado pela equipe e o pagamento será feito para a chave informada.</p><ol class="deposit-steps"><li><span class="step-number">1</span><span>Informe os dados do titular e o CPF da chave PIX.</span></li><li><span class="step-number">2</span><span>Escolha um valor dentro do saldo disponível.</span></li><li><span class="step-number">3</span><span>Acompanhe a solicitação após a análise manual.</span></li></ol><p class="deposit-footnote"><strong>Confira antes de enviar:</strong> nome, CPF e valor. Consulte também os <a href="<?= app_escape(app_url('legal/')) ?>">termos de uso</a>.</p></aside>
+        <aside class="deposit-aside"><span class="aside-icon" aria-hidden="true"><?= ui_icon('help') ?></span><h2>Como funciona</h2><?php if($demoAccount): ?><p>Modo demo: este teste mostra uma aprovacao ficticia. Nenhum PIX sera enviado e o saldo permanece igual.</p><?php else: ?><p>A equipe analisa a solicitacao manualmente. Depois da aprovacao, o PIX pode levar ate 24 horas para cair na chave informada.</p><?php endif; ?><ol class="deposit-steps"><li><span class="step-number">1</span><span>Informe o nome e a chave PIX do titular.</span></li><li><span class="step-number">2</span><span>Escolha um valor dentro do saldo disponivel.</span></li><li><span class="step-number">3</span><span><?= $demoAccount ? 'Veja o resultado da simulacao.' : 'Acompanhe a analise manual do pedido.' ?></span></li></ol><p class="deposit-footnote"><strong>Confira antes de enviar:</strong> nome, chave e valor. Consulte os <a href="<?= app_escape(app_url('legal/')) ?>">termos de uso</a>.</p></aside>
     </div>
 </main>
 <script>
