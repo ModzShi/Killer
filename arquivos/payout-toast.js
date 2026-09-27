@@ -1,12 +1,19 @@
 (()=>{
- const toast=document.querySelector('.payout-toast[data-payouts]');
+ const toast=document.querySelector('.payout-toast[data-names]');
  if(!toast)return;
- let items=[];
- try{items=JSON.parse(toast.dataset.payouts)}catch(error){return}
- if(!items.length)return;
- const message=toast.querySelector('[data-payout-message]');
- let index=0;
+ let names=[];
+ try{names=JSON.parse(toast.dataset.names)}catch(error){return}
+ if(!names.length)return;
+ const name=toast.querySelector('[data-payout-name]');
+ const amount=toast.querySelector('[data-payout-amount]');
+ const money=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
  let audio=null;
+
+ const nextItem=()=>{
+  name.textContent=names[Math.floor(Math.random()*names.length)];
+  amount.textContent=money.format(50+Math.random()*750);
+ };
+ nextItem();
 
  const unlockAudio=()=>{
   if(!audio){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;audio=new AudioContextClass()}
@@ -40,8 +47,7 @@
    toast.hidden=true;
    toast.classList.remove('is-exiting');
    window.setTimeout(()=>{
-    index=(index+1)%items.length;
-    message.textContent=items[index].name+' acabou de sacar '+items[index].amount;
+    nextItem();
     toast.hidden=false;
     toast.classList.add('is-entering');
     playBubble();

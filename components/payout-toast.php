@@ -1,32 +1,10 @@
 <?php
-$verifiedPayouts=[];
-try {
-    require_once __DIR__.'/../app/auth.php';
-    $payoutDb=app_db();
-    $verifiedPayouts=$payoutDb->query("SELECT destino,valor FROM saques WHERE status IN ('Pago','PAID','PAID_OUT','Concluído','Concluido') AND CAST(valor AS DECIMAL(12,2)) BETWEEN 50 AND 800 ORDER BY STR_TO_DATE(data,'%d-%m-%Y %H:%i:%s') DESC LIMIT 12")->fetch_all(MYSQLI_ASSOC);
-    $payoutDb->close();
-} catch(Throwable $error) { error_log('verified payout toast: '.$error->getMessage()); }
-if(!$verifiedPayouts)return;
-$maskPayoutName=static function($name):string {
-    $name=trim(preg_replace('/\s+/u',' ',(string)$name));
-    if($name==='')return 'Jogador';
-    $parts=explode(' ',$name);
-    $first=function_exists('mb_convert_case')?mb_convert_case($parts[0],MB_CASE_TITLE,'UTF-8'):ucfirst(strtolower($parts[0]));
-    if(!isset($parts[1]))return $first;
-    $last=$parts[count($parts)-1];$initial=function_exists('mb_substr')?mb_substr($last,0,1,'UTF-8'):substr($last,0,1);
-    return $first.' '.strtoupper($initial).'.';
-};
-$toastItems=[];
-foreach($verifiedPayouts as $payout){
-    $amount=(float)($payout['valor']??0);
-    if(!is_finite($amount)||$amount<=0)continue;
-    $toastItems[]=['name'=>$maskPayoutName($payout['destino']??''),'amount'=>'R$ '.number_format($amount,2,',','.')];
-}
-if(!$toastItems)return;
-$first=$toastItems[0];
+$toastNames=['Ana C.','Lucas M.','Alice R.','Bruno S.','Camila F.','João P.','Helena A.','Rafaela L.','Igor T.','Mariana S.','Felipe G.','Beatriz M.','Caio R.','Julia F.','Mateus A.','Clara P.','Thiago L.','Eduarda C.','Gabriel D.','Valentina B.'];
 ?>
 <link rel="stylesheet" href="<?=$menuEscape($menuBase)?>arquivos/payout-toast.css?v=<?=filemtime(__DIR__.'/../arquivos/payout-toast.css')?>">
-<aside class="payout-toast" data-payouts="<?=app_escape(json_encode($toastItems,JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT))?>" aria-live="polite" aria-label="Atividade de saque">
-    <strong class="payout-toast__message" data-payout-message><?=app_escape($first['name'])?> acabou de sacar <?=app_escape($first['amount'])?></strong>
+<aside class="payout-toast payout-toast--demo" data-names="<?=app_escape(json_encode($toastNames,JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT))?>" aria-live="polite" aria-label="Notificações de exemplo, simuladas">
+    <span class="payout-toast__badge">SIMULAÇÃO</span>
+    <strong class="payout-toast__name" data-payout-name>Ana C.</strong>
+    <b data-payout-amount>R$ 184,50</b>
 </aside>
 <script src="<?=$menuEscape($menuBase)?>arquivos/payout-toast.js?v=<?=filemtime(__DIR__.'/../arquivos/payout-toast.js')?>" defer></script>
