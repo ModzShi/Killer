@@ -10,11 +10,11 @@ try{
     try{manager_partner_create($db,$managerId,'Influenciador QA',40,31);check_manager(false,'Budget guard');}catch(InvalidArgumentException $e){check_manager(true,'Budget guard');}
     $code=manager_partner_create($db,$managerId,'Influenciador QA',40,30);$partnerId=$db->insert_id;
     check_manager((bool)preg_match('/^[a-f0-9]{24}$/D',$code),'Unique invitation code');
-    app_register($db,['email'=>$influencerEmail,'senha'=>'ExamplePassword123','password_confirmation'=>'ExamplePassword123','telefone_confirmation'=>'11999999998'],'',$code);
+    app_register($db,['nome'=>'Influenciador QA','email'=>$influencerEmail,'senha'=>'ExamplePassword123','password_confirmation'=>'ExamplePassword123','telefone_confirmation'=>'11999999998'],'',$code);
     $influencer=app_query($db,'SELECT id,demo FROM appconfig WHERE email=?',[$influencerEmail])->get_result()->fetch_assoc();
     $partner=app_query($db,'SELECT influencer_email FROM manager_partners WHERE id=?',[(string)$partnerId])->get_result()->fetch_assoc();
     check_manager(($influencer['demo']??'')==='1'&&($partner['influencer_email']??'')===$influencerEmail,'Manager invite creates and binds demo influencer account');
-    app_register($db,['email'=>$leadEmail,'senha'=>'ExamplePassword123','password_confirmation'=>'ExamplePassword123','telefone_confirmation'=>'11999999999'],'',$code,null,(string)$influencer['id']);
+    app_register($db,['nome'=>'Lead QA','email'=>$leadEmail,'senha'=>'ExamplePassword123','password_confirmation'=>'ExamplePassword123','telefone_confirmation'=>'11999999999'],'',$code,null,(string)$influencer['id']);
     $lead=app_query($db,'SELECT partner_id,influencer_email FROM manager_referrals WHERE email=?',[$leadEmail])->get_result()->fetch_assoc();
     check_manager((int)($lead['partner_id']??0)===$partnerId&&($lead['influencer_email']??'')===$influencerEmail,'Influencer invite inherits partner attribution');
     manager_demo_create($db,$managerId,$demoEmail,'ExamplePassword123');

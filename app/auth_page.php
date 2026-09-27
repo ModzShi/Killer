@@ -4,14 +4,14 @@ $admin = $authMode === 'admin'; $register = $authMode === 'register';
 $destination = app_url($admin ? 'adm/' : 'painel/');
 if (!empty($_SESSION[$admin ? 'emailadm' : 'email'])) { header('Location: ' . $destination); exit; }
 $rememberDays = $admin ? 7 : 30;
-$error = ''; $email = trim(app_input('email')); $phone = app_input('telefone_confirmation');
+$error = ''; $email = trim(app_input('email')); $phone = app_input('telefone_confirmation'); $name = trim(app_input('nome'));
 try {
     $db = app_db();
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!app_check_csrf()) { http_response_code(403); $error = 'O formulário expirou. Tente novamente.'; }
         elseif (($_SESSION['auth_wait_until'] ?? 0) > time()) { http_response_code(429); $error = 'Aguarde um minuto antes de tentar novamente.'; }
         else {
-            if ($register) $email = app_register($db, ['email'=>$email,'senha'=>app_input('senha'),'telefone_confirmation'=>$phone,'password_confirmation'=>app_input('password_confirmation')], is_string($_GET['aff']??null) ? $_GET['aff'] : (string)($_SESSION['landing_affiliate']??''), is_string($_GET['ref']??null) ? $_GET['ref'] : (string)($_SESSION['landing_manager_code']??''), null, is_string($_GET['by']??null) ? $_GET['by'] : (string)($_SESSION['landing_manager_influencer']??''));
+            if ($register) $email = app_register($db, ['nome'=>$name,'email'=>$email,'senha'=>app_input('senha'),'telefone_confirmation'=>$phone,'password_confirmation'=>app_input('password_confirmation')], is_string($_GET['aff']??null) ? $_GET['aff'] : (string)($_SESSION['landing_affiliate']??''), is_string($_GET['ref']??null) ? $_GET['ref'] : (string)($_SESSION['landing_manager_code']??''), null, is_string($_GET['by']??null) ? $_GET['by'] : (string)($_SESSION['landing_manager_influencer']??''));
             if (app_signin($db, strtolower($email), app_input('senha'), $admin)) {
                 unset($_SESSION['auth_failures'], $_SESSION['auth_wait_until']);
                 if ($register) unset($_SESSION['landing_affiliate'], $_SESSION['landing_manager_code'], $_SESSION['landing_manager_influencer']);
@@ -33,6 +33,7 @@ $title = $register ? 'Crie sua conta' : ($admin ? 'Acesso administrativo' : 'Ent
 <section class="gateway-card">
 <?php if ($error): ?><p class="notice notice-error" role="alert"><?= app_escape($error) ?></p><?php endif; ?>
 <form method="post"><input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
+<?php if ($register): ?><label for="nome">Nome completo</label><input id="nome" name="nome" type="text" autocomplete="name" maxlength="120" minlength="2" value="<?= app_escape($name) ?>" required><?php endif; ?>
 <label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="username" maxlength="254" value="<?= app_escape($email) ?>" required>
 <?php if ($register): ?><label for="telefone">Telefone com DDD</label><input id="telefone" name="telefone_confirmation" type="tel" autocomplete="tel" value="<?= app_escape($phone) ?>" required><?php endif; ?>
 <label for="senha">Senha</label><input id="senha" name="senha" type="password" autocomplete="<?= $register ? 'new-password' : 'current-password' ?>" <?= $register ? 'minlength="6" maxlength="72"' : '' ?> required>

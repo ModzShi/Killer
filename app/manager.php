@@ -77,7 +77,7 @@ function manager_demo_create(mysqli $db,int $managerId,string $email,string $pas
     if(!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($email)>254) throw new InvalidArgumentException('E-mail demo inválido.');
     if(strlen($password)<8||strlen($password)>72) throw new InvalidArgumentException('A senha demo deve ter de 8 a 72 caracteres.');
     $phone='119'.str_pad((string)random_int(0,99999999),8,'0',STR_PAD_LEFT);
-    app_register($db,['email'=>$email,'senha'=>$password,'password_confirmation'=>$password,'telefone_confirmation'=>$phone],'','',$managerId);
+    app_register($db,['nome'=>'Conta de demonstração','email'=>$email,'senha'=>$password,'password_confirmation'=>$password,'telefone_confirmation'=>$phone],'','',$managerId);
 }
 function manager_demo_create_auto(mysqli $db,int $managerId): array {
     $suffix=bin2hex(random_bytes(5));

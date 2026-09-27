@@ -14,8 +14,13 @@ function request_page(string $route,string $sessionId,?array $post=null):array {
 }
 function account_check(bool $ok,string $name):void{if(!$ok)throw new RuntimeException($name);echo "PASS: $name\n";}
 try {
-    app_register($db,['email'=>$email,'senha'=>$password,'password_confirmation'=>$password,'telefone_confirmation'=>'11900000000'],'');
-    app_query($db,'UPDATE appconfig SET nome=?,comissaofake=25.50,saldo_comissao=99 WHERE email=?',['Jogador de teste',$email]);
+    app_register($db,['nome'=>'Jogador de teste','email'=>$email,'senha'=>$password,'password_confirmation'=>$password,'telefone_confirmation'=>'11900000000'],'');
+    account_check((app_query($db,'SELECT nome FROM appconfig WHERE email=?',[$email])->get_result()->fetch_assoc()['nome']??'')==='Jogador de teste','Registration stores the submitted full name');
+    account_update_profile($db,['nome'=>'Jogador Atualizado','telefone'=>'11911112222']);
+    $profile=app_query($db,'SELECT nome,telefone FROM appconfig WHERE email=?',[$email])->get_result()->fetch_assoc();
+    account_check(($profile['nome']??'')==='Jogador Atualizado'&&($profile['telefone']??'')==='11911112222','Profile update saves name and phone');
+    try{account_update_profile($db,['nome'=>'Nome não salvo','telefone'=>'123']);account_check(false,'Profile rejects invalid phone');}catch(InvalidArgumentException $error){account_check(true,'Profile rejects invalid phone');}
+    app_query($db,'UPDATE appconfig SET comissaofake=25.50,saldo_comissao=99 WHERE email=?',[$email]);
     $payoutReference='ui-paid-'.bin2hex(random_bytes(5));$pendingReference='ui-pending-'.bin2hex(random_bytes(5));$now=date('d-m-Y H:i:s');
     app_query($db,"INSERT INTO saques(email,externalreference,destino,chavepix,data,valor,status) VALUES(?,?,?,?,?,87.65,'PAID')",[$email,$payoutReference,'Marina Oliveira','00000000000',$now]);
     app_query($db,"INSERT INTO saques(email,externalreference,destino,chavepix,data,valor,status) VALUES(?,?,?,?,?,999.99,'Processando')",[$email,$pendingReference,'Registro Pendente','00000000000',$now]);
