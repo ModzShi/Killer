@@ -65,7 +65,7 @@
       document.getElementById('editName').value = name;
       document.getElementById('editEmail').value = user.email || '';
       document.getElementById('editPhone').value = user.telefone || '';
-      document.getElementById('editBalance').value = Number(user.saldo) || 0;
+      document.getElementById('editBalance').value = String(user.saldo ?? '0').replace('.', ',');
       document.getElementById('editCommission').value = Number(user.comissaofake) || 0;
       document.getElementById('editPlan').value = Number(user.plano) || 0;
       document.getElementById('editCpa').value = Number(user.cpa) || 0;

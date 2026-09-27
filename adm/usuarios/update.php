@@ -2,7 +2,8 @@
 require_once __DIR__.'/../../app/auth.php';
 if(($_SERVER['REQUEST_METHOD']??'')!=='POST'){http_response_code(405);exit;}
 function admin_user_number(string $name,float $min,float $max):string{
-    $value=app_input($name);
+    $value=trim(app_input($name));
+    if(str_contains($value,','))$value=str_replace([".",","],["","."],$value);
     if(!is_numeric($value)||!is_finite((float)$value)||(float)$value<$min||(float)$value>$max)throw new InvalidArgumentException('Confira o valor informado em '.$name.'.');
     return number_format((float)$value,2,'.','');
 }
@@ -23,7 +24,12 @@ try{
     $db->begin_transaction();$transaction=true;
     app_query($db,'UPDATE appconfig SET nome=?,email=?,telefone=?,saldo=?,comissaofake=?,plano=?,cpa=?,bloc=?,afiliado_ativo=? WHERE id=?',[$name,$email,$phone,$balance,$commission,$plan,$cpa,$blocked,$affiliate,$id]);
     if($password!=='')app_query($db,'UPDATE appconfig SET senha=? WHERE id=?',[password_hash($password,PASSWORD_DEFAULT),$id]);
-    if($email!==$current['email'])app_query($db,'UPDATE manager_demos SET email=? WHERE email=?',[$email,$current['email']]);
+    if($email!==$current['email']){
+        $table=app_query($db,'SELECT 1 FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?',['manager_demos'])->get_result()->fetch_assoc();
+        if($table)app_query($db,'UPDATE manager_demos SET email=? WHERE email=?',[$email,$current['email']]);
+    }
+    $saved=app_query($db,'SELECT saldo FROM appconfig WHERE id=?',[$id])->get_result()->fetch_assoc();
+    if(!$saved||abs((float)$saved['saldo']-(float)$balance)>0.005)throw new RuntimeException('O saldo salvo não corresponde ao valor informado.');
     $db->commit();$transaction=false;$_SESSION['admin_notice']='Usuário atualizado com sucesso.';
 }catch(InvalidArgumentException $e){if(!empty($transaction))$db->rollback();$_SESSION['admin_notice']=$e->getMessage();}
 catch(Throwable $e){if(!empty($transaction)){try{$db->rollback();}catch(Throwable $ignored){}}error_log('admin user update: '.$e->getMessage());$_SESSION['admin_notice']='Não foi possível atualizar o usuário.';}

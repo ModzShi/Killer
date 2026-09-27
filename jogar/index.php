@@ -25,7 +25,7 @@ $gameDb->close();
 <head>
     <script>
     (()=>{const token=<?= json_encode($roundToken, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,home=<?= json_encode(app_url($gameDemo?'':'painel/')) ?>;
-    function guard(){try{if(sessionStorage.getItem('finished:'+token))location.replace(home)}catch(e){}}
+    function guard(){if(!token)return;try{if(sessionStorage.getItem('finished:'+token))location.replace(home)}catch(e){}}
     guard();addEventListener('pageshow',guard);})();
     </script>
 
