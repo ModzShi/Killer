@@ -1,518 +1,67 @@
 <?php
-require_once __DIR__ . '/../app/bootstrap.php';
-
-if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-if (!isset($_SESSION["email"])) {
-    header("Location: ../");
-    exit();
-}
-require_once dirname(__DIR__) . '/app/auth.php';
-$demoDb = app_db();
-$demoStmt = app_query($demoDb,'SELECT demo FROM appconfig WHERE email=?',[(string)$_SESSION['email']]);
-$demoAccount = $demoStmt->get_result()->fetch_assoc();
-$demoStmt->close(); $demoDb->close();
-if($demoAccount && (string)($demoAccount['demo']??'0')==='1'){header('Location: '.app_url('painel/'),true,303);exit;}
-?> 
-
-<?php
-if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-
-$email = isset($_SESSION["email"]) ? $_SESSION["email"] : "";
-
-// Conciliação antiga por pix_deposito desativada: somente a BX Pay credita PIX.
-if (false && !empty($email)) {
-    try {
-        include "./../conectarbanco.php";
-
-        $conn = new mysqli($config['db_host'] ?? 'localhost',
-            $config["db_user"],
-            $config["db_pass"],
-            $config["db_name"]
-        );
-        $dbuser = $config["db_user"];
-        $conn = new PDO(
-            "mysql:host={$config['db_host']};dbname={$config["db_name"]}",
-            $config["db_user"],
-            $config["db_pass"]
-        );
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $stmt = $conn->prepare(
-            "SELECT * FROM confirmar_deposito WHERE email = :email AND status = 'pendente'"
-        );
-        $stmt->bindParam(":email", $email);
-        $stmt->execute();
-
-        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $stmtPix = $conn->prepare(
-                "SELECT * FROM pix_deposito WHERE code = :externalReference"
-            );
-            $stmtPix->bindParam(
-                ":externalReference",
-                $result["externalreference"]
-            );
-            $stmtPix->execute();
-
-            $resultPix = $stmtPix->fetch(PDO::FETCH_ASSOC);
-
-            if ($resultPix !== false) {
-                $updateStmt = $conn->prepare(
-                    "UPDATE confirmar_deposito SET status = 'aprovado' WHERE externalreference = :externalReference"
-                );
-                $updateStmt->bindParam(
-                    ":externalReference",
-                    $result["externalreference"]
-                );
-                $updateStmt->execute();
-
-                $valorCorrespondencia = $resultPix["value"];
-
-                $updateSaldoStmt = $conn->prepare(
-                    "UPDATE appconfig SET saldo = saldo + :valorCorrespondencia, depositou = depositou + :valorCorrespondencia WHERE email = :email"
-                );
-                $updateSaldoStmt->bindParam(
-                    ":valorCorrespondencia",
-                    $valorCorrespondencia
-                );
-                $updateSaldoStmt->bindParam(":email", $email);
-                $updateSaldoStmt->execute();
-                break;
-            }
-        }
-    } catch (PDOException $e) {
-        echo "Erro: " . $e->getMessage();
-    }
-} else {
-}
-?> <?php
- include "./../conectarbanco.php";
-
- $conn = new mysqli($config['db_host'] ?? 'localhost',
-     $config["db_user"],
-     $config["db_pass"],
-     $config["db_name"]
- );
-
- if ($conn->connect_error) {
-     die("Falha na conexão com o banco de dados: " . $conn->connect_error);
- }
-
- if (isset($_SESSION["email"])) {
-     $email = $_SESSION["email"];
-
-     $consulta_saldo = "SELECT saldo, total_apostado, depositou FROM appconfig WHERE email = '$email'";
-
-     $resultado_saldo = $conn->query($consulta_saldo);
-
-     if ($resultado_saldo) {
-         if ($resultado_saldo->num_rows > 0) {
-             $row = $resultado_saldo->fetch_assoc();
-             $saldo = $row["saldo"];
-             $total_apostado = floatval($row["total_apostado"]);
-             $total_depositou = floatval($row["depositou"]);
-         }
-     }
-
-     // Buscar rollover config
-     $sqlRollover = "SELECT rollover_saque FROM app LIMIT 1";
-     $rolloverResult = $conn->query($sqlRollover);
-     $rolloverRow = $rolloverResult->fetch_assoc();
-     $rollover_saque = floatval($rolloverRow['rollover_saque']);
-     $rollover_necessario = $total_depositou * $rollover_saque;
-     $rollover_pct = $rollover_necessario > 0 ? min(100, ($total_apostado / $rollover_necessario) * 100) : 100;
-     $rollover_cumprido = $total_apostado >= $rollover_necessario;
- }
-
- $conn->close();
- ?>
-
-<?php
-include __DIR__ . '/../conectarbanco.php';
-
-$conn = new mysqli($config['db_host'] ?? 'localhost',
-    $config["db_user"],
-    $config["db_pass"],
-    $config["db_name"]
-);
-
-if ($conn->connect_error) {
-    die("Conexão falhou: " . $conn->connect_error);
-}
-
-$sql = "SELECT nome_unico, nome_um, nome_dois, saques_min FROM app";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-
-    $nomeUnico = $row["nome_unico"];
-    $nomeUm = $row["nome_um"];
-    $nomeDois = $row["nome_dois"];
-
-    $saqueMinimo = $row["saques_min"];
-} else {
-    return false;
-}
-
-$conn->close();
-
-?>
-
-<!DOCTYPE html>
-<html lang="pt-br" class="w-mod-js w-mod-ix wf-spacemono-n4-active wf-spacemono-n7-active wf-active">
-
+require_once __DIR__ . '/../app/auth.php';
+if (empty($_SESSION['email'])) { header('Location: ' . app_url('login/'), true, 303); exit; }
+$db = app_db();
+$user = app_query($db, 'SELECT nome,saldo,total_apostado,depositou,demo FROM appconfig WHERE email=? LIMIT 1', [(string)$_SESSION['email']])->get_result()->fetch_assoc();
+if (!$user) { $db->close(); header('Location: ' . app_url('logout.php'), true, 303); exit; }
+if ((string)($user['demo'] ?? '0') === '1') { $db->close(); header('Location: ' . app_url('painel/'), true, 303); exit; }
+$app = $db->query('SELECT nome_unico,saques_min,rollover_saque FROM app LIMIT 1')->fetch_assoc() ?: [];
+$db->close();
+$balance = (float)($user['saldo'] ?? 0);
+$minimum = max(0, (float)($app['saques_min'] ?? 0));
+$rollover = max(0, (float)($app['rollover_saque'] ?? 0));
+$rolloverRequired = (float)($user['depositou'] ?? 0) * $rollover;
+$rolloverProgress = $rolloverRequired > 0 ? min(100, max(0, (float)$user['total_apostado'] / $rolloverRequired * 100)) : 100;
+$rolloverComplete = (float)($user['total_apostado'] ?? 0) >= $rolloverRequired;
+$canRequest = $rolloverComplete && $balance > 0 && $balance >= $minimum;
+$notice = $_SESSION['withdraw_notice'] ?? '';
+unset($_SESSION['withdraw_notice']);
+$_SESSION['withdraw_nonce'] = bin2hex(random_bytes(16));
+$quickAmounts = array_values(array_filter([25, 50, 100, 200], static fn($value) => $value >= $minimum && $value <= $balance));
+$siteName = (string)($app['nome_unico'] ?? 'Subway Run');
+?><!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#090b1a">
+    <title>Sacar · <?= app_escape($siteName) ?></title>
+    <link rel="stylesheet" href="<?= app_escape(app_url('arquivos/menu.css')) ?>?v=<?= filemtime(dirname(__DIR__) . '/arquivos/menu.css') ?>">
+    <link rel="stylesheet" href="<?= app_escape(app_url('arquivos/wallet.css')) ?>?v=<?= filemtime(dirname(__DIR__) . '/arquivos/wallet.css') ?>">
     <style>
-        .wf-force-outline-none[tabindex="-1"]:focus {
-            outline: none;
-        }
+        .withdraw-rollover{margin:18px 0 4px;padding:16px;border:1px solid #8e78e64a;border-radius:17px;background:linear-gradient(145deg,#16162e,#111426)}.withdraw-rollover__top{display:flex;justify-content:space-between;gap:12px;color:#f2efff;font-size:13px;font-weight:850}.withdraw-rollover__top span:last-child{color:<?= $rolloverComplete ? '#5df0ca' : '#ffd86d' ?>}.withdraw-rollover__track{height:9px;margin:11px 0 8px;overflow:hidden;border-radius:99px;background:#ffffff16}.withdraw-rollover__fill{height:100%;width:<?= number_format($rolloverProgress,2,'.','') ?>%;border-radius:inherit;background:linear-gradient(90deg,#8b6cff,#36e6bd);transition:width .35s}.withdraw-rollover p{margin:0;color:#c5c9df;font-size:12px;line-height:1.55}.withdraw-rollover small{display:block;margin-top:7px;color:#aeb7d4;font-size:11px}.withdraw-safe{display:flex;gap:10px;align-items:flex-start;margin-top:17px;padding:12px 13px;border:1px solid #36e6bd30;border-radius:14px;background:#0c352f55;color:#cdeee7;font-size:12px;line-height:1.5}.withdraw-safe svg{width:18px;height:18px;flex:0 0 18px;color:#5df0ca}.field .withdraw-error{color:#ffd2d9}
+        @media(max-width:680px){.withdraw-rollover{margin-top:14px;padding:13px}.withdraw-safe{margin-top:13px}}
     </style>
-    <meta charset="pt-br">
-    <title>
-        <?= $nomeUnico ?> 🌊
-    </title>
-    <meta property="og:image" content="../img/logo.png">
-    <meta content="<?= $nomeUnico ?> 🌊" property="og:title">
-    <meta name="twitter:site" content="@subwaypay">
-    <meta name="twitter:image" content="../img/logo.png">
-    <meta property="og:type" content="website">
-    <meta content="width=device-width, initial-scale=1" name="viewport">
-    <link href="arquivos/page.css" rel="stylesheet" type="text/css">
-    <script src="arquivos/webfont.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        WebFont.load({
-            google: {
-                families: ["Space Mono:regular,700"]
-            }
-        });
-    </script>
-    <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
-    <script type="text/javascript">
-        ! function (o, c) {
-            var n = c.documentElement,
-                t = " w-mod-";
-            n.className += t + "js", ("ontouchstart" in o || o.DocumentTouch && c instanceof DocumentTouch) && (n.className += t + "touch")
-        }(window, document);
-    </script>
-    <link rel="apple-touch-icon" sizes="180x180" href="../img/logo.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../img/logo.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../img/logo.png">
-    <link rel="icon" type="image/x-icon" href="../img/logo.png">
-    <link rel="stylesheet" href="arquivos/css" media="all">
 </head>
-
 <body>
-    <div>
-        <div data-collapse="small" data-animation="default" data-duration="400" role="banner" class="navbar w-nav">
-            <div class="container w-container">
-                <a href="/painel" aria-current="page" class="brand w-nav-brand" aria-label="home">
-                    <img src="arquivos/l2.png" loading="lazy" height="28" alt="" class="image-6">
-                    <div class="nav-link logo">
-                        <?= $nomeUnico ?>
-                    </div>
-                </a>
-                <nav role="navigation" class="nav-menu w-nav-menu">
-                    <a href="../painel/" class="nav-link w-nav-link" style="max-width: 940px;">Jogar</a>
-                    <a href="../saque/" class="nav-link w-nav-link w--current" style="max-width: 940px;">Saque</a>
-                    <a href="../afiliate" class="nav-link w-nav-link" style="max-width: 940px;">Indique e Ganhe</a>
-                    <a href="../logout.php" class="nav-link w-nav-link" style="max-width: 940px;">Sair</a>
-                    <a href="../deposito/" class="button nav w-button">Depositar</a>
-                </nav>
-                <style>
-                    .nav-bar {
-                        display: none;
-                        background-color: #333;
-                        padding: 20px;
-                        width: 90%;
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        z-index: 1000;
-                    }
-
-                    .nav-bar a {
-                        color: white;
-                        text-decoration: none;
-                        padding: 10px;
-                        display: block;
-                        margin-bottom: 10px;
-                    }
-
-                    .nav-bar a.login {
-                        color: white;
-                    }
-
-                    .button.w-button {
-                        text-align: center;
-                    }
-                </style>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var menuButton = document.querySelector('.menu-button');
-                        var navBar = document.querySelector('.nav-bar');
-                        menuButton.addEventListener('click', function () {
-                            if (navBar.style.display === 'block') {
-                                navBar.style.display = 'none';
-                            } else {
-                                navBar.style.display = 'block';
-                            }
-                        });
-                    });
-                </script>
-                <div class="header-deposit-wrap">
-                    <a href="../deposito/" class="header-deposit-link"><?= ui_icon('deposit') ?><span>Depositar</span></a>
-                </div>
-                <div class="menu-button w-nav-button" style="-webkit-user-select: text;" aria-label="menu" role="button"
-                    tabindex="0" aria-controls="w-nav-overlay-0" aria-haspopup="menu" aria-expanded="false">
-                    <div class="icon w-icon-nav-menu"></div>
-                </div>
+<?php $menuBase='../'; $menuLoggedIn=true; $menuCurrent='saque/'; require dirname(__DIR__) . '/components/menu.php'; ?>
+<main class="deposit-page">
+    <header class="deposit-heading"><span class="deposit-mark" aria-hidden="true"><?= ui_icon('withdraw') ?></span><div><p class="deposit-eyebrow">SUA CARTEIRA</p><h1>Solicitar saque</h1><p>Informe o valor e a chave PIX para receber.</p></div></header>
+    <div class="deposit-layout">
+        <section class="deposit-card" aria-label="Formulário de saque">
+            <div class="wallet-summary"><div><span>Saldo disponível</span><strong>R$ <?= number_format($balance,2,',','.') ?></strong></div><span class="wallet-symbol" aria-hidden="true"><?= ui_icon('wallet') ?></span></div>
+            <?php if($notice!==''): ?><div class="deposit-alert" role="status"><p><?= app_escape($notice) ?></p></div><?php endif; ?>
+            <?php if(!$rolloverComplete): ?><div class="deposit-alert" role="status"><p>Complete o requisito de apostas exibido abaixo para liberar o saque.</p></div><?php elseif($balance<$minimum): ?><div class="deposit-alert" role="status"><p>Seu saldo ainda não alcançou o saque mínimo de R$ <?= number_format($minimum,2,',','.') ?>.</p></div><?php endif; ?>
+            <div class="withdraw-rollover" aria-label="Progresso do requisito de apostas">
+                <div class="withdraw-rollover__top"><span>Requisito de apostas<?= $rollover>0?' ('.$rollover.'x)':'' ?></span><span><?= $rolloverComplete?'Liberado':number_format($rolloverProgress,0,',','.').'%' ?></span></div>
+                <div class="withdraw-rollover__track"><div class="withdraw-rollover__fill"></div></div>
+                <p>Apostado: R$ <?= number_format((float)$user['total_apostado'],2,',','.') ?> · Necessário: R$ <?= number_format($rolloverRequired,2,',','.') ?></p>
+                <?php if(!$rolloverComplete): ?><small>Faltam R$ <?= number_format(max(0,$rolloverRequired-(float)$user['total_apostado']),2,',','.') ?> para liberar.</small><?php else: ?><small>Requisito cumprido. Você já pode solicitar seu saque.</small><?php endif; ?>
             </div>
-            <div class="w-nav-overlay" data-wf-ignore="" id="w-nav-overlay-0"></div>
-        </div>
-        <div class="nav-bar">
-            <a href="../painel/" class="button w-button">
-                <div>Jogar</div>
-            </a>
-            <a href="../saque/" class="button w-button">
-                <div>Saque</div>
-            </a>
-            <a href="../afiliate/" class="button w-button">
-                <div>Indique & ganhe</div>
-            </a>
-            <a href="../logout.php" class="button w-button">
-                <div>Sair</div>
-            </a>
-            <a href="../deposito/" class="button w-button">Depositar</a>
-        </div>
-
-        <section id="hero" class="hero-section dark wf-section"
-            style="background-image: url('/af835635b84ba0916d7c0ddd4e0bd25b.jpg') !important; background-attachment: fixed !important; background-position: center; background-size: cover;">
-            <div class="minting-container withdrawal-panel w-container">
-                <div class="withdrawal-emblem" aria-hidden="true"><?= ui_icon('withdraw') ?></div>
-                <p class="withdrawal-eyebrow">CARTEIRA · SAQUE VIA PIX</p>
-                <h2>Solicitar saque</h2>
-                <p class="withdrawal-description">Envie sua solicitação para análise. Após aprovação, o pagamento será feito pela chave PIX informada.</p>
-                <div class="withdrawal-balance"><span>Saldo disponível</span><strong>R$ <?= isset($saldo) ? number_format((float)$saldo, 2, ',', '.') : '0,00' ?></strong></div>
-
-                <?php if (isset($rollover_saque) && $rollover_saque > 0) { ?>
-                <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
-                    <p style="margin-bottom: 8px; font-weight: bold;">Rollover (<?= $rollover_saque ?>x)</p>
-                    <div style="width: 100%; background: #333; border-radius: 8px; overflow: hidden; height: 20px;">
-                        <div style="width: <?= number_format($rollover_pct, 0) ?>%; background: <?= $rollover_cumprido ? '#4caf50' : '#ff9800' ?>; height: 100%; border-radius: 8px; transition: width 0.3s;"></div>
-                    </div>
-                    <p style="margin-top: 8px; font-size: 13px;">
-                        Apostado: R$ <?= number_format($total_apostado, 2, ',', '.') ?> /
-                        Necessário: R$ <?= number_format($rollover_necessario, 2, ',', '.') ?>
-                        (<?= number_format($rollover_pct, 0) ?>%)
-                    </p>
-                    <?php if (!$rollover_cumprido) { ?>
-                        <p style="color: #ff9800; font-size: 12px; margin-top: 5px;">
-                            Falta apostar R$ <?= number_format($rollover_necessario - $total_apostado, 2, ',', '.') ?> para liberar o saque.
-                        </p>
-                    <?php } else { ?>
-                        <p style="color: #4caf50; font-size: 12px; margin-top: 5px;">Rollover cumprido! Saque liberado.</p>
-                    <?php } ?>
-                </div>
-                <?php } ?>
-
-                <?php $_SESSION['withdraw_nonce'] = bin2hex(random_bytes(16)); ?>
-                <?php if(!empty($_SESSION['withdraw_notice'])): ?><div class="notice" role="status"><?= app_escape($_SESSION['withdraw_notice']) ?></div><?php unset($_SESSION['withdraw_notice']); endif; ?>
-                <form data-name="" id="payment_pix" name="payment_pix" method="post" action="process.php"
-                    aria-label="Form">
-                    <input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
-                    <input type="hidden" name="nonce" value="<?= app_escape($_SESSION['withdraw_nonce']) ?>">
-                    <div class="properties">
-                        <h4 class="rarity-heading">Nome do destinatário</h4>
-                        <div class="rarity-row roboto-type2">
-                            <input type="text"
-                                class="large-input-field w-node-_050dfc36-93a8-d840-d215-4fca9adfe60d-9adfe605 w-input"
-                                maxlength="120" name="withdrawName" placeholder="Nome completo do titular" id="withdrawName" autocomplete="name"
-                                required="">
-                        </div>
-                        <h4 class="rarity-heading">CPF da chave PIX</h4>
-                        <div class="rarity-row roboto-type2">
-                            <input type="text"
-                                class="large-input-field w-node-_050dfc36-93a8-d840-d215-4fca9adfe60d-9adfe605 w-input"
-                                maxlength="14" inputmode="numeric" name="withdrawCPF" placeholder="000.000.000-00" id="withdrawCPF" autocomplete="off"
-                                required="">
-                        </div>
-                        <h4 class="rarity-heading">Valor do saque</h4>
-                        <div class="rarity-row roboto-type2">
-                            <input type="number" data-name="withdrawValue" id="withdrawValue"
-                                placeholder="Mínimo: R$ <?= number_format((float)$saqueMinimo, 2, ',', '.') ?>"
-                                min="<?= app_escape((string)(float)$saqueMinimo) ?>" max="<?= app_escape((string)(float)($saldo ?? 0)) ?>" step="0.01" inputmode="decimal" name="withdrawValue"
-                                class="large-input-field w-node-_050dfc36-93a8-d840-d215-4fca9adfe60d-9adfe605 w-input"
-                                required>
-                        </div>
-                    </div>
-                    <div class="">
-                        <button type="submit" class="primary-button w-button">Solicitar saque via PIX</button>
-                        <p class="withdrawal-terms">A solicitação fica pendente até a análise manual. Confira os dados e consulte os <a href="../legal/">termos de uso</a>.</p>
-                    </div>
-                </form>
-            </div>
+            <form action="<?= app_escape(app_url('saque/process.php')) ?>" method="post" autocomplete="on">
+                <input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>"><input type="hidden" name="nonce" value="<?= app_escape($_SESSION['withdraw_nonce']) ?>">
+                <div class="field"><label for="withdrawName">Nome do titular</label><input id="withdrawName" name="withdrawName" type="text" autocomplete="name" minlength="2" maxlength="120" placeholder="Nome completo do titular" value="<?= app_escape((string)($user['nome']??'')) ?>" required></div>
+                <div class="field"><label for="withdrawCPF">CPF da chave PIX</label><input id="withdrawCPF" name="withdrawCPF" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" required><small class="field-help">Use o CPF vinculado à chave PIX.</small></div>
+                <div class="field"><label for="withdrawValue">Valor do saque</label><input id="withdrawValue" name="withdrawValue" type="number" inputmode="decimal" min="<?= app_escape(number_format($minimum,2,'.','')) ?>" max="<?= app_escape(number_format($balance,2,'.','')) ?>" step="0.01" placeholder="Mínimo R$ <?= number_format($minimum,2,',','.') ?>" required><small class="field-help">Valor mínimo: R$ <?= number_format($minimum,2,',','.') ?>.</small></div>
+                <?php if($quickAmounts): ?><p class="quick-label">Escolha um valor rápido</p><div class="quick-amounts" aria-label="Valores sugeridos para saque"><?php foreach($quickAmounts as $quick): ?><button class="quick-amount" type="button" data-withdraw-amount="<?= (int)$quick ?>">R$ <?= (int)$quick ?></button><?php endforeach; ?></div><?php endif; ?>
+                <button class="deposit-submit" type="submit" <?= $canRequest?'':'disabled' ?>><?= ui_icon('withdraw') ?> Solicitar saque via PIX</button>
+            </form>
         </section>
-        <style>
-            .horizontal-table {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .table-header {
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-                padding: 8px;
-                border-bottom: 1px solid #ccc;
-            }
-
-            .table-row {
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-                padding: 8px;
-            }
-
-            .table-row div {
-                flex: 1;
-                text-align: center;
-            }
-        </style>
-
-
-
-        <div class="footer-section wf-section">
-            <div class="domo-text">
-                <?= $nomeUm ?> <br>
-            </div>
-            <div class="domo-text purple">
-                <?= $nomeDois ?> <br>
-            </div>
-            <div class="follow-test">© Copyright xlk Limited, with registered offices at Dr. M.L. King Boulevard 117,
-                accredited by license GLH-16289876512. </div>
-            <div class="follow-test">
-                <a href="/legal">
-                    <strong class="bold-white-link">Termos de uso</strong>
-                </a>
-            </div>
-            <div class="follow-test">contato@
-                <?php
-$nomeUnico = strtolower(str_replace(' ', '', $nomeUnico));
-echo $nomeUnico;
-?>.com
-            </div>
-        </div>
-        <script type="text/javascript">
-            $("#withdrawValue").keyup(function (e) {
-                var value = $("[name='withdrawValue']").val();
-                var final = (value / 100) * 95;
-                $('#updatedValue').text('' + final.toFixed(2));
-            });
-        </script>
+        <aside class="deposit-aside"><span class="aside-icon" aria-hidden="true"><?= ui_icon('help') ?></span><h2>Como funciona</h2><p>Depois de enviar o pedido, ele será analisado pela equipe e o pagamento será feito para a chave informada.</p><ol class="deposit-steps"><li><span class="step-number">1</span><span>Informe os dados do titular e o CPF da chave PIX.</span></li><li><span class="step-number">2</span><span>Escolha um valor dentro do saldo disponível.</span></li><li><span class="step-number">3</span><span>Acompanhe a solicitação após a análise manual.</span></li></ol><p class="deposit-footnote"><strong>Confira antes de enviar:</strong> nome, CPF e valor. Consulte também os <a href="<?= app_escape(app_url('legal/')) ?>">termos de uso</a>.</p></aside>
     </div>
-    <div id="imageDownloaderSidebarContainer">
-        <div class="image-downloader-ext-container">
-            <div tabindex="-1" class="b-sidebar-outer">
-                <!---->
-                <div id="image-downloader-sidebar" tabindex="-1" role="dialog" aria-modal="false" aria-hidden="true"
-                    class="b-sidebar shadow b-sidebar-right bg-light text-dark" style="width: 500px; display: none;">
-                    <!---->
-                    <div class="b-sidebar-body">
-                        <div></div>
-                    </div>
-                    <!---->
-                </div>
-                <!---->
-                <!---->
-            </div>
-        </div>
-    </div>
-    <div style="visibility: visible;">
-        <div></div>
-        <div>
-            <div
-                style="display: flex; flex-direction: column; z-index: 999999; bottom: 88px; position: fixed; right: 16px; direction: ltr; align-items: end; gap: 8px;">
-                <div style="display: flex; gap: 8px;"></div>
-            </div>
-            <style>
-                @-webkit-keyframes ww-1d3e1845-0974-4ce9-92ae-64548dac571e-launcherOnOpen {
-                    0% {
-                        -webkit-transform: translateY(0px) rotate(0deg);
-                        transform: translateY(0px) rotate(0deg);
-                    }
-
-                    30% {
-                        -webkit-transform: translateY(-5px) rotate(2deg);
-                        transform: translateY(-5px) rotate(2deg);
-                    }
-
-                    60% {
-                        -webkit-transform: translateY(0px) rotate(0deg);
-                        transform: translateY(0px) rotate(0deg);
-                    }
-
-                    90% {
-                        -webkit-transform: translateY(-1px) rotate(0deg);
-                        transform: translateY(-1px) rotate(0deg);
-                    }
-
-                    100% {
-                        -webkit-transform: translateY(-0px) rotate(0deg);
-                        transform: translateY(-0px) rotate(0deg);
-                    }
-                }
-
-                @keyframes ww-1d3e1845-0974-4ce9-92ae-64548dac571e-launcherOnOpen {
-                    0% {
-                        -webkit-transform: translateY(0px) rotate(0deg);
-                        transform: translateY(0px) rotate(0deg);
-                    }
-
-                    30% {
-                        -webkit-transform: translateY(-5px) rotate(2deg);
-                        transform: translateY(-5px) rotate(2deg);
-                    }
-
-                    60% {
-                        -webkit-transform: translateY(0px) rotate(0deg);
-                        transform: translateY(0px) rotate(0deg);
-                    }
-
-                    90% {
-                        -webkit-transform: translateY(-1px) rotate(0deg);
-                        transform: translateY(-1px) rotate(0deg);
-                    }
-
-                    100% {
-                        -webkit-transform: translateY(-0px) rotate(0deg);
-                        transform: translateY(-0px) rotate(0deg);
-                    }
-                }
-
-                @keyframes ww-1d3e1845-0974-4ce9-92ae-64548dac571e-widgetOnLoad {
-                    0% {
-                        opacity: 0;
-                    }
-
-                    100% {
-                        opacity: 1;
-                    }
-                }
-
-                @-webkit-keyframes ww-1d3e1845-0974-4ce9-92ae-64548dac571e-widgetOnLoad {
-                    0% {
-                        opacity: 0;
-                    }
-
-                    100% {
-                        opacity: 1;
-                    }
-                }
-            </style>
-        </div>
-    </div>
+</main>
+<script>
+(()=>{const cpf=document.getElementById('withdrawCPF');const value=document.getElementById('withdrawValue');cpf?.addEventListener('input',()=>{const d=cpf.value.replace(/\D/g,'').slice(0,11);cpf.value=d.length>9?`${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`:d.length>6?`${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6)}`:d.length>3?`${d.slice(0,3)}.${d.slice(3)}`:d});document.querySelectorAll('[data-withdraw-amount]').forEach(b=>b.addEventListener('click',()=>{value.value=b.dataset.withdrawAmount;value.dispatchEvent(new Event('input',{bubbles:true}))}))})();
+</script>
 </body>
-
 </html>
