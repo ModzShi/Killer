@@ -37,12 +37,12 @@ $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
 <div class="stage" aria-hidden="true"></div><div class="confetti" aria-hidden="true"><?php if ($win): for($i=0;$i<24;$i++): ?><i style="--x:<?= ($i*47)%100 ?>%;--d:<?= ($i%8)*.15 ?>s;--r:<?= ($i*71)%340 ?>deg"></i><?php endfor; endif; ?></div>
 <main class="result-card"><div class="topline"><span class="brand"><span class="brand-bolt">ϟ</span> SUBWAY <b>RUN</b></span><button id="sound" type="button" aria-label="Reproduzir som" title="Som"><?= ui_icon("sound") ?></button></div>
 <div class="halo"><div class="emblem" aria-hidden="true"><?= ui_icon($error ? 'help' : ($win ? 'trophy' : 'history')) ?></div></div>
-<p class="eyebrow"><?= $preview ? 'PRÉVIA VISUAL • SEM TRANSAÇÃO' : ($fictional ? 'MODO TREINO • RESULTADO FICTÍCIO' : 'RESULTADO DA CORRIDA') ?></p>
+<p class="eyebrow"><?= $preview ? 'PRÉVIA VISUAL • SEM TRANSAÇÃO' : ($fictional ? 'CORRIDA VENCIDA!' : 'RESULTADO DA CORRIDA') ?></p>
 <h1><?= $error ? 'OCORREU UM PROBLEMA' : ($win ? 'CORRIDA VENCIDA!' : 'FIM DE CORRIDA') ?></h1>
-<p class="subtitle"><?= $error ? app_escape($error) : ($win ? ($fictional ? 'Boa corrida! No treino, os valores são apenas uma simulação.' : 'Meta alcançada. Seu prêmio foi registrado na conta.') : 'A corrida terminou. Respire, ajuste o ritmo e tente outra vez.') ?></p>
+<p class="subtitle"><?= $error ? app_escape($error) : ($win ? ($fictional ? 'Meta alcançada. Seu prêmio foi registrado na conta.' : 'Meta alcançada. Seu prêmio foi registrado na conta.') : 'A corrida terminou. Respire, ajuste o ritmo e tente outra vez.') ?></p>
 <?php if (!$error): ?><div class="reward"><span class="reward-label"><?= $win ? ($fictional ? 'MOEDAS DE TREINO' : 'PRÊMIO CREDITADO') : 'APOSTA DA RODADA' ?></span><strong id="amount" data-value="<?= $win ? app_escape((string)$payout) : app_escape((string)$bet) ?>"><?= $win ? 'R$ 0,00' : app_escape($money($bet)) ?></strong><span class="reward-detail"><?= $win ? '✦ META CONCLUÍDA ✦' : 'TENTE DE NOVO NO SEU RITMO' ?></span></div><?php endif; ?>
 <div class="actions"><a class="button primary" href="<?= app_escape($again) ?>"><span><?= $demo ? 'TREINAR DE NOVO' : 'JOGAR DE NOVO' ?></span><b aria-hidden="true">→</b></a><a class="button secondary" href="<?= app_escape(app_url('painel/')) ?>">VOLTAR AO PAINEL</a></div>
-<p class="footnote"><?= $fictional ? 'Nenhum valor real foi apostado ou recebido.' : 'Jogue com responsabilidade. Maiores de 18 anos.' ?></p></main>
+<p class="footnote"><?= $fictional ? '' : 'Jogue com responsabilidade. Maiores de 18 anos.' ?></p></main>
 <?php if ($demo && !$error): ?>
 <div class="demo-prompt" id="demo-prompt" hidden>
   <div class="demo-prompt-backdrop" data-close-prompt></div>
