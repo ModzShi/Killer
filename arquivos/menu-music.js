@@ -1,23 +1,23 @@
 (()=>{
  const audio=document.getElementById('menuMusicAudio');
- const toggle=document.getElementById('menuMusicToggle');
- if(!audio||!toggle)return;
- const label=toggle.querySelector('.menu-music__label');
+ const toggle=document.getElementById('profileMusicToggle');
+ if(!audio)return;
+ const label=toggle?.querySelector('.menu-music__label');
  const update=()=>{
+  if(!toggle)return;
   const playing=!audio.paused;
   toggle.setAttribute('aria-pressed',String(playing));
   toggle.setAttribute('aria-label',playing?'Pausar música do menu':'Ativar música do menu');
-  label.textContent=playing?'Pausar música':'Ativar música';
+  if(label)label.textContent=playing?'Música ativada':'Ativar música';
  };
  audio.volume=0.28;
  audio.addEventListener('play',update);
  audio.addEventListener('pause',update);
- audio.addEventListener('ended',()=>{audio.currentTime=0;audio.play().catch(update)});
- toggle.addEventListener('click',()=>{
-  if(audio.paused){audio.play().then(()=>{try{localStorage.setItem('menuMusicEnabled','1')}catch(error){};update()}).catch(update)}
-  else{audio.pause();try{localStorage.setItem('menuMusicEnabled','0')}catch(error){};update()}
+ toggle?.addEventListener('click',()=>{
+  if(audio.paused){audio.play().then(()=>{try{localStorage.setItem('menuMusicEnabled','1')}catch(e){};update()}).catch(update)}
+  else{audio.pause();try{localStorage.setItem('menuMusicEnabled','0')}catch(e){};update()}
  });
- let shouldPlay=true;
- try{shouldPlay=localStorage.getItem('menuMusicEnabled')!=='0'}catch(error){}
- if(shouldPlay)audio.play().then(update).catch(update);
+ let enabled=false;
+ try{enabled=localStorage.getItem('menuMusicEnabled')==='1'}catch(e){}
+ if(enabled)audio.play().then(update).catch(update);
 })();
