@@ -4,8 +4,7 @@
  let items=[];
  try{items=JSON.parse(toast.dataset.payouts)}catch(error){return}
  if(!items.length)return;
- const name=toast.querySelector('[data-payout-name]');
- const amount=toast.querySelector('[data-payout-amount]');
+ const message=toast.querySelector('[data-payout-message]');
  let index=0;
  let audio=null;
 
@@ -42,8 +41,7 @@
    toast.classList.remove('is-exiting');
    window.setTimeout(()=>{
     index=(index+1)%items.length;
-    name.textContent=items[index].name;
-    amount.textContent=items[index].amount;
+    message.textContent=items[index].name+' acabou de sacar '+items[index].amount;
     toast.hidden=false;
     toast.classList.add('is-entering');
     playBubble();

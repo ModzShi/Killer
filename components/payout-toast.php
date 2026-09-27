@@ -27,7 +27,6 @@ $first=$toastItems[0];
 ?>
 <link rel="stylesheet" href="<?=$menuEscape($menuBase)?>arquivos/payout-toast.css?v=<?=filemtime(__DIR__.'/../arquivos/payout-toast.css')?>">
 <aside class="payout-toast" data-payouts="<?=app_escape(json_encode($toastItems,JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT))?>" aria-live="polite" aria-label="Atividade de saque">
-    <strong class="payout-toast__name" data-payout-name><?=app_escape($first['name'])?></strong>
-    <b data-payout-amount><?=app_escape($first['amount'])?></b>
+    <strong class="payout-toast__message" data-payout-message><?=app_escape($first['name'])?> acabou de sacar <?=app_escape($first['amount'])?></strong>
 </aside>
 <script src="<?=$menuEscape($menuBase)?>arquivos/payout-toast.js?v=<?=filemtime(__DIR__.'/../arquivos/payout-toast.js')?>" defer></script>
