@@ -48,7 +48,7 @@ function initApp()
     }
 
     loadScript(`./js/dependencies.bundle.js?dummy=${encodeURIComponent(Math.random())}`);
-    loadScript(window.MAIN ? window.MAIN : './js/index.js?v=2');
+    loadScript(window.MAIN ? window.MAIN : './js/index.js?v=3');
 }
 
 /** Prevent arrows and space from scrolling browser */
