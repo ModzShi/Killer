@@ -22,10 +22,6 @@ if ($menuLoggedIn && !empty($_SESSION['email'])) {
 }
 ?>
 <link rel="stylesheet" href="<?= $menuEscape($menuBase) ?>arquivos/menu.css?v=<?= filemtime(__DIR__.'/../arquivos/menu.css') ?>">
-<link rel="stylesheet" href="<?= $menuEscape($menuBase) ?>arquivos/premium-ui.css?v=<?= filemtime(__DIR__.'/../arquivos/premium-ui.css') ?>">
-<link rel="stylesheet" href="<?= $menuEscape($menuBase) ?>arquivos/theme-system.css?v=<?= filemtime(__DIR__.'/../arquivos/theme-system.css') ?>">
-<link rel="stylesheet" href="<?= $menuEscape($menuBase) ?>arquivos/mobile-polish.css?v=<?= filemtime(__DIR__.'/../arquivos/mobile-polish.css') ?>">
-<link rel="stylesheet" href="<?= $menuEscape($menuBase) ?>arquivos/premium-fixes.css?v=<?= filemtime(__DIR__.'/../arquivos/premium-fixes.css') ?>">
 <header class="sk-header<?= $menuLoggedIn ? ' sk-header--logged' : '' ?>"<?= $menuLoggedIn ? ' data-balance-url="' . $menuEscape($menuBase . 'api/balance.php') . '"' : '' ?>>
     <div class="sk-header-inner">
         <a class="sk-brand" href="<?= $menuEscape($menuBase . ($menuLoggedIn ? 'painel/' : '')) ?>" aria-label="Página inicial">
@@ -52,6 +48,5 @@ if ($menuLoggedIn && !empty($_SESSION['email'])) {
     </div>
 </header>
 <script src="<?= $menuEscape($menuBase) ?>arquivos/menu.js?v=<?= filemtime(__DIR__.'/../arquivos/menu.js') ?>" defer></script>
-<script src="<?= $menuEscape($menuBase) ?>arquivos/theme-system.js?v=<?= filemtime(__DIR__.'/../arquivos/theme-system.js') ?>" defer></script>
 <?php require __DIR__.'/menu-music.php'; ?><script src="<?= $menuEscape($menuBase) ?>arquivos/menu-music.js?v=5" defer></script>
 <?php require __DIR__.'/payout-toast.php'; ?>
