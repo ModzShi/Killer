@@ -2,6 +2,7 @@
  const valid=['default','gold','red','purple','yellow'];
  const apply=(theme)=>{
   const chosen=valid.includes(theme)?theme:'default';
+  document.body?.classList.add('sk-premium');
   document.documentElement.setAttribute('data-sr-theme',chosen);
   document.querySelectorAll('[data-theme-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.themeChoice===chosen)));
  };
