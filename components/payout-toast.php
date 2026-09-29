@@ -3,8 +3,9 @@ $toastNames=['Ana C.','Lucas M.','Alice R.','Bruno S.','Camila F.','João P.','H
 ?>
 <link rel="stylesheet" href="<?=$menuEscape($menuBase)?>arquivos/payout-toast.css?v=<?=filemtime(__DIR__.'/../arquivos/payout-toast.css')?>">
 <aside class="payout-toast payout-toast--demo" data-names="<?=app_escape(json_encode($toastNames,JSON_UNESCAPED_UNICODE|JSON_HEX_APOS|JSON_HEX_QUOT))?>" aria-live="polite" aria-label="Notificações de exemplo, simuladas">
-    <span class="payout-toast__badge">ACABOU DE SACAR</span>
+    <span class="payout-toast__badge">EXEMPLO DE SAQUE</span>
     <strong class="payout-toast__name" data-payout-name>Ana C.</strong>
     <b data-payout-amount>R$ 184,50</b>
+    <small class="payout-toast__disclosure">Mensagem fictícia de teste. Nome e valor não representam uma transação real.</small>
 </aside>
 <script src="<?=$menuEscape($menuBase)?>arquivos/payout-toast.js?v=<?=filemtime(__DIR__.'/../arquivos/payout-toast.js')?>" defer></script>

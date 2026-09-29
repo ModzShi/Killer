@@ -56,7 +56,7 @@ $bets = [
             <div class="player-intro">
                 <span class="player-kicker"><i></i> Sua próxima corrida começa agora</span>
                 <h1 id="player-title">Olá, <?= app_escape($firstName) ?>.<br><span>Pronto para correr?</span></h1>
-                <p>Escolha sua entrada, supere a meta da rodada e resgate as moedas antes que a corrida termine.</p>
+                <p>Escolha uma entrada, acompanhe a meta e jogue uma corrida por vez. Consulte as regras e condições antes de iniciar uma partida com saldo.</p>
                 <div class="player-highlights">
                     <span><?= ui_icon('spark') ?> Partida rápida</span>
                     <span><?= ui_icon('trophy') ?> Meta visível</span>
@@ -165,5 +165,6 @@ $bets = [
         </div>
     </section>
 </main>
+<footer class="player-disclosure" role="note"><div class="player-shell">As notificações de exemplo exibidas nesta página são fictícias e não correspondem a saques reais. O histórico da sua conta mostra as movimentações registradas no sistema.</div></footer>
 </body>
 </html>

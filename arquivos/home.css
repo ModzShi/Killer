@@ -221,3 +221,11 @@ body.home-page {
   .home-live-dot { animation: none; }
   .home-button, .home-step-card { transition: none; }
 }
+
+/* Subway Run visual finish: arcade violet, cyan and gold accents. */
+:root{--home-bg:#090719;--home-surface:#14112b;--home-surface-2:#20183e;--home-line:rgba(190,170,255,.19);--home-violet:#a168ff}
+.home-hero{background:radial-gradient(circle at 72% 30%,rgba(126,62,255,.38),transparent 34%),radial-gradient(circle at 8% 88%,rgba(33,237,189,.15),transparent 32%),linear-gradient(135deg,#090719 0%,#171039 56%,#0b202d 100%)}
+.home-game-card{background:linear-gradient(145deg,rgba(48,31,91,.96),rgba(12,14,34,.97));border-color:rgba(183,145,255,.42)}
+.home-section--experience{background:linear-gradient(180deg,#0b091c,#100d25)}
+.home-final-cta{background:linear-gradient(120deg,#2a1c59,#17274a 55%,#0d403c)}
+@media(prefers-reduced-motion:reduce){.home-hero *,.home-game-card *{animation:none!important;transition:none!important}}

@@ -61,8 +61,8 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
                 <div class="home-game-card__scene">
                     <img src="af835635b84ba0916d7c0ddd4e0bd25b.jpg" alt="Personagem correndo pelos trilhos no Subway Run">
                     <div class="home-game-card__score">
-                        <small>Moedas coletadas</small>
-                        <strong>+ R$ 0,50</strong>
+                        <small>Pontuação do treino</small>
+                        <strong>+ 1 moeda</strong>
                     </div>
                 </div>
                 <div class="home-game-card__footer">
@@ -135,7 +135,7 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
             <div class="home-section__heading home-section__heading--left">
                 <span>Movimentações recentes</span>
                 <h2 id="payouts-title">Atividade da comunidade</h2>
-                <p>Registros confirmados aparecem aqui automaticamente.</p>
+                <p>Esta lista mostra somente saques confirmados no sistema.</p>
             </div>
             <?php require __DIR__ . '/components/recent-payouts.php'; ?>
         </div>
@@ -193,7 +193,7 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
             <a href="cadastrar/">Criar conta</a>
             <a href="#faq-title">Ajuda</a>
         </nav>
-        <small>© <?= date('Y') ?> Subway Run. Todos os direitos reservados.</small>
+        <small>© <?= date('Y') ?> Subway Run. Todos os direitos reservados. Notificações de exemplo são fictícias e não representam transações. O modo treino usa pontuação simulada, sem valor financeiro.</small>
     </div>
 </footer>
 </body>

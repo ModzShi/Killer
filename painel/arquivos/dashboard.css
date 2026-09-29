@@ -10,3 +10,11 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 @media(max-width:900px){.player-bets{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.player-bet-card{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:16px 12px;text-align:center}.player-bet-card__icon{display:none}.player-bet-card>small{display:none}.player-bet-card h3{margin:4px 0 7px;font-size:22px}.player-potential{display:grid;grid-template-columns:1fr;grid-column:auto;grid-row:auto;gap:2px;margin:0 0 7px;padding:7px 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:0;text-align:center}.player-potential span{font-size:9px}.player-potential strong{font-size:12px}.player-bet-card form{width:100%;grid-column:auto}.player-play-button{min-height:40px;padding:6px 4px;font-size:11px}.player-popular{display:none}}
 @media(max-width:600px){.player-bets{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.player-bet-card{padding:13px 7px;border-radius:16px}.player-bet-card h3{font-size:clamp(15px,4.5vw,19px)}.player-potential{padding-top:6px}.player-play-button{min-height:38px;font-size:10px;line-height:1.2}.player-target-pill{font-size:12px}.player-section-title h2{font-size:26px}}
+
+/* Harmonized arcade palette for the logged-in dashboard. */
+:root{--pd-bg:#090719;--pd-card:#17122f;--pd-card-2:#211a40;--pd-line:rgba(195,169,255,.2);--pd-text:#fbf9ff;--pd-muted:#c2badb;--pd-mint:#3df0c2;--pd-cyan:#57d9ff;--pd-violet:#a66bff;--pd-gold:#ffda57}
+.player-hero{background:radial-gradient(circle at 82% 20%,rgba(133,67,255,.42),transparent 34%),radial-gradient(circle at 12% 100%,rgba(33,211,190,.14),transparent 33%),linear-gradient(135deg,#0b081d,#171039 58%,#0b202d)}
+.player-wallet,.player-bet-card{background:linear-gradient(145deg,#211943,#111328);border-color:rgba(195,169,255,.25)}
+.player-bet-card.is-featured{background:radial-gradient(circle at 100% 0,rgba(42,239,192,.13),transparent 36%),linear-gradient(145deg,#282051,#11152d)}
+@media(prefers-reduced-motion:reduce){.player-dashboard *{animation:none!important;transition:none!important}}
+.player-disclosure{padding:0 0 24px;background:#090719;color:#aeb5ce;font-size:11px;line-height:1.55;text-align:center}.player-disclosure .player-shell{padding-top:16px;border-top:1px solid rgba(195,169,255,.12)}
