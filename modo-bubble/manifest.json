@@ -1,0 +1,19 @@
+{
+    "name":  "Modo Bubble",
+    "short_name":  "Bubble",
+    "description":  "Jogo Bubble em modo de teste no Subway Run.",
+    "start_url":  "painel",
+    "scope":  "./",
+    "display":  "standalone",
+    "orientation":  "portrait",
+    "background_color":  "#c9a8e8",
+    "theme_color":  "#c9a8e8",
+    "icons":  [
+                  {
+                      "purpose":  "any",
+                      "type":  "image/png",
+                      "sizes":  "180x180",
+                      "src":  "images/icons/iconb-180.png"
+                  }
+              ]
+}

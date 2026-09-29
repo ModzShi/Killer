@@ -37,6 +37,7 @@ if ($menuLoggedIn && !empty($_SESSION['email'])) {
             <?php if ($menuLoggedIn): ?>
                 <?php foreach (array_slice($menuLinks, 0, 2, true) as $path => $label): ?><a class="sk-link" href="<?= $menuEscape($menuBase . $path) ?>" <?= $menuCurrent === $path ? 'aria-current="page"' : '' ?>><?= ui_icon(['painel/'=>'play','saque/'=>'withdraw'][$path]) ?><span><?= $menuEscape($label) ?></span></a><?php endforeach; ?>
                 <a class="sk-cta" href="<?= $menuEscape($menuBase) ?>deposito/" <?= $menuCurrent === 'deposito/' ? 'aria-current="page"' : '' ?>><?= ui_icon('deposit') ?><span>Depositar</span></a>
+                <a class="sk-link" href="<?= $menuEscape(app_url('modo-bubble/painel')) ?>"><?= ui_icon('spark') ?><span>Modo Bubble</span></a>
                 <?php foreach (array_slice($menuLinks, 2, null, true) as $path => $label): ?><a class="sk-link" href="<?= $menuEscape($menuBase . $path) ?>" <?= $menuCurrent === $path ? 'aria-current="page"' : '' ?>><?= ui_icon(['afiliate/'=>'users','perfil/'=>'user'][$path]) ?><span><?= $menuEscape($label) ?></span></a><?php endforeach; ?>
             <?php else: ?>
                 <?php foreach ($menuLinks as $path => $label): ?><a class="sk-link" href="<?= $menuEscape($menuBase . $path) ?>" <?= $menuCurrent === $path ? 'aria-current="page"' : '' ?>><?= ui_icon(['presell/jogoteste/'=>'play','login/'=>'user'][$path]) ?><span><?= $menuEscape($label) ?></span></a><?php endforeach; ?>

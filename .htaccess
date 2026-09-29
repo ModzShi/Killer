@@ -17,6 +17,9 @@ Options -Indexes
   RewriteRule ^saque-afiliado/bd\.php$ - [F,L,NC]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^modo-bubble(?:/.*)?$ modo-bubble/index.php [L,QSA]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ 404_not_found.php [L]
 </IfModule>
 

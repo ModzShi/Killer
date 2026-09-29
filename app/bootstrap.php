@@ -91,7 +91,7 @@ if (PHP_SAPI !== 'cli') {
         }
         // Shared visual layer for the public PHP screens. Game canvases and the
         // dedicated result screen retain their own full-screen presentation.
-        if (!preg_match('~^/adm/(?!login/)|^/(?:gerente|webhook|gameover)(?:/|$)|^/404_not_found\\.php$~', $relativeFile)
+        if (!preg_match('~^/adm/(?!login/)|^/modo-bubble/|^/(?:gerente|webhook|gameover)(?:/|$)|^/404_not_found\\.php$~', $relativeFile)
             && stripos($html, '</head>') !== false && stripos($html, '<body') !== false) {
             $theme = '<script>(function(){try{var t=localStorage.getItem("sr-theme");if(["default","gold","red","purple","yellow"].indexOf(t)>=0)document.documentElement.setAttribute("data-sr-theme",t)}catch(e){}})();</script><link rel="stylesheet" href="' . app_escape(app_url('arquivos/premium-ui.css')) . '?v=4"><link rel="stylesheet" href="' . app_escape(app_url('arquivos/premium-fixes.css')) . '?v=5"><link rel="stylesheet" href="' . app_escape(app_url('arquivos/account.css')) . '?v=4"><link rel="stylesheet" href="' . app_escape(app_url('arquivos/theme-system.css')) . '?v=1"><script src="' . app_escape(app_url('arquivos/theme-system.js')) . '?v=1" defer></script>';
             $html = preg_replace_callback('~<script\b[^>]*>.*?</script>(*SKIP)(*F)|<img\b[^>]*src=["\']([^"\']+)["\'][^>]*>~is', static function(array $m): string {
@@ -108,7 +108,9 @@ if (PHP_SAPI !== 'cli') {
                 return substr($match[0], 0, -1) . ' class="sk-premium">';
             }, $html, 1);
         }
+        if (strpos($relativeFile, '/modo-bubble/') !== 0) {
         $html = preg_replace('~</head>~i', '<link rel="stylesheet" href="'.app_escape(app_url('arquivos/mobile-polish.css')).'?v='.filemtime(SK_ROOT.'/arquivos/mobile-polish.css').'"></head>', $html, 1);
+        }
         $html = preg_replace('~<script\b[^>]*disable-devtool[^>]*>.*?</script>~is', '', $html);
         return $html;
     });
