@@ -28,6 +28,6 @@ $bubbleBase = app_url('modo-bubble');
 <body>
   <div class="bubble-test-banner"><span>MODO BUBBLE | TESTE | SEM PIX OU ALTERACAO DE SALDO</span><a href="<?= app_escape(app_url('painel/')) ?>">Voltar ao Subway Run</a></div>
   <div id="root"></div>
-  <script type="module" src="<?= app_escape($bubbleBase) ?>/assets/index-GameUnified.js"></script>
+  <script type="module" src="<?= app_escape($bubbleBase) ?>/assets/index-BubbleRuntime.js"></script>
 </body>
 </html>
