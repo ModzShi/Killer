@@ -18,16 +18,17 @@ $bubbleBase = app_url('modo-bubble');
   <link rel="stylesheet" href="<?= app_escape($bubbleBase) ?>/assets/index-CVxiDctz.css">
   <script>window.BUBBLE_BASE=<?= json_encode($bubbleBase, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;try{localStorage.setItem('bb-tutorial-v1:bubble-test','1')}catch(e){}</script>
   <script src="<?= app_escape($bubbleBase) ?>/theme-boot.js"></script>
-  <script src="<?= app_escape($bubbleBase) ?>/mock-api.js"></script>
+  <script src="<?= app_escape($bubbleBase) ?>/demo-engine.js"></script>
+  <script src="<?= app_escape($bubbleBase) ?>/demo-api-v2.js"></script>
   <style>
-    .bubble-test-banner{position:fixed;z-index:10000;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);max-width:calc(100vw - 20px);display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 12px;border:1px solid #ffffff50;border-radius:0 0 12px 12px;background:#21143bdd;color:#fff;font:800 10px/1.3 system-ui,sans-serif;letter-spacing:.06em;text-align:center;box-shadow:0 5px 18px #10082466;pointer-events:none}
-    .bubble-test-banner a{pointer-events:auto;flex:none;padding:4px 8px;border:1px solid #ffffff55;border-radius:8px;background:#ffffff18;color:#fff;text-decoration:none;white-space:nowrap}
-    .bubble-test-banner{position:fixed;z-index:10000;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);max-width:calc(100vw - 20px);display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 12px;border:1px solid #ffffff50;border-radius:0 0 12px 12px;background:#21143bdd;color:#fff;font:800 10px/1.3 system-ui,sans-serif;letter-spacing:.06em;text-align:center;box-shadow:0 5px 18px #10082466;pointer-events:none}
+    .bubble-test-banner{position:fixed;z-index:10000;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);width:calc(100vw - 24px);max-width:436px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;border:1px solid #ffffff30;border-radius:0 0 12px 12px;background:#21143be8;color:#fff;font:700 10px/1.4 system-ui,sans-serif;letter-spacing:.04em;pointer-events:none}
+    .bubble-test-banner span{white-space:nowrap;text-transform:uppercase}
+    .bubble-test-banner a{pointer-events:auto;flex:none;padding:3px 8px;border:1px solid #ffffff40;border-radius:7px;background:#ffffff12;color:#fff;text-decoration:none;white-space:nowrap}
   </style>
 </head>
 <body>
-  <div class="bubble-test-banner"><span>MODO BUBBLE | TESTE | SEM PIX OU ALTERACAO DE SALDO</span><a href="<?= app_escape(app_url('painel/')) ?>">Voltar ao Subway Run</a></div>
+  <div class="bubble-test-banner"><span>Bubble · Treino</span><a href="<?= app_escape(app_url('painel/')) ?>">Voltar ao Subway Run ↗</a></div>
   <div id="root"></div>
-  <script type="module" src="<?= app_escape($bubbleBase) ?>/assets/index-BubbleRun2.js"></script>
+  <script type="module" src="<?= app_escape($bubbleBase) ?>/assets/index-BubblePlayable.js"></script>
 </body>
 </html>
