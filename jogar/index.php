@@ -4,6 +4,7 @@ $gameDb = app_db();
 game_install($gameDb);
 $gameSettings = $gameDb->query('SELECT * FROM game_settings WHERE id=1')->fetch_assoc();
 $gameDemo = ($_GET['demo'] ?? '') === '1';
+$gameTraining = $gameDemo || !empty($_SESSION['demo_account']);
 $roundToken = (string)($_GET['round'] ?? '');
 $gameCoinValue = (float)$gameSettings[($gameDemo || !empty($_SESSION['demo_account'])) ? 'coin_value_demo' : 'coin_value_paid'];
 if (!$gameDemo) {
@@ -225,9 +226,9 @@ $gameDb->close();
         html body #game-tutorial button:hover{transform:translateY(-2px);filter:brightness(1.08)}
         @media(prefers-reduced-motion:reduce){.game-mode-tag:before{animation:none}}
     </style>
-    <div id="game-meta-hud"><?php if ($gameDemo): ?><span class="game-mode-tag">TREINO · PONTUAÇÃO SIMULADA</span><?php endif; ?><span class="coin-icon">$</span><span id="game-meta-value">R$ 0,00 / R$ 0,00</span><div class="meta-track"><div id="game-meta-progress" class="meta-fill"></div></div></div>
+    <div id="game-meta-hud"><?php if ($gameTraining): ?><span class="game-mode-tag">TREINO · PONTUAÇÃO SIMULADA</span><?php endif; ?><span class="coin-icon">$</span><span id="game-meta-value">R$ 0,00 / R$ 0,00</span><div class="meta-track"><div id="game-meta-progress" class="meta-fill"></div></div></div>
     <div id="rescue-action"><button id="sair" type="button"><span class="rescue-icon"><?= ui_icon('withdraw') ?></span><span class="rescue-label">Resgatar</span></button></div>
-    <?php if ($gameDemo): ?><div id="game-tutorial"><div class="tutorial-card"><h2>Pronto para correr?</h2><p>Desvie dos obstáculos e colete moedas. Neste treino, cada moeda soma R$ <?= number_format($gameCoinValue,2,",",".") ?> à pontuação simulada, sem valor para saque.</p><div class="tutorial-step"><b>↔</b><span>Deslize para trocar de trilho.</span></div><div class="tutorial-step"><b>↑</b><span>Deslize para pular; para baixo, role.</span></div><button type="button" id="start-tutorial">Começar treino</button></div></div><?php endif; ?>
+    <?php if ($gameTraining): ?><div id="game-tutorial"><div class="tutorial-card"><h2>Pronto para correr?</h2><p>Desvie dos obstáculos e colete moedas. Neste treino, cada moeda soma R$ <?= number_format($gameCoinValue,2,",",".") ?> à pontuação simulada, sem valor para saque.</p><div class="tutorial-step"><b>↔</b><span>Deslize para trocar de trilho.</span></div><div class="tutorial-step"><b>↑</b><span>Deslize para pular; para baixo, role.</span></div><button type="button" id="start-tutorial">Começar treino</button></div></div><?php endif; ?>
     <script>
         window.NOSW = true;
         window.GAME_CONFIG = {
@@ -248,7 +249,7 @@ $gameDb->close();
         <h1 class="dot three">.</h1>
     </div>
     <script src="js/loading.js"></script>
-    <?php if (!$gameDemo): ?><script src="js/boot.js?v=<?= filemtime(__DIR__ . '/js/boot.js') ?>"></script><?php endif; ?>
+    <?php if (!$gameTraining): ?><script src="js/boot.js?v=<?= filemtime(__DIR__ . '/js/boot.js') ?>"></script><?php endif; ?>
 </body>
 
 </html>
