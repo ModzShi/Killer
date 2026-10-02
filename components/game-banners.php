@@ -6,8 +6,8 @@
         <a class="sr-banners__slide" href="<?= app_escape(app_url('cadastrar/')) ?>" aria-label="Veja outra arte demonstrativa do jogo" aria-hidden="true" tabindex="-1">
             <img src="<?= app_escape(app_url('arquivos/har-art/corrida-premios.png')) ?>" alt="Arte demonstrativa de personagem e corrida">
         </a>
-        <a class="sr-banners__slide" href="<?= app_escape(app_url('cadastrar/')) ?>" aria-label="Conheça o cenário Subway Run" aria-hidden="true" tabindex="-1">
-            <img src="<?= app_escape(app_url('arquivos/SubwaySurfers02.jpg')) ?>" alt="Cenário de jogo entre trens">
+        <a class="sr-banners__slide" href="<?= app_escape(app_url('cadastrar/')) ?>" aria-label="Veja a terceira arte demonstrativa do jogo" aria-hidden="true" tabindex="-1">
+            <img src="<?= app_escape(app_url('arquivos/har-art/personagens-corrida.png')) ?>" alt="Arte demonstrativa de personagem e corrida">
         </a>
     </div>
     <div class="sr-banners__controls">
