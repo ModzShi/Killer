@@ -77,6 +77,7 @@ var acumulado;
 var check_end = 0;
 var trainingRescueShown = false;
 var trainingRewindUsed = false;
+var trainingRewindInProgress = false;
 var btnSair = () => { return document.querySelector('button#sair'); }
 
 
@@ -32211,9 +32212,9 @@ btnSair().addEventListener('click', () => {
 			                // Reduz a velocidade somente no treino quando a meta simulada é alcançada.
 			                const speedData = this.game.stats && this.game.stats.data;
 			                if (speedData && speedData.baseSpeed) {
-			                    const slowerMin = Math.max(75, Math.floor(speedData.baseSpeed.min * 0.65));
+			                    const slowerMin = Math.max(75, Math.floor(speedData.baseSpeed.min * 0.95));
 			                    speedData.baseSpeed.min = slowerMin;
-			                    speedData.baseSpeed.max = Math.max(slowerMin + 12, Math.floor(speedData.baseSpeed.max * 0.65));
+			                    speedData.baseSpeed.max = Math.max(slowerMin + 12, Math.floor(speedData.baseSpeed.max * 0.95));
 			                }
 			                const rescueCoach = document.getElementById('demo-rescue-coach');
 			                if (rescueCoach) rescueCoach.hidden = false;
@@ -35413,6 +35414,7 @@ btnSair().addEventListener('click', () => {
 				this.entity.body.reset(), this.entity.body.lane = 0, this.entity.body.x = e, this.entity.body.z = t, this.entity.body.lane = i || 0, this.entity.body.bottom = 0, this.entity.body.movable = !0, this.entity.body.ghost = !1, this.entity.x = this.entity.body.x, this.entity.y = this.entity.body.y, this.entity.z = this.entity.body.z, this.entity.resetModel(), this.dizzy = 0, this.jumpLocked = !1, this.rollLocked = !1, this.hoverboardLocked = !1, this.running = !1, this.cameraY = 0, this.cameraTargetY = 0, this.cameraRotX = 0, this.cameraLow = 0, this.tunnel = !1, this.dead = !1, this.deathCause = "", this.catchMode = "", this.rewindStartPoint = new N.a, this.rewindEndPoint = null
 			}
 			run(t) {
+				window.GAME_TRAINING && (trainingRewindInProgress = !1),
 				t || (t = 60 * f.a.dizzyDuration), this.entity.game.level.onEnterTutorial.contains(this) || (this.entity.game.level.onEnterTutorial.add(this), this.entity.game.level.onExitTutorial.add(this)), this.entity.body.velocity.z = -f.a.speed, this.entity.body.height = this.entity.regularHeight, this.entity.body.bottom = 0, this.entity.body.movable = !0, this.running = !0, this.dizzy = t, this.entity.shadow.turnOn(), this.entity.lane.turnOn(), this.entity.jump.turnOn(), this.entity.roll.turnOn(), this.entity.hoverboard.enable(), this.entity.hoverboard.isOn() ? this.entity.anim.play(this.entity.hoverboard.animations.run, {
 					loop: !0,
 					sudden: !0
@@ -35470,26 +35472,18 @@ btnSair().addEventListener('click', () => {
 			}
 			die(t) {
 				if (!f.a.god) {
-					if (window.GAME_TRAINING && !trainingRescueShown) {
-						// Antes de atingir a meta, o treino não encerra por colisão.
-						this.dead = false;
-						this.deathCause = "";
-						this.dizzyEnd();
-						this.entity.body.ghost = true;
-						this.entity.body.velocity.z = -this.entity.game.stats.speed;
-						setTimeout(() => {
-							if (this.running && !this.dead) this.entity.body.ghost = false;
-						}, 650);
-						return;
-					}
+					if (window.GAME_TRAINING && (trainingRewindInProgress || this.rewinding || this.rewindEndPoint)) return;
 					if (this.entity.hoverboard.isOn()) return this.dizzyEnd(), this.entity.hoverboard.explode(), this.entity.game.level.removeObstacles(), void setTimeout(() => {
 						this.entity.hoverboard.explode(), this.entity.hoverboard.turnOff(), this.entity.game.exitTunnel(), this.entity.game.sfx.play("hero-hoverboard-crash")
 					}, 1);
-					const trainingRewind = window.GAME_TRAINING && trainingRescueShown && !trainingRewindUsed;
-					if (trainingRewind) trainingRewindUsed = true;
+					const trainingRewind = window.GAME_TRAINING && (!trainingRescueShown || !trainingRewindUsed);
+					if (trainingRewind) {
+						trainingRewindInProgress = true;
+						if (trainingRescueShown) trainingRewindUsed = true;
+					}
 					this.entity.body.z += 5, this.dead = !0, this.deathCause = t, this.dizzyEnd(), this.entity.jetpack.turnOff(), this.entity.pogo.turnOff(), this.entity.shadow.turnOff(), this.entity.lane.turnOff(), this.entity.jump.turnOff(), this.entity.roll.turnOff(), this.entity.hoverboard.disable(), this.entity.game.sfx.stop("special-jetpack"), this.entity.game.sfx.play("hero-death"), this.entity.freezePowerUps(), "train" === t && setTimeout(() => {
 						this.entity.game.sfx.play("hero-death-hitcam")
-					}, 600), this.entity.game.level.isTutorial() || trainingRewind ? setTimeout(() => {
+					}, 600), trainingRewind || (!window.GAME_TRAINING && this.entity.game.level.isTutorial()) ? setTimeout(() => {
 						this.goBackToLastCheckPoint();
 						if (trainingRewind && !this.rewindEndPoint) this.rewindEndPoint = { z: this.entity.body.z + 35 };
 					}, 1e3) : this.entity.game.gameover()
