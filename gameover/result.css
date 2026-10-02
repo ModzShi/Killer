@@ -103,3 +103,7 @@ body.win,body.loss{background:radial-gradient(ellipse at 50% 12%,#a66b215c 0,tra
 .win .halo,.loss .halo{background:radial-gradient(circle,#ffe49a48 0 24%,#e9aa3e27 47%,transparent 73%)}
 .win .halo:before,.loss .halo:before{border-color:#ffdd77ae;box-shadow:0 0 17px #ffd1667d,inset 0 0 15px #ffe49a32}
 .win .halo:after,.loss .halo:after{border-color:#e5ac49a3;box-shadow:0 0 13px #e5ac4959}
+
+/* Keep the animated amount glow on the victory screen in the same gold palette. */
+.win .reward strong{animation-name:amountGlowGold}
+@keyframes amountGlowGold{to{text-shadow:0 0 14px #fff0ad,0 0 35px #ffc72cdd}}
