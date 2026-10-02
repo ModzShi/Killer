@@ -32210,9 +32210,9 @@ btnSair().addEventListener('click', () => {
 			                // Reduz a velocidade somente no treino quando a meta simulada é alcançada.
 			                const speedData = this.game.stats && this.game.stats.data;
 			                if (speedData && speedData.baseSpeed) {
-			                    const slowerMin = Math.max(75, Math.floor(speedData.baseSpeed.min * 0.55));
+			                    const slowerMin = Math.max(75, Math.floor(speedData.baseSpeed.min * 0.65));
 			                    speedData.baseSpeed.min = slowerMin;
-			                    speedData.baseSpeed.max = Math.max(slowerMin + 12, Math.floor(speedData.baseSpeed.max * 0.55));
+			                    speedData.baseSpeed.max = Math.max(slowerMin + 12, Math.floor(speedData.baseSpeed.max * 0.65));
 			                }
 			                const rescueCoach = document.getElementById('demo-rescue-coach');
 			                if (rescueCoach) rescueCoach.hidden = false;

@@ -37,7 +37,7 @@ $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
 <div class="stage" aria-hidden="true"></div><div class="confetti" aria-hidden="true"><?php if ($win): for($i=0;$i<24;$i++): ?><i style="--x:<?= ($i*47)%100 ?>%;--d:<?= ($i%8)*.15 ?>s;--r:<?= ($i*71)%340 ?>deg;--drift:<?= (($i%7)-3)*18 ?>px"></i><?php endfor; endif; ?></div>
 <main class="result-card"><div class="topline"><span class="brand"><span class="brand-bolt">ϟ</span> SUBWAY <b>RUN</b></span><button id="sound" type="button" aria-label="Reproduzir som" title="Som"><?= ui_icon("sound") ?></button></div>
 <div class="halo"><div class="emblem" aria-hidden="true"><?= ui_icon($error ? 'help' : ($win ? 'coins' : 'history')) ?></div></div>
-<?php if ($win): ?><audio id="victory-audio" src="<?= app_escape(app_url('gameover/audio/victory-cash-register.m4a')) ?>" preload="auto" playsinline></audio><?php endif; ?>
+<?php if ($win): ?><audio id="victory-audio" src="<?= app_escape(app_url('gameover/audio/victory-cash-register.m4a')) ?>" preload="auto" autoplay playsinline></audio><?php endif; ?>
 <p class="eyebrow"><?= $preview ? 'PRÉVIA VISUAL • SEM TRANSAÇÃO' : ($fictional ? 'MODO TREINO • RESULTADO SIMULADO' : 'RESULTADO DA CORRIDA') ?></p>
 <h1><?= $error ? 'OCORREU UM PROBLEMA' : ($win ? 'CORRIDA VENCIDA!' : 'FIM DE CORRIDA') ?></h1>
 <p class="subtitle"><?= $error ? app_escape($error) : ($win ? ($fictional ? 'Boa corrida! Valor demonstrativo da rodada de treino.' : 'Meta alcançada. Seu prêmio foi registrado na conta.') : ($fictional ? 'Treino encerrado. O valor exibido é apenas demonstrativo.' : 'A corrida terminou. Respire, ajuste o ritmo e tente outra vez.')) ?></p>
@@ -62,4 +62,4 @@ $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
   </section>
 </div>
 <?php endif; ?>
-<script>window.RESULT_ICONS=<?= json_encode(["sound"=>ui_icon("sound"),"muted"=>ui_icon("muted")],JSON_HEX_TAG) ?>;</script><script src="<?= app_escape(app_url('gameover/result.js')) ?>?v=7" defer></script></body></html>
+<script>window.RESULT_ICONS=<?= json_encode(["sound"=>ui_icon("sound"),"muted"=>ui_icon("muted")],JSON_HEX_TAG) ?>;</script><script src="<?= app_escape(app_url('gameover/result.js')) ?>?v=8" defer></script></body></html>
