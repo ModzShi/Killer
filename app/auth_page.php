@@ -26,10 +26,11 @@ try {
 catch (Throwable $e) { error_log('auth page: ' . $e->getMessage()); http_response_code(503); $error = 'Não foi possível acessar o banco de dados. Tente novamente em instantes.'; }
 $title = $register ? 'Crie sua conta' : ($admin ? 'Acesso administrativo' : 'Entre na sua conta');
 ?>
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= $title ?></title><link rel="stylesheet" href="<?= app_escape(app_url('adm/gateway/bxpay.css')) ?>"></head>
-<body><main class="gateway-shell" style="max-width:540px">
-<a class="back-link" href="<?= app_escape(app_url()) ?>">← Voltar ao início</a><h1><?= $title ?></h1>
-<p class="lead"><?= $admin ? 'Gerencie usuários, configurações e pagamentos.' : 'Acesse seu painel para continuar.' ?></p>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a0819"><title><?= app_escape($title) ?> · Subway Run</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><link rel="stylesheet" href="<?= app_escape(app_url('adm/gateway/bxpay.css')) ?>"><link rel="stylesheet" href="<?= app_escape(app_url('arquivos/auth-page.css')) ?>?v=1"></head>
+<body class="sk-auth-page<?= $admin ? ' sk-auth-page--admin' : '' ?>"><main class="gateway-shell sk-auth-shell">
+<a class="back-link sk-auth-back" href="<?= app_escape(app_url()) ?>"><span aria-hidden="true">←</span> Voltar ao início</a>
+<header class="sk-auth-intro"><a class="sk-auth-brand" href="<?= app_escape(app_url()) ?>"><span class="sk-auth-brand-mark" aria-hidden="true"><?= ui_icon('play') ?></span><span>Subway Run<small>PLAY. RUN. REPEAT.</small></span></a><p class="sk-auth-kicker"><?= $admin ? 'ÁREA RESTRITA' : ($register ? 'COMECE SUA JORNADA' : 'BEM-VINDO DE VOLTA') ?></p><h1><?= app_escape($title) ?></h1>
+<p class="lead"><?= $admin ? 'Gerencie usuários, configurações e pagamentos.' : ($register ? 'Crie seu perfil para acompanhar partidas e acessar sua conta.' : 'Entre para abrir seu painel e continuar de onde parou.') ?></p></header>
 <section class="gateway-card">
 <?php if ($error): ?><p class="notice notice-error" role="alert"><?= app_escape($error) ?></p><?php endif; ?>
 <form method="post"><input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
