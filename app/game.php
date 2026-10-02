@@ -15,6 +15,11 @@ function game_install(mysqli $db): void {
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $db->query("INSERT IGNORE INTO game_settings (id,difficulty,meta_multiplier) VALUES (1,'medio',10.00)");
+    foreach (['speed_demo'=>'155','speed_paid'=>'180'] as $column=>$default) {
+        if (!$db->query("SHOW COLUMNS FROM game_settings LIKE '$column'")->num_rows) {
+            $db->query("ALTER TABLE game_settings ADD $column SMALLINT UNSIGNED NOT NULL DEFAULT $default");
+        }
+    }
     foreach (['coin_value_demo'=>'0.11','coin_value_paid'=>'0.03'] as $column=>$default) {
         if (!$db->query("SHOW COLUMNS FROM game_settings LIKE '$column'")->num_rows) {
             $db->query("ALTER TABLE game_settings ADD $column DECIMAL(8,2) NOT NULL DEFAULT $default");

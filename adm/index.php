@@ -410,24 +410,7 @@ if ($conn->connect_error) {
                                             <h1 class="font-light text-white">
                                                 <i class="mdi mdi-chemical-weapon"></i>
                                             </h1>
-                                            <h5 class="text-white">Dificuldade do Jogo</h5>
-                                            <h7 class="text-white">Velocidade</h7>
-                                            <form action="/adm/processos.php?opcao=dificuldadeJogo" method="post"
-                                                id="editForm3">
-                                                <select name="valor" class="form-select custom-input"
-                                                    aria-label="Escolha a dificuldade">
-                                                    <option <?php echo ($result['dificuldade_jogo']=='facil' )
-                                                        ? 'selected' : '' ; ?> value="facil">Fácil</option>
-                                                    <option <?php echo ($result['dificuldade_jogo']=='medio' )
-                                                        ? 'selected' : '' ; ?> value="medio">Médio</option>
-                                                    <option <?php echo ($result['dificuldade_jogo']=='dificil' )
-                                                        ? 'selected' : '' ; ?> value="dificil">Difícil</option>
-                                                </select>
-                                                <br>
-                                                <br>
-                                                <button type="submit" class="btn btn-primary"
-                                                    onclick="atualizarValor4()">Atualizar</button>
-                                            </form>
+                                            <h5 class="text-white">Velocidade do jogo</h5><p class="text-white-50">Ajuste separados para treino e partidas com saldo.</p><a class="btn btn-primary" href="<?= app_escape(app_url('adm/jogo/')) ?>">Configurar velocidades</a>
                                         </div>
                                     </div>
                                 </div>

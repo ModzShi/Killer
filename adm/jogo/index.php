@@ -1,7 +1,53 @@
 <?php
 require_once __DIR__ . '/../../app/game.php';
 if (empty($_SESSION['emailadm'])) { header('Location: ' . app_url('adm/login/')); exit; }
-$db = app_db(); game_install($db);
-$settings = $db->query('SELECT * FROM game_settings WHERE id=1')->fetch_assoc();
-$notice = $_SESSION['game_settings_notice'] ?? ''; unset($_SESSION['game_settings_notice']);
-?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jogo e ganhos</title><link rel="stylesheet" href="<?= app_escape(app_url('adm/gateway/bxpay.css')) ?>"><style>body{margin:0;background:#0f172a;color:#e5e7eb;font-family:Arial,sans-serif}.wrap{max-width:760px;margin:40px auto;padding:20px}.card{background:#18243b;border:1px solid #334155;border-radius:18px;padding:28px;box-shadow:0 16px 40px #0005}.field{margin:20px 0}.field label{display:block;margin-bottom:8px;font-weight:700}.field input,.field select{width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#fff;font-size:16px}.btn{padding:12px 20px;border:0;border-radius:10px;background:#fbbf24;color:#111827;font-weight:800;cursor:pointer}.back{color:#fbbf24;text-decoration:none}.notice{padding:12px;border-radius:10px;background:#14532d;margin:15px 0}.bet-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}.bet-presets span{padding:9px;text-align:center;border:1px solid #5b6e8b;border-radius:9px;background:#0f172a;color:#cde3ff;font-weight:800}@media(max-width:520px){.wrap{margin:15px auto;padding:14px}.card{padding:19px}.bet-presets{grid-template-columns:repeat(2,minmax(0,1fr))}}</style></head><body><main class="wrap"><a class="back" href="<?= app_escape(app_url('adm/')) ?>">← Voltar ao ADM</a><div class="card"><h1>Configuração do jogo</h1><p>Defina o ritmo da corrida e o multiplicador da meta. Exemplo: entrada de R$ 5 com multiplicador 10 gera meta de R$ 50.</p><?php if($notice): ?><div class="notice"><?= app_escape($notice) ?></div><?php endif; ?><form method="post" action="<?= app_escape(app_url('adm/jogo/salvar.php')) ?>"><input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>"><div class="field"><label for="difficulty">Dificuldade</label><select id="difficulty" name="difficulty"><option value="facil" <?= $settings['difficulty']==='facil'?'selected':'' ?>>Fácil</option><option value="medio" <?= $settings['difficulty']==='medio'?'selected':'' ?>>Médio</option><option value="dificil" <?= $settings['difficulty']==='dificil'?'selected':'' ?>>Difícil</option><option value="impossivel" <?= $settings['difficulty']==='impossivel'?'selected':'' ?>>Impossível</option></select></div><div class="field"><label for="meta_multiplier">Multiplicador da meta</label><input id="meta_multiplier" name="meta_multiplier" type="number" min="1" max="100" step="0.01" value="<?= app_escape($settings['meta_multiplier']) ?>" required><small>Exemplo: entrada de R$ 5 × 10 = meta de R$ 50.</small></div><div class="field"><label>Entradas disponíveis</label><div class="bet-presets"><span>R$ 5</span><span>R$ 10</span><span>R$ 20</span><span>R$ 30</span><span>R$ 50</span><span>R$ 100</span></div><small>As mesmas opções aparecem no painel do jogador.</small></div><div class="field"><label for="coin_value_demo">Valor por moeda no treino e contas demo (R$)</label><input id="coin_value_demo" name="coin_value_demo" type="number" min="0.01" max="100" step="0.01" value="<?= app_escape($settings['coin_value_demo']) ?>" required><small>Valor inicial: R$ 0,11 por moeda de treino.</small></div><div class="field"><label for="coin_value_paid">Valor por moeda em rodadas pagas (R$)</label><input id="coin_value_paid" name="coin_value_paid" type="number" min="0.01" max="100" step="0.01" value="<?= app_escape($settings['coin_value_paid']) ?>" required><small>Valor fixo por moeda. Mudanças valem para novas rodadas.</small></div><div class="notice" id="calculation-preview"></div><script>const fields=['meta_multiplier','coin_value_demo','coin_value_paid'];function preview(){const m=Number(document.getElementById(fields[0]).value),d=Number(document.getElementById(fields[1]).value),p=Number(document.getElementById(fields[2]).value);const cash=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});document.getElementById('calculation-preview').textContent=m>0&&d>0&&p>0?'Exemplo com entrada de R$ 5: meta de '+cash(5*m)+'. Aproximadamente '+Math.ceil(Math.round(500*m)/Math.round(d*100))+' moedas no treino ou '+Math.ceil(Math.round(500*m)/Math.round(p*100))+' no modo pago.':'Informe valores válidos.'}fields.forEach(id=>document.getElementById(id).addEventListener('input',preview));preview();</script><button class="btn">Salvar configurações</button></form></div></main></body></html>
+$db = app_db();
+game_install($db);
+$settings = $db->query('SELECT * FROM game_settings WHERE id=1')->fetch_assoc() ?: [];
+$notice = $_SESSION['game_settings_notice'] ?? '';
+unset($_SESSION['game_settings_notice']);
+?>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Configuração do jogo</title>
+  <link rel="stylesheet" href="<?= app_escape(app_url('adm/gateway/bxpay.css')) ?>">
+  <style>
+    body{margin:0;background:#0b1020;color:#eef2ff;font-family:Inter,system-ui,Arial,sans-serif}
+    .wrap{width:min(100% - 28px,780px);margin:28px auto 48px}.back{color:#f7c853;text-decoration:none;font-weight:700}
+    .card{margin-top:18px;padding:clamp(20px,5vw,34px);border:1px solid #39415d;border-radius:24px;background:linear-gradient(145deg,#19233b,#11182a);box-shadow:0 24px 70px #0007}
+    h1{margin:0 0 8px;font-size:clamp(26px,5vw,36px)}.intro{margin:0;color:#bdc7df;line-height:1.6}
+    .section-title{margin:28px 0 12px;color:#f8d878;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+    .speed-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{padding:17px;border:1px solid #3a4663;border-radius:18px;background:#10182b}
+    label{display:block;margin-bottom:8px;font-weight:800}.field input{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #596783;border-radius:12px;background:#080f20;color:#fff;font-size:18px;font-weight:800}
+    small,.hint{display:block;margin-top:8px;color:#aeb9d2;line-height:1.5}.notice{margin:18px 0;padding:13px 15px;border-radius:12px;background:#164c37;color:#d6ffe9}
+    .btn{margin-top:24px;padding:14px 22px;border:0;border-radius:13px;background:linear-gradient(100deg,#ffe18a,#ffb72e);color:#251700;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 7px 0 #a45a11}
+    .bet-presets{display:flex;flex-wrap:wrap;gap:8px}.bet-presets span{padding:8px 12px;border:1px solid #4b5873;border-radius:999px;background:#10182b;color:#dbe5fb;font-weight:800}
+    @media(max-width:560px){.speed-grid{grid-template-columns:1fr}.wrap{margin-top:18px}.btn{width:100%}}
+  </style>
+</head>
+<body><main class="wrap"><a class="back" href="<?= app_escape(app_url('adm/')) ?>">← Voltar ao painel</a>
+  <section class="card">
+    <h1>Ritmo e recompensas</h1>
+    <p class="intro">Ajuste a velocidade inicial de cada modo. O jogo aumenta o ritmo gradualmente durante a corrida. As alterações afetam partidas iniciadas depois de salvar.</p>
+    <?php if ($notice): ?><div class="notice" role="status"><?= app_escape($notice) ?></div><?php endif; ?>
+    <form method="post" action="<?= app_escape(app_url('adm/jogo/salvar.php')) ?>">
+      <input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
+      <h2 class="section-title">Velocidade inicial</h2>
+      <div class="speed-grid">
+        <div class="field"><label for="speed_demo">Treino e contas demo</label><input id="speed_demo" name="speed_demo" type="number" min="100" max="300" step="1" value="<?= (int)($settings['speed_demo'] ?? 155) ?>" required><small>Faixa permitida: 100–300. Um aumento gradual de até 35 acompanha a corrida.</small></div>
+        <div class="field"><label for="speed_paid">Partidas com saldo</label><input id="speed_paid" name="speed_paid" type="number" min="100" max="300" step="1" value="<?= (int)($settings['speed_paid'] ?? 180) ?>" required><small>Faixa permitida: 100–300. Um aumento gradual de até 140 acompanha a corrida.</small></div>
+      </div>
+      <h2 class="section-title">Meta e moedas</h2>
+      <div class="field"><label for="meta_multiplier">Multiplicador da meta</label><input id="meta_multiplier" name="meta_multiplier" type="number" min="1" max="100" step="0.01" value="<?= app_escape($settings['meta_multiplier'] ?? 10) ?>" required><small>Exemplo: entrada de R$ 5 × 10 = meta de R$ 50.</small></div>
+      <div class="speed-grid" style="margin-top:14px">
+        <div class="field"><label for="coin_value_demo">Valor por moeda no treino (R$)</label><input id="coin_value_demo" name="coin_value_demo" type="number" min="0.01" max="100" step="0.01" value="<?= app_escape($settings['coin_value_demo'] ?? 0.11) ?>" required></div>
+        <div class="field"><label for="coin_value_paid">Valor por moeda em partidas com saldo (R$)</label><input id="coin_value_paid" name="coin_value_paid" type="number" min="0.01" max="100" step="0.01" value="<?= app_escape($settings['coin_value_paid'] ?? 0.03) ?>" required></div>
+      </div>
+      <h2 class="section-title">Entradas disponíveis</h2><div class="bet-presets"><span>R$ 5</span><span>R$ 10</span><span>R$ 20</span><span>R$ 30</span><span>R$ 50</span><span>R$ 100</span></div>
+      <p class="hint">O modo de treino e o modo com saldo agora leem velocidades próprias desta tela. O controle antigo de dificuldade foi removido do painel principal.</p>
+      <button class="btn" type="submit">Salvar configurações</button>
+    </form>
+  </section>
+</main></body></html>

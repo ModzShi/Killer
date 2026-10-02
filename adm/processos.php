@@ -5,14 +5,9 @@ $columns=['depositoMin'=>'deposito_min','saqueMin'=>'saques_min','apostaMax'=>'a
 $option=is_string($_GET['opcao']??null)?$_GET['opcao']:'';$raw=app_input('valor');
 try{
     $db=app_db();
-    if($option==='dificuldadeJogo'){
-        if(!in_array($raw,['facil','medio','dificil','impossivel'],true))throw new InvalidArgumentException();
-        $value=$raw;
-    }else{
-        if(!isset($columns[$option])||!is_numeric($raw)||!is_finite((float)$raw)||(float)$raw<0||(float)$raw>9999999999)throw new InvalidArgumentException();
-        $value=number_format((float)$raw,2,'.','');
-    }
-    $column=$option==='dificuldadeJogo'?'dificuldade_jogo':$columns[$option];
+    if(!isset($columns[$option])||!is_numeric($raw)||!is_finite((float)$raw)||(float)$raw<0||(float)$raw>9999999999)throw new InvalidArgumentException();
+    $value=number_format((float)$raw,2,'.','');
+    $column=$columns[$option];
     $stmt=$db->prepare("UPDATE app SET `$column`=? LIMIT 1");$stmt->bind_param('s',$value);$stmt->execute();
     $_SESSION['admin_notice']='Configuração atualizada.';
 }catch(Throwable $e){$_SESSION['admin_notice']='Valor ou configuração inválida.';}

@@ -10,7 +10,7 @@ try {
         if (!app_check_csrf()) { http_response_code(403); $error = 'O formulário expirou. Tente novamente.'; }
         elseif (($_SESSION['auth_wait_until'] ?? 0) > time()) { http_response_code(429); $error = 'Aguarde um minuto antes de tentar novamente.'; }
         else {
-            if ($register) app_register($db, ['nome'=>$name,'senha'=>app_input('senha'),'telefone_confirmation'=>$phone], is_string($_GET['aff']??null) ? $_GET['aff'] : (string)($_SESSION['landing_affiliate']??''), is_string($_GET['ref']??null) ? $_GET['ref'] : (string)($_SESSION['landing_manager_code']??''), null, is_string($_GET['by']??null) ? $_GET['by'] : (string)($_SESSION['landing_manager_influencer']??''));
+            if ($register) app_register($db, ['nome'=>$name,'senha'=>app_input('senha'),'telefone'=>$phone], is_string($_GET['aff']??null) ? $_GET['aff'] : (string)($_SESSION['landing_affiliate']??''), is_string($_GET['ref']??null) ? $_GET['ref'] : (string)($_SESSION['landing_manager_code']??''), null, is_string($_GET['by']??null) ? $_GET['by'] : (string)($_SESSION['landing_manager_influencer']??''));
             if (app_signin($db, $register ? $phone : $identifier, app_input('senha'), $admin)) {
                 unset($_SESSION['auth_failures'], $_SESSION['auth_wait_until']);
                 if ($register) unset($_SESSION['landing_affiliate'], $_SESSION['landing_manager_code'], $_SESSION['landing_manager_influencer']);
@@ -41,5 +41,5 @@ $title = $register ? 'Crie sua conta' : ($admin ? 'Acesso administrativo' : 'Ent
 <?php if (!$register): ?><label class="enable-option"><input type="checkbox" name="remember_me" value="1" checked> Lembrar</label><?php endif; ?>
 <label class="enable-option"><input id="show-password" type="checkbox"> Mostrar senha</label>
 <button type="submit"><?= $register ? 'Criar conta' : 'Entrar' ?></button></form>
-<?php if (!$admin && $register): ?><p><a class="back-link" href="<?= app_escape(app_url('login/')) ?>">Já tenho conta — entrar</a></p><?php endif; ?><?php if (!$admin && !$register): ?><p><a class="back-link" href="<?= app_escape(app_url('gerente/login.php')) ?>">Acesso do gerente</a></p><?php endif; ?>
+<?php if (!$admin && $register): ?><p><a class="back-link" href="<?= app_escape(app_url('login/')) ?>">Já tenho conta — entrar</a></p><?php endif; ?>
 </section></main><script>document.getElementById('show-password').addEventListener('change',function(){const el=document.getElementById('senha');if(el)el.type=this.checked?'text':'password';});</script></body></html>

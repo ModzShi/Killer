@@ -67,9 +67,7 @@
       document.getElementById('editPhone').value = user.telefone || '';
       document.getElementById('editBalance').value = String(user.saldo ?? '0').replace('.', ',');
       document.getElementById('editCommission').value = Number(user.comissaofake) || 0;
-      document.getElementById('editPlan').value = Number(user.plano) || 0;
-      document.getElementById('editCpa').value = Number(user.cpa) || 0;
-      document.getElementById('editAffiliate').checked = String(user.afiliado_ativo) === '1';
+      document.getElementById('editPlan').value = 50;
       document.getElementById('editBlocked').checked = ['1', 'true', 'on'].includes(normalize(user.bloc));
       document.getElementById('editAvatar').textContent = name.charAt(0).toUpperCase() || 'U';
       document.getElementById('editSummaryName').textContent = name || 'Usuário';

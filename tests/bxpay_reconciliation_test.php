@@ -31,7 +31,7 @@ check(bxpay_credit($db, 'bx_test', $paid), 'Duplicate notification is acknowledg
 $user = $db->query("SELECT * FROM appconfig WHERE id = 'user'")->fetch_assoc();
 $aff = $db->query("SELECT * FROM appconfig WHERE id = 'affiliate'")->fetch_assoc();
 check((float) $user['saldo'] === 10.0 && (float) $user['depositou'] === 10.0, 'Balance credited exactly once');
-check((float) $aff['comissaofake'] === 3.0 && (int) $aff['cont_cpa'] === 1, 'First-deposit CPA credited exactly once');
+check((float) $aff['comissaofake'] === 5.0 && (int) $aff['cont_cpa'] === 0, 'Affiliate receives 50% of the confirmed deposit exactly once');
 $db->query("INSERT INTO bxpay_deposits VALUES ('bx_missing',NULL,'missing@example.test',10,'PENDING',NULL)");
 try { bxpay_credit($db, 'bx_missing', array_replace($paid, ['external_id' => 'bx_missing'])); check(false, 'Missing user must fail'); }
 catch (RuntimeException $e) { check(true, 'Missing user fails safely'); }

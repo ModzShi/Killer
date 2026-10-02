@@ -18,11 +18,11 @@ try{
     if(app_query($db,'SELECT id FROM appconfig WHERE email=? AND id<>?',[$email,$id])->get_result()->num_rows)throw new InvalidArgumentException('Este e-mail já pertence a outra conta.');
     $phone=preg_replace('/\D/','',app_input('telefone'));
     if($phone!==''&&!preg_match('/^\d{10,13}$/D',$phone))throw new InvalidArgumentException('Informe um telefone válido com DDD.');
-    $balance=admin_user_number('saldo',0,9999999999);$commission=admin_user_number('comissaofake',0,9999999999);$plan=admin_user_number('plano',0,100);$cpa=admin_user_number('cpa',0,9999999999);
-    $blocked=isset($_POST['bloqueado'])?'1':'0';$affiliate=isset($_POST['afiliado_ativo'])?'1':'0';$password=app_input('senha');
+    $balance=admin_user_number('saldo',0,9999999999);$commission=admin_user_number('comissaofake',0,9999999999);$plan='50.00';
+    $blocked=isset($_POST['bloqueado'])?'1':'0';$affiliate='1';$password=app_input('senha');
     if($password!==''&&(strlen($password)<6||strlen($password)>72))throw new InvalidArgumentException('A nova senha deve ter entre 6 e 72 caracteres.');
     $db->begin_transaction();$transaction=true;
-    app_query($db,'UPDATE appconfig SET nome=?,email=?,telefone=?,saldo=?,comissaofake=?,plano=?,cpa=?,bloc=?,afiliado_ativo=? WHERE id=?',[$name,$email,$phone,$balance,$commission,$plan,$cpa,$blocked,$affiliate,$id]);
+    app_query($db,'UPDATE appconfig SET nome=?,email=?,telefone=?,saldo=?,comissaofake=?,plano=?,bloc=?,afiliado_ativo=? WHERE id=?',[$name,$email,$phone,$balance,$commission,$plan,$blocked,$affiliate,$id]);
     if($password!=='')app_query($db,'UPDATE appconfig SET senha=? WHERE id=?',[password_hash($password,PASSWORD_DEFAULT),$id]);
     if($email!==$current['email']){
         $table=app_query($db,'SELECT 1 FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?',['manager_demos'])->get_result()->fetch_assoc();

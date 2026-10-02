@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../app/affiliate.php';
 
 /**
  * webhook/pix.php — KnucklesPay Webhook Handler
@@ -110,8 +111,6 @@ if ($transactionType === 'RECEIVEPIX' && in_array($status, ['paid', 'approved', 
     $resultUser = $stmtUser->get_result()->fetch_assoc();
     $stmtUser->close();
 
-    $resultApp = $conn->query("SELECT * FROM app LIMIT 1")->fetch_assoc();
-
     // Incrementar depositou
     $stmtDep = $conn->prepare("UPDATE appconfig SET depositou = depositou + ? WHERE email = ?");
     $stmtDep->bind_param('ds', $valorDepositado, $emailUsuario);
@@ -121,15 +120,11 @@ if ($transactionType === 'RECEIVEPIX' && in_array($status, ['paid', 'approved', 
     // ----- Sistema de afiliados --------------------------------
     if (!empty($resultUser['afiliado'])) {
 
-        $stmtAff = $conn->prepare(
-            "SELECT plano, afiliado_ativo, cpa FROM appconfig WHERE id = ? LIMIT 1"
-        );
+        $stmtAff = $conn->prepare("SELECT id FROM appconfig WHERE id = ? LIMIT 1");
         $stmtAff->bind_param('s', $resultUser['afiliado']);
         $stmtAff->execute();
         $affData = $stmtAff->get_result()->fetch_assoc();
         $stmtAff->close();
-
-        $isFirstDeposit = ($resultUser['status_primeiro_deposito'] == '0');
 
         $stmtFD = $conn->prepare("UPDATE appconfig SET status_primeiro_deposito = 1 WHERE email = ?");
         $stmtFD->bind_param('s', $emailUsuario);
@@ -137,30 +132,12 @@ if ($transactionType === 'RECEIVEPIX' && in_array($status, ['paid', 'approved', 
         $stmtFD->close();
 
         if ($affData) {
-            if ($affData['afiliado_ativo'] == '1') {
-                // Revenue Share
-                if (is_numeric($affData['plano']) && floatval($affData['plano']) > 0) {
-                    $revShare = $valorDepositado * (floatval($affData['plano']) / 100);
-                    $stmtRS   = $conn->prepare(
-                        "UPDATE appconfig SET comissaofake = comissaofake + ? WHERE id = ?"
-                    );
-                    $stmtRS->bind_param('ds', $revShare, $resultUser['afiliado']);
-                    $stmtRS->execute();
-                    $stmtRS->close();
-                }
-            } else {
-                // CPA — somente primeiro depósito qualificado
-                if ($isFirstDeposit && $valorDepositado >= floatval($resultApp['deposito_min_cpa'] ?? 0)) {
-                    $cpaValor = floatval($affData['cpa']);
-                    if ($cpaValor > 0) {
-                        $stmtCPA = $conn->prepare(
-                            "UPDATE appconfig SET comissaofake = comissaofake + ?, cont_cpa = cont_cpa + 1 WHERE id = ?"
-                        );
-                        $stmtCPA->bind_param('ds', $cpaValor, $resultUser['afiliado']);
-                        $stmtCPA->execute();
-                        $stmtCPA->close();
-                    }
-                }
+            $revShare = app_affiliate_deposit_commission((float)$valorDepositado);
+            if ($revShare > 0) {
+                $stmtRS = $conn->prepare("UPDATE appconfig SET comissaofake = comissaofake + ? WHERE id = ?");
+                $stmtRS->bind_param('ds', $revShare, $resultUser['afiliado']);
+                $stmtRS->execute();
+                $stmtRS->close();
             }
         }
     }

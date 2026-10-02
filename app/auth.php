@@ -150,7 +150,8 @@ function app_register(mysqli $db, array $input, string $affiliate, string $manag
     $email = strtolower(trim((string)($input['email'] ?? ''))); $password = (string)($input['senha'] ?? '');
     $name = trim((string)($input['nome'] ?? ''));
     $name = preg_replace('/\s+/u', ' ', $name) ?? $name;
-    $phone = app_phone_normalize((string)($input['telefone_confirmation'] ?? ''));
+    // Keep the former internal key as a compatibility fallback for demo creation.
+    $phone = app_phone_normalize((string)($input['telefone'] ?? $input['telefone_confirmation'] ?? ''));
     if (!preg_match('/^.{2,120}$/usD', $name)) throw new InvalidArgumentException('Informe seu nome completo (de 2 a 120 caracteres).');
     if ($email !== '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254)) throw new InvalidArgumentException('Informe um e-mail válido.');
     if (strlen($password) < 6 || strlen($password) > 72) throw new InvalidArgumentException('Use uma senha entre 6 e 72 caracteres.');
@@ -186,7 +187,7 @@ function app_register(mysqli $db, array $input, string $affiliate, string $manag
         if ($managerCode !== '') $affiliate = '';
         if ($affiliate !== '' && !app_query($db, 'SELECT id FROM appconfig WHERE id = ?', [$affiliate])->get_result()->num_rows) $affiliate = '';
         $demo = $demoManagerId !== null;
-        app_query($db, "INSERT INTO appconfig (id,nome,email,senha,telefone,saldo,linkafiliado,indicados,plano,cpa,data_cadastro,afiliado,afiliado_ativo,demo,jogo_demo,total_apostado) VALUES (?,?,?,?,?,?,?,0,?,?,?,?,0,?,?,0)", [$id,$name,$email,password_hash($password,PASSWORD_DEFAULT),$phone,$demo?'1000.00':'0',app_url('cadastrar/?aff=' . urlencode($id)),(string)($app['revenue_share']??0),(string)($app['cpa']??0),date('d-m-Y H:i'),$affiliate,$demo?'1':'0',$demo?'1':'0']);
+        app_query($db, "INSERT INTO appconfig (id,nome,email,senha,telefone,saldo,linkafiliado,indicados,plano,cpa,data_cadastro,afiliado,afiliado_ativo,demo,jogo_demo,total_apostado) VALUES (?,?,?,?,?,?,?,0,?,?,?,?,?,?,?,0)", [$id,$name,$email,password_hash($password,PASSWORD_DEFAULT),$phone,$demo?'1000.00':'0',app_url('cadastrar/?aff=' . urlencode($id)),'50.00',(string)($app['cpa']??0),date('d-m-Y H:i'),$affiliate,$demo?'0':'1',$demo?'1':'0',$demo?'1':'0']);
         if ($demo) app_query($db,'INSERT INTO manager_demos(email,manager_id,display_name) VALUES(?,?,?)',[$email,(string)$demoManagerId,$name]);
         if ($managerPartner && $managerInfluencerId === '') {
             app_query($db,'UPDATE manager_partners SET influencer_email=? WHERE id=? AND influencer_email IS NULL',[$email,(string)$managerPartner['id']]);

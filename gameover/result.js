@@ -11,7 +11,7 @@
   const button=document.getElementById('sound'), win=document.body.classList.contains('win');
   let context=null, muted=false, started=false, loop=null;
   function playResult(){
-    if(muted||started)return;
+    if(win||muted||started)return;
     try{
       const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
       context=context||new C();

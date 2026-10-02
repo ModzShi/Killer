@@ -73,8 +73,9 @@ try {
     $userPage=request_page('/adm/usuarios/');
     $updated=request_page('/adm/usuarios/update.php',['csrf'=>csrf($userPage),'id'=>$testId,'email'=>$email,'senha'=>'','telefone'=>'11988887777','saldo'=>'123.45','linkafiliado'=>'','plano'=>'20','depositou'=>'100','saldo_comissao'=>'0','percas'=>'1','ganhos'=>'2','cpa'=>'3','comissaofake'=>'0']);
     expect_test($updated['code']===303,'Admin user update succeeds with CSRF');
-    $updatedUser=app_query($db,'SELECT saldo,senha FROM appconfig WHERE id=?',[$testId])->get_result()->fetch_assoc();
+    $updatedUser=app_query($db,'SELECT saldo,senha,plano FROM appconfig WHERE id=?',[$testId])->get_result()->fetch_assoc();
     expect_test((float)$updatedUser['saldo']===123.45&&password_verify($password,$updatedUser['senha']),'Admin edit preserves blank password and uses prepared values');
+    expect_test((float)$updatedUser['plano']===50.0,'Affiliate commission rate stays fixed at 50%');
     $users=request_page('/adm/usuarios/bd.php');$list=json_decode($users['body'],true);
     expect_test(is_array($list),'Admin users JSON loads');
     foreach($list as $user)expect_test(empty($user['senha']),'Passwords are not returned by admin API');

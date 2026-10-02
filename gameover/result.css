@@ -55,3 +55,47 @@ h1{position:relative;z-index:1;font-size:clamp(33px,8vw,49px);text-shadow:0 2px 
 .confetti i{top:0;left:var(--x);width:clamp(6px,1.5vw,10px);height:clamp(11px,2.5vw,18px);opacity:0;border:1px solid #ffffff70;border-radius:3px 1px 3px 1px;will-change:transform,opacity;animation:confettiFall 3.8s linear infinite;animation-delay:var(--d);}
 @keyframes confettiFall{0%{opacity:0;transform:translate3d(0,-8vh,0) rotate(var(--r)) scale(.72)}10%{opacity:.95}80%{opacity:.88}100%{opacity:0;transform:translate3d(var(--drift,24px),112vh,0) rotate(calc(var(--r) + 540deg)) scale(1)}}
 @media(prefers-reduced-motion:reduce){.confetti i{display:none;animation:none}}
+
+/* Coin-and-cash result theme: warm gold, deep green and clear contrast. */
+body{background:radial-gradient(ellipse at 50% 0,#64501d 0,transparent 42%),radial-gradient(ellipse at 10% 90%,#163c2b 0,transparent 45%),#090d12;color:#fff}
+.stage{background:radial-gradient(ellipse at 50% 50%,transparent 25%,#05080cc9 100%)}
+.stage:before{opacity:.16;background:radial-gradient(circle at 12% 20%,#eac75b 0 2px,transparent 3px),radial-gradient(circle at 86% 18%,#fff0a0 0 2px,transparent 3px),radial-gradient(circle at 81% 76%,#eac75b 0 3px,transparent 4px),radial-gradient(circle at 17% 83%,#85d8a1 0 2px,transparent 3px);background-size:240px 240px}
+.stage:after{opacity:.22;transform:perspective(280px) rotateX(72deg) scale(3);background:linear-gradient(90deg,transparent 48%,#edc55216 49%,transparent 51%)}
+.result-card{border:1px solid #d5ae4e;background:linear-gradient(150deg,#202719,#17221a 48%,#101710);box-shadow:0 0 0 5px #d9b7501b,0 32px 85px #000d,0 0 38px #d1a83b18}
+.result-card:before{border-color:#f8e4a43b;box-shadow:inset 0 0 28px #e6c24a09}
+.result-card:after{background:linear-gradient(115deg,transparent 15%,#fff0 37%,#ffe49c0c 50%,#fff0 63%,transparent 85%)}
+.brand{color:#fff4d1;text-shadow:0 2px 0 #17150d}.brand b,.brand-bolt{color:#ffd66f;text-shadow:0 1px 5px #a36f1460}
+.brand-bolt{border-color:#d6af4d66;background:#e8b93615}
+.win #sound{display:none}
+.halo{background:radial-gradient(circle,#f9d97928 0 24%,#e9a82c15 46%,transparent 72%);animation:halo 2.6s ease-in-out infinite}
+.halo:before,.halo:after{border-color:#e2bd5a6b;box-shadow:0 0 12px #dfb94a20,inset 0 0 12px #f6d7780c;animation:none}
+.halo:after{border-style:dashed;border-color:#c78a3380;box-shadow:none}
+.emblem{color:#563607;background:radial-gradient(circle at 30% 22%,#fff4b4,#f4ce61 43%,#c78323 78%,#875014);border:5px solid #ffeaa0;box-shadow:0 0 0 5px #f4d1651a,0 8px 0 #70420f,0 17px 28px #0009,inset 0 4px 12px #fff9;text-shadow:0 2px 0 #fff4}
+.emblem .ui-icon{filter:drop-shadow(0 2px 1px #80520b33)}
+.eyebrow{color:#ffdf8a;text-shadow:none;border-color:#dfb84b55;background:#cf9c2314}
+h1{text-shadow:0 3px 0 #090d10,0 1px 10px #fff2}
+.subtitle{color:#e5e7dc}
+.reward{border-color:#d8b849;background:linear-gradient(135deg,#1e3324,#172519 56%,#3a2b13);box-shadow:inset 0 0 22px #f3d26413,0 0 0 4px #e3bb4810,0 8px 0 #090d12;transform:none}
+.reward:before{background:linear-gradient(90deg,transparent,#fff0bd,transparent);box-shadow:none}
+.reward-label,.reward-detail{color:#f4da91;text-shadow:none}
+.reward strong{color:#ffe27d;text-shadow:0 2px 0 #865610,0 5px 13px #9b661044;animation:amountGlow 2.8s ease-in-out infinite alternate}
+.actions{margin-top:24px}.button{border-radius:15px}
+.primary{color:#392707;background:linear-gradient(180deg,#fff0a0,#ffd04e 60%,#e9a927);box-shadow:0 0 0 1px #ffedb5,0 6px 0 #9e641b,0 13px 24px #0008;text-shadow:0 1px #fff9;animation:buttonGlow 2.5s ease-in-out infinite}
+.primary b{color:#593800;text-shadow:none}.secondary{color:#f2ead6;border-color:#9d8751;background:#ffffff0a;box-shadow:none}
+.footnote{color:#b8b9ad}
+.loss .result-card,.error .result-card{border-color:#b9754d;box-shadow:0 0 0 5px #a64e2517,0 32px 85px #000d}
+.loss .halo,.error .halo{background:radial-gradient(circle,#d58b4720 0 26%,transparent 70%)}
+.loss .halo:before,.error .halo:before{border-color:#c07a5a80;box-shadow:none}.loss .halo:after,.error .halo:after{border-color:#ae654b77;box-shadow:none}
+.loss .emblem,.error .emblem{color:#fff1df;background:radial-gradient(circle at 30% 22%,#f1c49c,#ca8050 50%,#85412b);border-color:#f0c39b;box-shadow:0 0 0 5px #c77b4b18,0 8px 0 #693b2a,0 17px 28px #0009,inset 0 4px 12px #fff8;text-shadow:0 2px 0 #75412e}
+.loss .emblem .ui-icon,.error .emblem .ui-icon{filter:none}
+.loss .eyebrow{color:#e9b38f}.loss h1,.error h1{text-shadow:0 3px 0 #140e0b,0 1px 10px #fff2}
+.loss .reward,.error .reward{border-color:#a87458;background:linear-gradient(135deg,#39271d,#22251b 70%,#322512);box-shadow:inset 0 0 22px #edbb5210,0 8px 0 #090d12}
+.loss .reward strong,.error .reward strong{color:#f4d0a1;text-shadow:0 2px 0 #5f3826}.loss .reward-label,.loss .reward-detail,.error .reward-label,.error .reward-detail{color:#dfb28e}
+.loss .primary,.error .primary{color:#382414;background:linear-gradient(180deg,#f3d6a0,#d79a55 65%,#b66c37);box-shadow:0 0 0 1px #f4ddbb,0 6px 0 #754326,0 13px 24px #0008}
+.loss .secondary,.error .secondary{border-color:#a6785d}
+.confetti i,.confetti i:nth-child(3n),.confetti i:nth-child(4n),.confetti i:nth-child(5n){display:grid;place-items:center;width:20px;height:20px;border:2px solid #fff0aa;border-radius:50%;background:radial-gradient(circle at 32% 25%,#fff5b7 0 10%,#f1c957 38%,#c78320 80%);color:#79500f;box-shadow:0 2px 5px #0008}
+.confetti i:after{content:'$';font-size:10px;font-style:normal;font-weight:1000;line-height:1;text-shadow:0 1px #fff7}
+.victory-track{width:min(100%,220px);margin:0 auto 15px;padding:10px;border:1px solid #cba84966;border-radius:16px;background:linear-gradient(145deg,#19251c,#211b10);box-shadow:0 8px 22px #0005}
+.victory-track iframe{display:block;width:200px;height:200px;max-width:100%;margin:auto;border:0;border-radius:10px;background:#080a08}
+.victory-track span{display:block;margin-top:8px;color:#ead797;font-size:10px;line-height:1.4}
+@media(prefers-reduced-motion:reduce){.halo,.reward strong,.primary{animation:none}}

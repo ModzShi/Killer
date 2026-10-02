@@ -31,12 +31,13 @@ $win = $gameResult === 'WIN' && $error === '';
 $again = $demo ? app_url('presell/jogoteste/') : app_url('painel/');
 $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
 ?><!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07142c"><title><?= $error ? 'Resultado da corrida' : ($win ? 'Vitória!' : 'Fim da corrida') ?></title><link rel="stylesheet" href="<?= app_escape(app_url('gameover/result.css')) ?>?v=7"><link rel="stylesheet" href="<?= app_escape(app_url('gameover/prompt.css')) ?>"></head>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07142c"><title><?= $error ? 'Resultado da corrida' : ($win ? 'Vitória!' : 'Fim da corrida') ?></title><link rel="stylesheet" href="<?= app_escape(app_url('gameover/result.css')) ?>?v=8"><link rel="stylesheet" href="<?= app_escape(app_url('gameover/prompt.css')) ?>"></head>
 <body class="<?= $error ? 'error' : ($win ? 'win' : 'loss') ?>">
 <script>try{sessionStorage.setItem('finished:'+<?= json_encode($token, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,'1')}catch(e){}</script>
 <div class="stage" aria-hidden="true"></div><div class="confetti" aria-hidden="true"><?php if ($win): for($i=0;$i<24;$i++): ?><i style="--x:<?= ($i*47)%100 ?>%;--d:<?= ($i%8)*.15 ?>s;--r:<?= ($i*71)%340 ?>deg;--drift:<?= (($i%7)-3)*18 ?>px"></i><?php endfor; endif; ?></div>
 <main class="result-card"><div class="topline"><span class="brand"><span class="brand-bolt">ϟ</span> SUBWAY <b>RUN</b></span><button id="sound" type="button" aria-label="Reproduzir som" title="Som"><?= ui_icon("sound") ?></button></div>
-<div class="halo"><div class="emblem" aria-hidden="true"><?= ui_icon($error ? 'help' : ($win ? 'trophy' : 'history')) ?></div></div>
+<div class="halo"><div class="emblem" aria-hidden="true"><?= ui_icon($error ? 'help' : ($win ? 'coins' : 'history')) ?></div></div>
+<?php if ($win && !$preview): ?><section class="victory-track" aria-label="Trilha de vitória"><iframe src="https://www.youtube-nocookie.com/embed/mPWsGDxwxw4?autoplay=1&amp;controls=1&amp;loop=1&amp;playlist=mPWsGDxwxw4&amp;playsinline=1&amp;rel=0" title="Trilha da vitória" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><span>TRILHA DA VITÓRIA · Toque no player se o navegador bloquear a reprodução automática</span></section><?php endif; ?>
 <p class="eyebrow"><?= $preview ? 'PRÉVIA VISUAL • SEM TRANSAÇÃO' : ($fictional ? 'MODO TREINO • RESULTADO SIMULADO' : 'RESULTADO DA CORRIDA') ?></p>
 <h1><?= $error ? 'OCORREU UM PROBLEMA' : ($win ? 'CORRIDA VENCIDA!' : 'FIM DE CORRIDA') ?></h1>
 <p class="subtitle"><?= $error ? app_escape($error) : ($win ? ($fictional ? 'Boa corrida! Valor demonstrativo da rodada de treino.' : 'Meta alcançada. Seu prêmio foi registrado na conta.') : ($fictional ? 'Treino encerrado. O valor exibido é apenas demonstrativo.' : 'A corrida terminou. Respire, ajuste o ritmo e tente outra vez.')) ?></p>
@@ -61,4 +62,4 @@ $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
   </section>
 </div>
 <?php endif; ?>
-<script>window.RESULT_ICONS=<?= json_encode(["sound"=>ui_icon("sound"),"muted"=>ui_icon("muted")],JSON_HEX_TAG) ?>;</script><script src="<?= app_escape(app_url('gameover/result.js')) ?>?v=5" defer></script></body></html>
+<script>window.RESULT_ICONS=<?= json_encode(["sound"=>ui_icon("sound"),"muted"=>ui_icon("muted")],JSON_HEX_TAG) ?>;</script><script src="<?= app_escape(app_url('gameover/result.js')) ?>?v=6" defer></script></body></html>

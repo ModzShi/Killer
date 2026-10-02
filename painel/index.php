@@ -7,10 +7,8 @@ $db = app_db();
 $user = account_user($db);
 game_install($db);
 
-$settings = $db->query('SELECT difficulty,meta_multiplier,coin_value_demo,coin_value_paid FROM game_settings WHERE id=1')->fetch_assoc() ?: [];
+$settings = $db->query('SELECT meta_multiplier,coin_value_demo,coin_value_paid FROM game_settings WHERE id=1')->fetch_assoc() ?: [];
 $multiplier = max(1.0, (float) ($settings['meta_multiplier'] ?? 10));
-$difficulty = (string) ($settings['difficulty'] ?? 'medio');
-$difficultyCode = ['facil' => 'B1C2', 'medio' => 'B1C3', 'dificil' => 'B1C4'][$difficulty] ?? 'B1C3';
 $isDemo = (string) ($user['demo'] ?? '0') === '1';
 $balance = (float) ($user['saldo'] ?? 0);
 $gameError = (string) ($_SESSION['game_error'] ?? '');
@@ -63,7 +61,6 @@ $bets = [
             <?php $firstAvailableBet = null; foreach ($bets as $candidate) { if ($balance >= $candidate['value']) { $firstAvailableBet = $candidate['code']; break; } } ?>
             <form class="player-race-picker" id="player-race-form" method="post" action="<?= app_url('game/start.php') ?>">
                 <input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
-                <input type="hidden" name="difficulty" value="<?= app_escape($isDemo ? 'B1C2' : $difficultyCode) ?>">
                 <div class="player-section-title">
                     <div>
                         <span>Escolha sua corrida</span>

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../app/bootstrap.php';
+require_once dirname(__DIR__) . '/app/affiliate.php';
 
 require_once dirname(__DIR__) . '/bxpay.php';
 
@@ -80,22 +81,15 @@ function bxpay_credit(mysqli $db, string $reference, array $verified): bool
         $stmt->bind_param('sss', $amount, $amount, $email); $stmt->execute();
         $managerReferral = app_query($db, 'SELECT partner_id FROM manager_referrals WHERE email=?', [$email])->get_result()->fetch_assoc();
         if (!$managerReferral && !empty($user['afiliado'])) {
-            $stmt = $db->prepare('SELECT plano, afiliado_ativo, cpa FROM appconfig WHERE id = ? FOR UPDATE');
+            $stmt = $db->prepare('SELECT id FROM appconfig WHERE id = ? FOR UPDATE');
             $stmt->bind_param('s', $user['afiliado']); $stmt->execute();
             $affiliate = $stmt->get_result()->fetch_assoc();
             if ($affiliate) {
-                $commission = 0; $count = 0;
-                if ($affiliate['afiliado_ativo'] == '1') {
-                    $commission = round((float) $amount * max(0, (float) $affiliate['plano']) / 100, 2);
-                } elseif (($user['status_primeiro_deposito'] ?? '0') == '0') {
-                    $app = $db->query('SELECT deposito_min_cpa FROM app LIMIT 1')->fetch_assoc();
-                    if ((float) $amount >= (float) ($app['deposito_min_cpa'] ?? 0)) {
-                        $commission = max(0, (float) $affiliate['cpa']); $count = $commission > 0 ? 1 : 0;
-                    }
-                }
+                $commission = app_affiliate_deposit_commission((float)$amount);
                 if ($commission > 0) {
                     $stmt = $db->prepare('UPDATE appconfig SET comissaofake = comissaofake + ?, cont_cpa = cont_cpa + ? WHERE id = ?');
-                    $stmt->bind_param('dis', $commission, $count, $user['afiliado']); $stmt->execute();
+                    $noCpaCount = 0;
+                    $stmt->bind_param('dis', $commission, $noCpaCount, $user['afiliado']); $stmt->execute();
                 }
             }
         }

@@ -237,9 +237,9 @@ $gameDb->close();
         }
         window.GAME_META_MULTIPLIER = <?= json_encode((float)$gameSettings['meta_multiplier']) ?>;
         window.GAME_COIN_VALUE = <?= json_encode($gameCoinValue) ?>;
-        window.GAME_DIFFICULTY = <?= json_encode($gameSettings['difficulty']) ?>;
         window.GAME_DEMO = <?= $gameDemo ? 'true' : 'false' ?>;
         window.GAME_SLOW = <?= ($gameDemo || !empty($_SESSION['demo_account'])) ? 'true' : 'false' ?>;
+        window.GAME_BASE_SPEED = <?= json_encode((int)$gameSettings[($gameDemo || !empty($_SESSION['demo_account'])) ? 'speed_demo' : 'speed_paid']) ?>;
         (function(){var bet=aposta;var target=(bet*window.GAME_META_MULTIPLIER).toFixed(2).replace('.',',');var value=document.getElementById('game-meta-value');if(value)value.textContent='R$ 0,00 / R$ '+target;var start=document.getElementById('start-tutorial');if(start)start.addEventListener('click',function(){document.getElementById('game-tutorial').remove();var boot=document.createElement('script');boot.src='js/boot.js?v=<?= filemtime(__DIR__ . '/js/boot.js') ?>';document.body.appendChild(boot);},{once:true});}());
     </script>
     <div id="message">
