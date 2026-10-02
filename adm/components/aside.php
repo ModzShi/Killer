@@ -42,6 +42,14 @@
                     <a class="sidebar-link waves-effect waves-dark sidebar-link" href="<?= app_escape(app_url('adm/gerentes/saques.php')) ?>"
                         aria-expanded="false"><i class="mdi mdi-cash-multiple"></i><span class="hide-menu">Saques de gerentes</span></a>
                 </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" href="<?= app_escape(app_url('adm/comissoes/')) ?>"
+                        aria-expanded="false"><i class="mdi mdi-cash-multiple"></i><span class="hide-menu">Saques de comissões</span></a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" href="<?= app_escape(app_url('adm/conta/')) ?>"
+                        aria-expanded="false"><i class="mdi mdi-account-key"></i><span class="hide-menu">Minha conta</span></a>
+                </li>
 
                 <li class="sidebar-item">
                     <a class="sidebar-link waves-effect waves-dark sidebar-link" href="../config"

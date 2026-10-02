@@ -37,10 +37,10 @@ if ($conn->connect_error) {
 }
 
 $novoStatus = 'Pago';
-$stmt = $conn->prepare("UPDATE saque_afiliado SET status = ? WHERE id = ?");
+$stmt = $conn->prepare("UPDATE saque_afiliado SET status = ? WHERE id = ? AND status = 'Aguardando Aprovação'");
 $stmt->bind_param('si', $novoStatus, $id);
 
-if ($stmt->execute()) {
+if ($stmt->execute() && $stmt->affected_rows === 1) {
     echo 'Saque marcado como Pago com sucesso! Lembre-se de realizar o PIX manualmente.';
 } else {
     echo 'Erro ao atualizar: ' . $conn->error;

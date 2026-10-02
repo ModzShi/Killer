@@ -156,16 +156,17 @@ function app_register(mysqli $db, array $input, string $affiliate, string $manag
     if ($email !== '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254)) throw new InvalidArgumentException('Informe um e-mail válido.');
     if (strlen($password) < 6 || strlen($password) > 72) throw new InvalidArgumentException('Use uma senha entre 6 e 72 caracteres.');
     if (isset($input['password_confirmation']) && !hash_equals($password, (string)$input['password_confirmation'])) throw new InvalidArgumentException('As senhas não coincidem.');
-    if (!preg_match('/^\d{10,11}$/D', $phone)) throw new InvalidArgumentException('Informe um celular válido com DDD. Exemplo: 21999992693.');
+    if (!preg_match('/^\d{10,11}$/D', $phone)) throw new InvalidArgumentException('Informe um celular válido com DDD. Exemplo: 11987654321.');
     if ($email === '') $email = 'tel-' . substr(hash('sha256', $phone), 0, 32) . '@login.subwayrun.invalid';
     if ($managerCode !== '' || $demoManagerId !== null) { require_once __DIR__ . '/manager.php'; manager_install($db); }
     if ((int) $db->query("SELECT GET_LOCK('sk_account_registration', 5)")->fetch_row()[0] !== 1) throw new RuntimeException('Cadastro ocupado.');
     try {
+        $db->query('CREATE TABLE IF NOT EXISTS deleted_user_ids (id BIGINT UNSIGNED PRIMARY KEY, deleted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB');
         $db->begin_transaction();
         if (app_query($db, 'SELECT id FROM appconfig WHERE telefone IN (?,?) LIMIT 1', [$phone,'55'.$phone])->get_result()->num_rows) throw new InvalidArgumentException('Já existe uma conta com esse telefone. Entre usando seu celular.');
         if (app_query($db, 'SELECT id FROM appconfig WHERE email = ? LIMIT 1', [$email])->get_result()->num_rows) throw new InvalidArgumentException('Não foi possível criar a conta com este telefone. Entre em contato com o suporte.');
         $app = $db->query('SELECT cpa, revenue_share FROM app LIMIT 1')->fetch_assoc() ?: [];
-        $id = (string) ((int) $db->query('SELECT MAX(CAST(id AS UNSIGNED)) FROM appconfig')->fetch_row()[0] + 1);
+        $id = (string) ((int) $db->query('SELECT GREATEST(COALESCE((SELECT MAX(CAST(id AS UNSIGNED)) FROM appconfig),0),COALESCE((SELECT MAX(id) FROM deleted_user_ids),0))')->fetch_row()[0] + 1);
         $managerPartner = null; $managerInfluencerEmail = '';
         if ($managerCode !== '') {
             if (!preg_match('/^[a-f0-9]{24}$/D', $managerCode)) throw new InvalidArgumentException('Este link de parceria não é válido.');
@@ -190,8 +191,8 @@ function app_register(mysqli $db, array $input, string $affiliate, string $manag
         app_query($db, "INSERT INTO appconfig (id,nome,email,senha,telefone,saldo,linkafiliado,indicados,plano,cpa,data_cadastro,afiliado,afiliado_ativo,demo,jogo_demo,total_apostado) VALUES (?,?,?,?,?,?,?,0,?,?,?,?,?,?,?,0)", [$id,$name,$email,password_hash($password,PASSWORD_DEFAULT),$phone,$demo?'1000.00':'0',app_url('cadastrar/?aff=' . urlencode($id)),'50.00',(string)($app['cpa']??0),date('d-m-Y H:i'),$affiliate,$demo?'0':'1',$demo?'1':'0',$demo?'1':'0']);
         if ($demo) app_query($db,'INSERT INTO manager_demos(email,manager_id,display_name) VALUES(?,?,?)',[$email,(string)$demoManagerId,$name]);
         if ($managerPartner && $managerInfluencerId === '') {
-            app_query($db,'UPDATE manager_partners SET influencer_email=? WHERE id=? AND influencer_email IS NULL',[$email,(string)$managerPartner['id']]);
-            if ($db->affected_rows !== 1) throw new InvalidArgumentException('Este convite já foi ativado por outra conta.');
+            $claimed=app_query($db,"UPDATE manager_partners SET influencer_email=? WHERE id=? AND (influencer_email IS NULL OR influencer_email='')",[$email,(string)$managerPartner['id']]);
+            if ($claimed->affected_rows !== 1) throw new InvalidArgumentException('Este convite já foi ativado por outra conta.');
         } elseif ($managerCode !== '') manager_referral_record($db,$email,$managerCode,$managerInfluencerEmail);
         $db->commit(); return $email;
     } catch (Throwable $error) { $db->rollback(); throw $error; }

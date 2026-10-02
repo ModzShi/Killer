@@ -33,7 +33,7 @@ try{
     $allocation=app_query($db,'SELECT manager_amount,influencer_amount,influencer_email FROM manager_commissions WHERE reference=?',[$reference])->get_result()->fetch_assoc();
     check_manager((float)$allocation['manager_amount']===40.0&&(float)$allocation['influencer_amount']===30.0&&($allocation['influencer_email']??'')===$influencerEmail,'Split is recorded for attributed deposit');
     $_SESSION['manager_id']=$managerId;$_SERVER['REQUEST_METHOD']='GET';ob_start();require dirname(__DIR__).'/gerente/index.php';$html=ob_get_clean();unset($_SESSION['manager_id']);
-    check_manager(str_contains($html,'QA Gerente')&&str_contains($html,'Influenciador QA')&&str_contains($html,'Usuários de demonstração'),'Manager dashboard renders its own data');
+    check_manager(str_contains($html,'QA Gerente')&&str_contains($html,'Influenciador QA')&&str_contains($html,'Demos'),'Manager dashboard renders its own data');
 }finally{
     app_query($db,'DELETE FROM bxpay_deposits WHERE reference=?',[$reference.'_demo']);
     app_query($db,'DELETE FROM manager_commissions WHERE reference=?',[$reference]);

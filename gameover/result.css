@@ -66,7 +66,7 @@ body{background:radial-gradient(ellipse at 50% 0,#64501d 0,transparent 42%),radi
 .result-card:after{background:linear-gradient(115deg,transparent 15%,#fff0 37%,#ffe49c0c 50%,#fff0 63%,transparent 85%)}
 .brand{color:#fff4d1;text-shadow:0 2px 0 #17150d}.brand b,.brand-bolt{color:#ffd66f;text-shadow:0 1px 5px #a36f1460}
 .brand-bolt{border-color:#d6af4d66;background:#e8b93615}
-.win #sound{display:none}
+.win #sound{display:grid}
 .halo{background:radial-gradient(circle,#f9d97928 0 24%,#e9a82c15 46%,transparent 72%);animation:halo 2.6s ease-in-out infinite}
 .halo:before,.halo:after{border-color:#e2bd5a6b;box-shadow:0 0 12px #dfb94a20,inset 0 0 12px #f6d7780c;animation:none}
 .halo:after{border-style:dashed;border-color:#c78a3380;box-shadow:none}
@@ -95,7 +95,4 @@ h1{text-shadow:0 3px 0 #090d10,0 1px 10px #fff2}
 .loss .secondary,.error .secondary{border-color:#a6785d}
 .confetti i,.confetti i:nth-child(3n),.confetti i:nth-child(4n),.confetti i:nth-child(5n){display:grid;place-items:center;width:20px;height:20px;border:2px solid #fff0aa;border-radius:50%;background:radial-gradient(circle at 32% 25%,#fff5b7 0 10%,#f1c957 38%,#c78320 80%);color:#79500f;box-shadow:0 2px 5px #0008}
 .confetti i:after{content:'$';font-size:10px;font-style:normal;font-weight:1000;line-height:1;text-shadow:0 1px #fff7}
-.victory-track{width:min(100%,220px);margin:0 auto 15px;padding:10px;border:1px solid #cba84966;border-radius:16px;background:linear-gradient(145deg,#19251c,#211b10);box-shadow:0 8px 22px #0005}
-.victory-track iframe{display:block;width:200px;height:200px;max-width:100%;margin:auto;border:0;border-radius:10px;background:#080a08}
-.victory-track span{display:block;margin-top:8px;color:#ead797;font-size:10px;line-height:1.4}
 @media(prefers-reduced-motion:reduce){.halo,.reward strong,.primary{animation:none}}

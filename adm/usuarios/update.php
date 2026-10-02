@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/../../app/auth.php';
+require_once __DIR__.'/../../app/manager.php';
 if(($_SERVER['REQUEST_METHOD']??'')!=='POST'){http_response_code(405);exit;}
 function admin_user_number(string $name,float $min,float $max):string{
     $value=trim(app_input($name));
@@ -13,7 +13,7 @@ try{
     if($id===''||!ctype_digit($id))throw new InvalidArgumentException('Usuário inválido.');
     if(strlen($name)<2||strlen($name)>120)throw new InvalidArgumentException('Informe um nome entre 2 e 120 caracteres.');
     if(!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($email)>254)throw new InvalidArgumentException('Informe um e-mail válido.');
-    $current=app_query($db,'SELECT email FROM appconfig WHERE id=?',[$id])->get_result()->fetch_assoc();
+    $current=app_query($db,'SELECT email,demo FROM appconfig WHERE id=?',[$id])->get_result()->fetch_assoc();
     if(!$current)throw new InvalidArgumentException('Usuário não encontrado.');
     if(app_query($db,'SELECT id FROM appconfig WHERE email=? AND id<>?',[$email,$id])->get_result()->num_rows)throw new InvalidArgumentException('Este e-mail já pertence a outra conta.');
     $phone=preg_replace('/\D/','',app_input('telefone'));
@@ -21,9 +21,15 @@ try{
     $balance=admin_user_number('saldo',0,9999999999);$commission=admin_user_number('comissaofake',0,9999999999);$plan='50.00';
     $blocked=isset($_POST['bloqueado'])?'1':'0';$affiliate='1';$password=app_input('senha');
     if($password!==''&&(strlen($password)<6||strlen($password)>72))throw new InvalidArgumentException('A nova senha deve ter entre 6 e 72 caracteres.');
+    if($password!==''&&(string)$current['demo']==='1')manager_install($db);
     $db->begin_transaction();$transaction=true;
     app_query($db,'UPDATE appconfig SET nome=?,email=?,telefone=?,saldo=?,comissaofake=?,plano=?,bloc=?,afiliado_ativo=? WHERE id=?',[$name,$email,$phone,$balance,$commission,$plan,$blocked,$affiliate,$id]);
-    if($password!=='')app_query($db,'UPDATE appconfig SET senha=? WHERE id=?',[password_hash($password,PASSWORD_DEFAULT),$id]);
+    if($password!==''){
+        app_query($db,'UPDATE appconfig SET senha=? WHERE id=?',[password_hash($password,PASSWORD_DEFAULT),$id]);
+        if((string)$current['demo']==='1'){
+            app_query($db,'UPDATE manager_demos SET password_encrypted=? WHERE email=?',[manager_demo_encrypt_password($password),$current['email']]);
+        }
+    }
     if($email!==$current['email']){
         $table=app_query($db,'SELECT 1 FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?',['manager_demos'])->get_result()->fetch_assoc();
         if($table)app_query($db,'UPDATE manager_demos SET email=? WHERE email=?',[$email,$current['email']]);

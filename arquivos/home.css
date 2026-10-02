@@ -240,8 +240,9 @@ body.home-page {
 .home-hero h1{font-size:clamp(60px,8vw,104px);line-height:.88;text-shadow:0 9px 35px #0008}
 .home-hero h1 span{-webkit-text-stroke:2px #abecff;text-shadow:0 0 30px #29baff66}
 .home-hero__lead{max-width:540px;color:#d3e6f5;font-size:clamp(16px,2vw,20px)}
-.home-button--primary{border-color:#fff2ab;color:#17210d!important;background:linear-gradient(115deg,#ffeb91,#ffc438 60%,#ffe065);box-shadow:0 6px 0 #986006,0 15px 35px #f0ac2152}
-.home-button--primary:hover{box-shadow:0 8px 0 #986006,0 20px 42px #f0ac2166}
+.home-button--primary{border-color:#fff2ab;color:#17210d!important;background:linear-gradient(115deg,#ffeb91,#ffc438 60%,#ffe065);box-shadow:0 0 0 1px #ffe6a34d,0 8px 22px #f0ac2140,inset 0 1px #fff8;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+.home-button--primary:hover{transform:translateY(-2px);box-shadow:0 0 0 1px #ffe6a380,0 11px 28px #f0ac2159,inset 0 1px #fff9}
+.home-button--primary:active{transform:translateY(1px);box-shadow:0 0 0 1px #ffe6a380,0 4px 12px #f0ac2138,inset 0 1px #fff7}
 .home-button--ghost{border-color:#8ecaff66;background:#152d51c2}
 .home-trust{color:#d3e4f4}.home-trust svg{color:#6ee8fc}
 .home-game-card{border-color:#85d5ff83;background:linear-gradient(145deg,#163e73,#0c1a35 74%);box-shadow:0 31px 80px #0008,0 0 75px #159bff45}

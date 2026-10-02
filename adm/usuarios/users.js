@@ -73,6 +73,12 @@
       document.getElementById('editSummaryName').textContent = name || 'Usuário';
       document.getElementById('editSummaryType').textContent = String(user.demo) === '1'
         ? 'Conta demo · saldo de treino' : 'Conta de usuário';
+      const demoPasswordLabel = document.getElementById('demoPasswordLabel');
+      const demoPassword = document.getElementById('editDemoPassword');
+      if (demoPasswordLabel && demoPassword) {
+        demoPasswordLabel.hidden = String(user.demo) !== '1';
+        demoPassword.value = user.demo_password || 'Senha antiga indisponível';
+      }
       document.getElementById('viewDeposited').textContent = money(user.depositou);
       document.getElementById('viewWagered').textContent = money(user.total_apostado);
       document.getElementById('viewReferrals').textContent = user.indicados || '0';
