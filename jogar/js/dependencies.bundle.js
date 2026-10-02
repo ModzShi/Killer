@@ -35486,7 +35486,7 @@ btnSair().addEventListener('click', () => {
 					}, 600), trainingRewind || (!window.GAME_TRAINING && this.entity.game.level.isTutorial()) ? setTimeout(() => {
 						this.goBackToLastCheckPoint();
 						if (trainingRewind) {
-							const minimumRewindTarget = this.entity.body.z + 240;
+							const minimumRewindTarget = this.entity.body.z + 50;
 						this.rewindEndPoint = { z: Math.max(this.rewindEndPoint ? this.rewindEndPoint.z : minimumRewindTarget, minimumRewindTarget) };
 						}
 					}, 1e3) : this.entity.game.gameover()
