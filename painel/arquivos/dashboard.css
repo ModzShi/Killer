@@ -18,3 +18,29 @@
 .player-bet-card.is-featured{background:radial-gradient(circle at 100% 0,rgba(42,239,192,.13),transparent 36%),linear-gradient(145deg,#282051,#11152d)}
 @media(prefers-reduced-motion:reduce){.player-dashboard *{animation:none!important;transition:none!important}}
 .player-disclosure{padding:0 0 24px;background:#090719;color:#aeb5ce;font-size:11px;line-height:1.55;text-align:center}.player-disclosure .player-shell{padding-top:16px;border-top:1px solid rgba(195,169,255,.12)}
+
+/* Compact single-action race flow inspired by the supplied reference structure. */
+.player-race-picker{padding:clamp(20px,4vw,34px);border:1px solid rgba(195,169,255,.23);border-radius:26px;background:radial-gradient(circle at 100% 0,rgba(113,68,226,.2),transparent 35%),linear-gradient(145deg,#20183e,#11152a 72%);box-shadow:0 25px 70px #0006,inset 0 1px #ffffff13}
+.player-race-picker .player-section-title{margin-bottom:23px}
+.player-bet-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.player-bet-option{position:relative;min-height:94px;display:grid;align-content:center;justify-items:center;gap:5px;padding:12px 8px;border:1px solid rgba(190,169,255,.17);border-radius:17px;background:linear-gradient(145deg,#302353,#21193b);color:#f7f4ff;text-align:center;cursor:pointer;transition:transform .18s,border-color .18s,background .18s,box-shadow .18s}
+.player-bet-option:hover:not(.is-disabled){transform:translateY(-2px);border-color:#a987ff9c;box-shadow:0 9px 23px #09071980}
+.player-bet-option input{position:absolute;width:1px;height:1px;opacity:0}
+.player-bet-option:focus-within{outline:3px solid #9a7aff;outline-offset:3px}
+.player-bet-option__label{color:#c8bfdf;font-size:9px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+.player-bet-option>strong{font-size:clamp(17px,2.3vw,23px);font-weight:950;letter-spacing:-.03em}
+.player-bet-option__target{color:#aeeedd;font-size:10px;font-weight:750}
+.player-bet-option.is-selected{border-color:#7cdddc;background:linear-gradient(145deg,#2c4373,#273565);box-shadow:inset 0 0 0 1px #7cdddc55,0 0 24px #45d9e524}
+.player-bet-option.is-selected>strong{color:#fff}
+.player-bet-option.is-disabled{opacity:.43;cursor:not-allowed;filter:saturate(.55)}
+.player-race-picker__footer{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.65fr);align-items:center;gap:18px;margin-top:22px;padding-top:19px;border-top:1px solid #ffffff17}
+.player-race-picker__summary{min-width:0;display:flex;align-items:center;gap:12px}
+.player-race-picker__summary>span{width:43px;height:43px;display:grid;place-items:center;flex:0 0 auto;border:1px solid #ffd76e58;border-radius:14px;background:#ffd76e14;color:#ffe083;font-size:21px}
+.player-race-picker__summary>div{min-width:0;display:grid;gap:4px}
+.player-race-picker__summary small{color:#c4bddb;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.player-race-picker__summary strong{color:#ffe36f;font-size:clamp(20px,3vw,28px);font-weight:950;font-variant-numeric:tabular-nums}
+.player-race-picker .player-play-button{min-height:56px;border:1px solid #aaffdd;background:linear-gradient(110deg,#50f2bf,#18d5ad 55%,#71e8b7);color:#06271c;font-size:14px;box-shadow:0 5px 0 #0a8264,0 12px 28px #17d6a83a;transition:transform .18s,filter .18s,box-shadow .18s}
+.player-race-picker .player-play-button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 6px 0 #0a8264,0 16px 34px #17d6a855}
+.player-race-picker .player-play-button:disabled{border-color:#ffffff12;background:#29263c;color:#9390aa;box-shadow:none}
+@media(max-width:600px){.player-race-picker{padding:19px 15px;border-radius:21px}.player-race-picker .player-section-title{gap:15px;margin-bottom:18px}.player-bet-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.player-bet-option{min-height:78px;padding:9px 4px;border-radius:14px}.player-bet-option__label{font-size:8px}.player-bet-option>strong{font-size:clamp(15px,4.5vw,19px)}.player-bet-option__target{font-size:9px}.player-race-picker__footer{grid-template-columns:1fr;gap:13px;margin-top:17px;padding-top:15px}.player-race-picker__summary{justify-content:center;text-align:center}.player-race-picker__summary>span{width:39px;height:39px}.player-race-picker .player-play-button{width:100%;min-height:54px}}
+@media(prefers-reduced-motion:reduce){.player-bet-option,.player-race-picker .player-play-button{transition:none!important}}

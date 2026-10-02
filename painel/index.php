@@ -89,33 +89,39 @@ $bets = [
                 <div class="player-alert" role="alert"><?= ui_icon('help') ?><span><?= app_escape($gameError) ?></span></div>
             <?php endif; ?>
 
-            <div class="player-section-title">
-                <div>
-                    <span>Escolha sua corrida</span>
-                    <h2 id="choose-title">Quanto você quer colocar em jogo?</h2>
+            <?php $firstAvailableBet = null; foreach ($bets as $candidate) { if ($balance >= $candidate['value']) { $firstAvailableBet = $candidate['code']; break; } } ?>
+            <form class="player-race-picker" id="player-race-form" method="post" action="<?= app_url('game/start.php') ?>">
+                <input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
+                <input type="hidden" name="difficulty" value="<?= app_escape($isDemo ? 'B1C2' : $difficultyCode) ?>">
+                <div class="player-section-title">
+                    <div>
+                        <span>Escolha sua corrida</span>
+                        <h2 id="choose-title">Selecione o valor da entrada</h2>
+                    </div>
+                    <div class="player-target-pill"><?= ui_icon('trophy') ?><span>Meta da rodada<strong><?= app_escape(number_format($multiplier, 0, ',', '.')) ?>× a entrada</strong></span></div>
                 </div>
-                <div class="player-target-pill"><?= ui_icon('trophy') ?><span>Meta da rodada<strong><?= app_escape(number_format($multiplier, 0, ',', '.')) ?>× a entrada</strong></span></div>
-            </div>
 
-            <div class="player-bets">
-                <?php foreach ($bets as $index => $bet): ?>
-                    <article class="player-bet-card <?= $index === 1 ? 'is-featured' : '' ?>">
-                        <?php if ($index === 1): ?><span class="player-popular">Mais escolhido</span><?php endif; ?>
-                        <div class="player-bet-card__icon"><?= ui_icon($index === 1 ? 'trophy' : 'coins') ?></div>
-                        <small>Entrada</small>
-                        <h3><?= app_escape($bet['label']) ?></h3>
-                        <div class="player-potential"><span>Meta</span><strong><?= account_money($bet['value'] * $multiplier) ?></strong></div>
-                        <form method="post" action="<?= app_url('game/start.php') ?>">
-                            <input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
-                            <input type="hidden" name="bet" value="<?= app_escape($bet['code']) ?>">
-                            <input type="hidden" name="difficulty" value="<?= app_escape($isDemo ? 'B1C2' : $difficultyCode) ?>">
-                            <button type="submit" class="player-play-button" <?= $balance < $bet['value'] ? 'disabled' : '' ?>>
-                                <?= ui_icon('play') ?> <?= $balance < $bet['value'] ? 'Saldo insuficiente' : 'Começar corrida' ?>
-                            </button>
-                        </form>
-                    </article>
-                <?php endforeach; ?>
-            </div>
+                <div class="player-bet-options" role="radiogroup" aria-label="Valor da entrada">
+                    <?php foreach ($bets as $bet): $unavailable = $balance < $bet['value']; ?>
+                        <label class="player-bet-option<?= $firstAvailableBet === $bet['code'] ? ' is-selected' : '' ?><?= $unavailable ? ' is-disabled' : '' ?>">
+                            <input type="radio" name="bet" value="<?= app_escape($bet['code']) ?>" data-target="<?= app_escape(number_format($bet['value'] * $multiplier, 2, '.', '')) ?>" <?= $firstAvailableBet === $bet['code'] ? 'checked' : '' ?> <?= $unavailable ? 'disabled' : '' ?> <?= !$unavailable && $firstAvailableBet === $bet['code'] ? 'required' : '' ?>>
+                            <span class="player-bet-option__label">Entrada</span>
+                            <strong><?= app_escape($bet['label']) ?></strong>
+                            <span class="player-bet-option__target">Meta <?= account_money($bet['value'] * $multiplier) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="player-race-picker__footer">
+                    <div class="player-race-picker__summary">
+                        <span><?= ui_icon('trophy') ?></span>
+                        <div><small>Meta da corrida selecionada</small><strong id="player-selected-target"><?= $firstAvailableBet ? account_money((float)array_column($bets, 'value', 'code')[$firstAvailableBet] * $multiplier) : '—' ?></strong></div>
+                    </div>
+                    <button type="submit" class="player-play-button" <?= $firstAvailableBet ? '' : 'disabled' ?>>
+                        <?= ui_icon('play') ?> <?= $firstAvailableBet ? 'Iniciar corrida' : 'Saldo insuficiente' ?>
+                    </button>
+                </div>
+            </form>
 
             <?php if (!$isDemo && $balance < 5): ?>
                 <div class="player-balance-callout">
@@ -165,6 +171,19 @@ $bets = [
         </div>
     </section>
 </main>
+<script>
+(() => {
+    const form = document.getElementById('player-race-form');
+    const target = document.getElementById('player-selected-target');
+    if (!form || !target) return;
+    const currency = new Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'});
+    form.querySelectorAll('input[name="bet"]').forEach(input => input.addEventListener('change', () => {
+        form.querySelectorAll('.player-bet-option').forEach(option => option.classList.remove('is-selected'));
+        input.closest('.player-bet-option')?.classList.add('is-selected');
+        target.textContent = currency.format(Number(input.dataset.target || 0));
+    }));
+})();
+</script>
 <footer class="player-disclosure" role="note"><div class="player-shell">As notificações de exemplo exibidas nesta página são fictícias e não correspondem a saques reais. O histórico da sua conta mostra as movimentações registradas no sistema.</div></footer>
 </body>
 </html>
