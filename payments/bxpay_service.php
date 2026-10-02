@@ -30,21 +30,84 @@ function bxpay_row(mysqli $db, string $reference): ?array
     return $stmt->get_result()->fetch_assoc();
 }
 
+/** Read the merchant transaction ID (field 62/05) from a PIX EMV payload. */
+function bxpay_pix_txid(?string $pix): ?string
+{
+    if (!is_string($pix) || strlen($pix) > 4096 || !preg_match('/^000201[^\r\n]+6304[0-9a-fA-F]{4}$/D', $pix)) return null;
+    $readFields = static function (string $data): ?array {
+        $fields = [];
+        $offset = 0;
+        $total = strlen($data);
+        while ($offset < $total) {
+            if ($total - $offset < 4) return null;
+            $tag = substr($data, $offset, 2);
+            $size = substr($data, $offset + 2, 2);
+            if (!ctype_digit($tag) || !ctype_digit($size)) return null;
+            $offset += 4;
+            $length = (int) $size;
+            if ($length > $total - $offset || isset($fields[$tag])) return null;
+            $fields[$tag] = substr($data, $offset, $length);
+            $offset += $length;
+        }
+        return $fields;
+    };
+    $outer = $readFields(substr($pix, 0, -8));
+    if ($outer === null || !isset($outer['62'])) return null;
+    $additional = $readFields($outer['62']);
+    $txid = $additional['05'] ?? null;
+    return is_string($txid) && preg_match('/^[A-Za-z0-9]{12,35}$/D', $txid) ? $txid : null;
+}
+
 /** Match only an exact reference/id and gross amount from the authenticated API. */
 function bxpay_matches(array $deposit, array $transaction): bool
 {
     $external = $transaction['external_id'] ?? null;
-    $id = $transaction['id'] ?? ($transaction['transactionId'] ?? null);
+    $txid = bxpay_pix_txid($deposit['pix_code'] ?? null);
     $referenceMatches = is_string($external) && hash_equals($deposit['reference'], $external);
-    $idMatches = !empty($deposit['provider_id']) && is_scalar($id) && hash_equals($deposit['provider_id'], (string) $id);
-    if (!$referenceMatches && !$idMatches) return false;
-    if (!empty($deposit['provider_id']) && is_scalar($id) && !hash_equals($deposit['provider_id'], (string) $id)) return false;
+    $pixMatches = is_string($external) && $txid !== null && hash_equals($txid, $external);
+    $description = $transaction['description'] ?? ($transaction['descricao'] ?? null);
+    $descriptionMatches = is_string($description) && hash_equals('Depósito ' . $deposit['reference'], $description);
+    $idMatches = false;
+    if (!empty($deposit['provider_id'])) {
+        foreach (['transactionId', 'transaction_id', 'id'] as $key) {
+            if (isset($transaction[$key]) && is_scalar($transaction[$key])
+                && hash_equals((string) $deposit['provider_id'], (string) $transaction[$key])) {
+                $idMatches = true;
+                break;
+            }
+        }
+    }
+    if (!$referenceMatches && !$pixMatches && !$descriptionMatches && !$idMatches) return false;
     if (isset($transaction['currency']) && $transaction['currency'] !== 'BRL') return false;
-    $type = $transaction['type'] ?? ($transaction['transactionType'] ?? '');
-    if (!in_array($type, ['DEPOSIT', 'RECEIVEPIX'], true) || ($transaction['status'] ?? '') !== 'PAID') return false;
+    $typeValue = $transaction['type'] ?? ($transaction['transactionType'] ?? null);
+    $statusValue = $transaction['status'] ?? null;
+    if (!is_string($typeValue) || !is_string($statusValue)) return false;
+    $type = strtoupper(trim($typeValue));
+    $status = strtoupper(trim($statusValue));
+    if (!in_array($type, ['DEPOSIT', 'RECEIVEPIX'], true) || $status !== 'PAID') return false;
     $amount = $transaction['amount'] ?? null;
     return is_numeric($amount) && is_finite((float) $amount)
         && abs((float) $amount - (float) $deposit['amount']) < 0.000001;
+}
+
+/** A webhook only locates a local deposit; payment is always checked against the API. */
+function bxpay_webhook_reference(mysqli $db, string $external, string $id): ?string
+{
+    $stmt = $db->prepare('SELECT reference FROM bxpay_deposits WHERE reference = ? OR provider_id = ? LIMIT 1');
+    $stmt->bind_param('ss', $external, $id);
+    $stmt->execute();
+    $direct = $stmt->get_result()->fetch_assoc();
+    if ($direct) return (string) $direct['reference'];
+    if (!preg_match('/^[A-Za-z0-9]{12,35}$/D', $external)) return null;
+    $pattern = '%' . $external . '%';
+    $stmt = $db->prepare("SELECT reference, pix_code FROM bxpay_deposits WHERE status IN ('PENDING','PAID_OUT') AND pix_code LIKE ? LIMIT 3");
+    $stmt->bind_param('s', $pattern);
+    $stmt->execute();
+    $matches = [];
+    foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
+        if (bxpay_pix_txid($row['pix_code']) === $external) $matches[] = $row['reference'];
+    }
+    return count($matches) === 1 ? (string) $matches[0] : null;
 }
 
 function bxpay_transactions(array $response): array

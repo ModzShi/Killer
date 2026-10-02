@@ -36,16 +36,22 @@ try {
                 $paid = bxpay_reconcile($db, BXPay::fromDb($db), $reference);
                 $notice = $paid
                     ? 'Pagamento confirmado! Seu saldo foi atualizado.'
-                    : 'O pagamento ainda não foi confirmado. Aguarde e confira novamente. Se já pagou, não faça outro PIX.';
+                    : 'Ainda não foi possível vincular o pagamento a este depósito. Se já pagou, não faça outro PIX. Aguarde um pouco e confira novamente usando a referência abaixo.';
                 $deposit = bxpay_row($db, $reference);
             }
         }
     }
 } catch (Throwable $error) {
+    error_log('BX Pay deposit confirmation: ' . $error->getMessage());
     http_response_code(503);
     $notice = 'Não foi possível consultar a confirmação agora. Se já pagou, aguarde e tente novamente; não gere outro PIX.';
 } finally {
     if ($db instanceof mysqli) $db->close();
+}
+if (isset($_GET['status'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['paid' => $deposit !== null && $deposit['status'] === 'PAID_OUT']);
+    exit;
 }
 $escape = static function ($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); };
 ?>
@@ -92,4 +98,15 @@ if (copy) copy.addEventListener('click', async () => {
  try { await navigator.clipboard.writeText(input.value); feedback.textContent = 'Código copiado. Abra o aplicativo do seu banco.'; }
  catch (_) { input.focus(); input.select(); feedback.textContent = 'Selecione e copie o código acima.'; }
 });
+<?php if ($deposit && $deposit['status'] === 'PENDING'): ?>
+const statusUrl = new URL(location.href);
+statusUrl.searchParams.set('status', '1');
+setInterval(async () => {
+ if (document.hidden) return;
+ try {
+  const response = await fetch(statusUrl, {credentials: 'same-origin', cache: 'no-store'});
+  if (response.ok && (await response.json()).paid) location.reload();
+ } catch (_) { /* The next check will retry. */ }
+}, 15000);
+<?php endif; ?>
 </script></body></html>
