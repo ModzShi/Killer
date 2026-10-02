@@ -35485,7 +35485,10 @@ btnSair().addEventListener('click', () => {
 						this.entity.game.sfx.play("hero-death-hitcam")
 					}, 600), trainingRewind || (!window.GAME_TRAINING && this.entity.game.level.isTutorial()) ? setTimeout(() => {
 						this.goBackToLastCheckPoint();
-						if (trainingRewind && !this.rewindEndPoint) this.rewindEndPoint = { z: this.entity.body.z + 35 };
+						if (trainingRewind) {
+							const minimumRewindTarget = this.entity.body.z + 240;
+						this.rewindEndPoint = { z: Math.max(this.rewindEndPoint ? this.rewindEndPoint.z : minimumRewindTarget, minimumRewindTarget) };
+						}
 					}, 1e3) : this.entity.game.gameover()
 				}
 			}
