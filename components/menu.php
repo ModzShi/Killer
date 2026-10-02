@@ -8,7 +8,7 @@ $menuLoggedIn = $menuLoggedIn ?? false;
 $menuCurrent = $menuCurrent ?? '';
 $menuLinks = $menuLoggedIn
     ? ['painel/' => 'Jogar', 'saque/' => 'Sacar', 'afiliate/' => 'Afiliado', 'perfil/' => 'Perfil']
-    : ['presell/jogoteste/' => 'Jogar agora', 'login/' => 'Entrar'];
+    : ['cadastrar/' => 'Criar conta', 'login/' => 'Entrar'];
 $menuEscape = static function ($value) { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); };
 $menuBalanceValue = null;
 if ($menuLoggedIn && !empty($_SESSION['email'])) {
@@ -39,7 +39,7 @@ if ($menuLoggedIn && !empty($_SESSION['email'])) {
                 <a class="sk-cta" href="<?= $menuEscape($menuBase) ?>deposito/" <?= $menuCurrent === 'deposito/' ? 'aria-current="page"' : '' ?>><?= ui_icon('deposit') ?><span>Depositar</span></a>
                 <?php foreach (array_slice($menuLinks, 2, null, true) as $path => $label): ?><a class="sk-link" href="<?= $menuEscape($menuBase . $path) ?>" <?= $menuCurrent === $path ? 'aria-current="page"' : '' ?>><?= ui_icon(['afiliate/'=>'users','perfil/'=>'user'][$path]) ?><span><?= $menuEscape($label) ?></span></a><?php endforeach; ?>
             <?php else: ?>
-                <?php foreach ($menuLinks as $path => $label): ?><a class="sk-link" href="<?= $menuEscape($menuBase . $path) ?>" <?= $menuCurrent === $path ? 'aria-current="page"' : '' ?>><?= ui_icon(['presell/jogoteste/'=>'play','login/'=>'user'][$path]) ?><span><?= $menuEscape($label) ?></span></a><?php endforeach; ?>
+                <?php foreach ($menuLinks as $path => $label): ?><a class="sk-link" href="<?= $menuEscape($menuBase . $path) ?>" <?= $menuCurrent === $path ? 'aria-current="page"' : '' ?>><?= ui_icon(['cadastrar/'=>'user','login/'=>'user'][$path]) ?><span><?= $menuEscape($label) ?></span></a><?php endforeach; ?>
             <?php endif; ?>
             <?php if ($menuLoggedIn): ?><a class="sk-exit" href="<?= $menuEscape($menuBase) ?>logout.php"><?= ui_icon('logout') ?> Sair</a><?php endif; ?>
         </nav>

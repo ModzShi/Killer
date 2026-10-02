@@ -41,5 +41,5 @@ $title = $register ? 'Crie sua conta' : ($admin ? 'Acesso administrativo' : 'Ent
 <?php if (!$register): ?><label class="enable-option"><input type="checkbox" name="remember_me" value="1" checked> Lembrar</label><?php endif; ?>
 <label class="enable-option"><input id="show-password" type="checkbox"> Mostrar senha</label>
 <button type="submit"><?= $register ? 'Criar conta' : 'Entrar' ?></button></form>
-<?php if (!$admin && $register): ?><p><a class="back-link" href="<?= app_escape(app_url('login/')) ?>">Já tenho conta — entrar</a></p><?php endif; ?>
+<?php if (!$admin && $register): ?><p><a class="back-link" href="<?= app_escape(app_url('login/')) ?>">Já tenho conta — entrar</a></p><?php elseif (!$admin): ?><p><a class="back-link" href="<?= app_escape(app_url('cadastrar/')) ?>">Ainda não tem conta? Criar conta</a></p><?php endif; ?>
 </section></main><script>document.getElementById('show-password').addEventListener('change',function(){const el=document.getElementById('senha');if(el)el.type=this.checked?'text':'password';});</script></body></html>

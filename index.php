@@ -32,8 +32,8 @@ $pageTitle = 'Subway Run · Entre na corrida';
                 <h1 id="hero-title"><span>Subway</span> Run</h1>
                 <p class="home-hero__lead">Corra, desvie e colete moedas. Comece pelo treino ou crie sua conta para escolher uma entrada.</p>
                 <div class="home-hero__actions">
-                    <a class="home-button home-button--primary" href="presell/jogoteste/"><?= ui_icon('play', 'home-svg-21') ?> Jogar agora</a>
-                    <a class="home-button home-button--ghost" href="presell/jogoteste/">Conhecer o jogo <?= ui_icon('arrow', 'home-svg-18') ?></a>
+                    <a class="home-button home-button--primary" href="cadastrar/"><?= ui_icon('user', 'home-svg-21') ?> Criar conta</a>
+                    <a class="home-button home-button--ghost" href="presell/jogoteste/">Testar grátis <?= ui_icon('play', 'home-svg-18') ?></a>
                 </div>
                 <p class="home-hero__micro">Treino gratuito · Entradas a partir de R$ 5,00</p>
             </div>
@@ -43,12 +43,12 @@ $pageTitle = 'Subway Run · Entre na corrida';
     <section class="home-entry" aria-label="Como começar">
         <div class="home-shell home-entry__grid">
             <a class="home-entry__card" href="presell/jogoteste/"><span><?= ui_icon('play', 'home-svg-26') ?></span><div><small>PASSO 01</small><strong>Teste a corrida</strong><p>Aprenda os controles gratuitamente.</p></div><?= ui_icon('arrow', 'home-svg-20') ?></a>
-            <a class="home-entry__card" href="presell/jogoteste/"><span><?= ui_icon('user', 'home-svg-26') ?></span><div><small>PASSO 02</small><strong>Continue no jogo</strong><p>Veja o tutorial antes de entrar.</p></div><?= ui_icon('arrow', 'home-svg-20') ?></a>
+            <a class="home-entry__card" href="cadastrar/"><span><?= ui_icon('user', 'home-svg-26') ?></span><div><small>PASSO 02</small><strong>Criar minha conta</strong><p>Cadastre-se para acessar sua área de jogo.</p></div><?= ui_icon('arrow', 'home-svg-20') ?></a>
         </div>
     </section>
-    <section class="home-final-cta"><div class="home-shell home-final-cta__inner"><div><span>PRÓXIMO NÍVEL</span><h2>Pronto para entrar no jogo?</h2></div><a class="home-button home-button--primary" href="presell/jogoteste/">Jogar agora <?= ui_icon('play', 'home-svg-21') ?></a></div></section>
+    <section class="home-final-cta"><div class="home-shell home-final-cta__inner"><div><span>PRÓXIMO NÍVEL</span><h2>Pronto para entrar no jogo?</h2></div><a class="home-button home-button--primary" href="cadastrar/">Criar conta <?= ui_icon('arrow', 'home-svg-21') ?></a></div></section>
 </main>
-<footer class="home-footer"><div class="home-shell home-footer__inner"><div class="home-footer__brand"><span class="home-footer__mark"><?= ui_icon('play', 'home-svg-19') ?></span><div><strong>Subway Run</strong><small>PLAY. RUN. REPEAT.</small></div></div><nav aria-label="Links do rodapé"><a href="login/">Entrar</a><a href="presell/jogoteste/">Treinar</a></nav><small>© <?= date('Y') ?> Subway Run. O treino usa pontuação simulada, sem valor financeiro. Notificações de exemplo são fictícias e não representam saques reais.</small></div></footer>
+<footer class="home-footer"><div class="home-shell home-footer__inner"><div class="home-footer__brand"><span class="home-footer__mark"><?= ui_icon('play', 'home-svg-19') ?></span><div><strong>Subway Run</strong><small>PLAY. RUN. REPEAT.</small></div></div><nav aria-label="Links do rodapé"><a href="cadastrar/">Criar conta</a><a href="login/">Entrar</a><a href="presell/jogoteste/">Testar grátis</a></nav><small>© <?= date('Y') ?> Subway Run. O treino usa pontuação simulada, sem valor financeiro. Notificações de exemplo são fictícias e não representam saques reais.</small></div></footer>
 <script src="arquivos/home-carousel.js?v=<?= filemtime(__DIR__ . '/arquivos/home-carousel.js') ?>" defer></script>
 </body>
 </html>

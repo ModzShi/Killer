@@ -53,8 +53,8 @@
     playBubble();
     window.setTimeout(()=>toast.classList.remove('is-entering'),450);
     cycle();
-   },2000);
+    },5000);
   },280);
- },2720);
+  },3000);
  cycle();
 })();
