@@ -56,7 +56,6 @@ $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
     <p class="demo-prompt-note">Os valores deste treino são fictícios. Resultados futuros dependem de cada corrida.</p>
     <div class="demo-prompt-actions">
       <a class="demo-prompt-primary" href="<?= app_escape(app_url('cadastrar/')) ?>">CRIAR CONTA <span aria-hidden="true">→</span></a>
-      <a class="demo-prompt-secondary" href="<?= app_escape(app_url('login/')) ?>">JÁ TENHO CONTA · ENTRAR</a>
       <button class="demo-prompt-later" type="button" data-close-prompt>Ver meu resultado</button>
     </div>
   </section>

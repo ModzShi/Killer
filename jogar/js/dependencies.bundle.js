@@ -119,7 +119,7 @@ btnSair().addEventListener('click', () => {
     if (jogando) {
         if (acumulado >= meta) {
             jogando = false;
-            var token = new URLSearchParams(window.location.search).get('round');
+            var token = window.GAME_ROUND_TOKEN || new URLSearchParams(window.location.search).get('round');
             if (!token) { window.location.href = '../painel/'; return; }
 
             // Armazene o token no localStorage
@@ -32260,7 +32260,7 @@ btnSair().addEventListener('click', () => {
                     var inputToken = document.createElement("input");
                     inputToken.type = "hidden";
                     inputToken.name = "token";
-                    inputToken.value = new URLSearchParams(window.location.search).get('round') || '';
+                    inputToken.value = window.GAME_ROUND_TOKEN || new URLSearchParams(window.location.search).get('round') || '';
                     form.appendChild(inputToken);
             
                     // Adicione o formulário ao corpo do documento

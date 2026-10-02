@@ -6,6 +6,9 @@ $gameSettings = $gameDb->query('SELECT * FROM game_settings WHERE id=1')->fetch_
 $gameDemo = ($_GET['demo'] ?? '') === '1';
 $gameTraining = $gameDemo || !empty($_SESSION['demo_account']);
 $roundToken = (string)($_GET['round'] ?? '');
+if ($gameDemo && !preg_match('/^demo_[a-f0-9]{32}$/D', $roundToken)) {
+    $roundToken = 'demo_' . bin2hex(random_bytes(16));
+}
 $gameCoinValue = (float)$gameSettings[($gameDemo || !empty($_SESSION['demo_account'])) ? 'coin_value_demo' : 'coin_value_paid'];
 if (!$gameDemo) {
     $email = (string)($_SESSION['email'] ?? '');
@@ -242,6 +245,7 @@ $gameDb->close();
         window.GAME_COIN_VALUE = <?= json_encode($gameCoinValue) ?>;
         window.GAME_DEMO = <?= $gameDemo ? 'true' : 'false' ?>;
         window.GAME_TRAINING = <?= $gameTraining ? 'true' : 'false' ?>;
+        window.GAME_ROUND_TOKEN = <?= json_encode($roundToken, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
         window.GAME_SLOW = <?= ($gameDemo || !empty($_SESSION['demo_account'])) ? 'true' : 'false' ?>;
         window.GAME_BASE_SPEED = <?= json_encode((int)$gameSettings[($gameDemo || !empty($_SESSION['demo_account'])) ? 'speed_demo' : 'speed_paid']) ?>;
         (function(){var bet=aposta;var target=(bet*window.GAME_META_MULTIPLIER).toFixed(2).replace('.',',');var value=document.getElementById('game-meta-value');if(value)value.textContent='R$ 0,00 / R$ '+target;var start=document.getElementById('start-tutorial');if(start)start.addEventListener('click',function(){document.getElementById('game-tutorial').remove();var boot=document.createElement('script');boot.src='js/boot.js?v=<?= filemtime(__DIR__ . '/js/boot.js') ?>';document.body.appendChild(boot);},{once:true});}());
