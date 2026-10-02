@@ -76,6 +76,7 @@ var meta = aposta * xmeta;
 var acumulado;
 var check_end = 0;
 var trainingRescueShown = false;
+var trainingRewindUsed = false;
 var btnSair = () => { return document.querySelector('button#sair'); }
 
 
@@ -35469,13 +35470,28 @@ btnSair().addEventListener('click', () => {
 			}
 			die(t) {
 				if (!f.a.god) {
+					if (window.GAME_TRAINING && !trainingRescueShown) {
+						// Antes de atingir a meta, o treino não encerra por colisão.
+						this.dead = false;
+						this.deathCause = "";
+						this.dizzyEnd();
+						this.entity.body.ghost = true;
+						this.entity.body.velocity.z = -this.entity.game.stats.speed;
+						setTimeout(() => {
+							if (this.running && !this.dead) this.entity.body.ghost = false;
+						}, 650);
+						return;
+					}
 					if (this.entity.hoverboard.isOn()) return this.dizzyEnd(), this.entity.hoverboard.explode(), this.entity.game.level.removeObstacles(), void setTimeout(() => {
 						this.entity.hoverboard.explode(), this.entity.hoverboard.turnOff(), this.entity.game.exitTunnel(), this.entity.game.sfx.play("hero-hoverboard-crash")
 					}, 1);
+					const trainingRewind = window.GAME_TRAINING && trainingRescueShown && !trainingRewindUsed;
+					if (trainingRewind) trainingRewindUsed = true;
 					this.entity.body.z += 5, this.dead = !0, this.deathCause = t, this.dizzyEnd(), this.entity.jetpack.turnOff(), this.entity.pogo.turnOff(), this.entity.shadow.turnOff(), this.entity.lane.turnOff(), this.entity.jump.turnOff(), this.entity.roll.turnOff(), this.entity.hoverboard.disable(), this.entity.game.sfx.stop("special-jetpack"), this.entity.game.sfx.play("hero-death"), this.entity.freezePowerUps(), "train" === t && setTimeout(() => {
 						this.entity.game.sfx.play("hero-death-hitcam")
-					}, 600), this.entity.game.level.isTutorial() ? setTimeout(() => {
-						this.goBackToLastCheckPoint()
+					}, 600), this.entity.game.level.isTutorial() || trainingRewind ? setTimeout(() => {
+						this.goBackToLastCheckPoint();
+						if (trainingRewind && !this.rewindEndPoint) this.rewindEndPoint = { z: this.entity.body.z + 35 };
 					}, 1e3) : this.entity.game.gameover()
 				}
 			}
