@@ -96,3 +96,10 @@ h1{text-shadow:0 3px 0 #090d10,0 1px 10px #fff2}
 .confetti i,.confetti i:nth-child(3n),.confetti i:nth-child(4n),.confetti i:nth-child(5n){display:grid;place-items:center;width:20px;height:20px;border:2px solid #fff0aa;border-radius:50%;background:radial-gradient(circle at 32% 25%,#fff5b7 0 10%,#f1c957 38%,#c78320 80%);color:#79500f;box-shadow:0 2px 5px #0008}
 .confetti i:after{content:'$';font-size:10px;font-style:normal;font-weight:1000;line-height:1;text-shadow:0 1px #fff7}
 @media(prefers-reduced-motion:reduce){.halo,.reward strong,.primary{animation:none}}
+
+/* Brilho dourado compartilhado pelas telas de vitória e derrota. */
+body.win,body.loss{background:radial-gradient(ellipse at 50% 12%,#a66b215c 0,transparent 48%),radial-gradient(ellipse at 50% 90%,#b5832b36 0,transparent 48%),#090d12}
+.win .result-card,.loss .result-card{border-color:#f2cd65;box-shadow:0 0 0 5px #e9ba4f2b,0 0 28px #ffd76a85,0 0 78px #e9a82d61,0 32px 85px #000d}
+.win .halo,.loss .halo{background:radial-gradient(circle,#ffe49a48 0 24%,#e9aa3e27 47%,transparent 73%)}
+.win .halo:before,.loss .halo:before{border-color:#ffdd77ae;box-shadow:0 0 17px #ffd1667d,inset 0 0 15px #ffe49a32}
+.win .halo:after,.loss .halo:after{border-color:#e5ac49a3;box-shadow:0 0 13px #e5ac4959}
