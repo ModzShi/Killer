@@ -64,3 +64,35 @@ body.player-dashboard{--pd-bg:#07101f;--pd-card:#0d2039;--pd-card-2:#143459;--pd
 .player-history-card{background:linear-gradient(145deg,#112d4d,#0b1a30);border-color:#65bbee44}
 .player-community{background:linear-gradient(180deg,#071629,#07101f)}
 .player-disclosure{background:#07101f}
+
+/* Compact game lobby: keep the wallet and entry choices visible sooner. */
+.player-hero{padding:33px 0 29px}
+.player-hero__grid{grid-template-columns:minmax(0,1fr) minmax(280px,.68fr);gap:30px}
+.player-intro h1{margin:12px 0;font-size:clamp(36px,4.8vw,60px)}
+.player-intro>p{font-size:14px;line-height:1.45}
+.player-wallet{padding:18px;border-radius:20px}
+.player-wallet__top{margin-bottom:10px}
+.player-wallet>strong{margin:5px 0 14px;font-size:clamp(30px,3.8vw,42px)}
+.player-wallet__icon{width:40px;height:40px;border-radius:12px}
+.player-game-section{padding:35px 0 36px}
+.player-race-picker{padding:clamp(16px,2.4vw,25px)}
+.player-race-picker .player-section-title{margin-bottom:18px}
+.player-section-title h2{font-size:clamp(24px,3vw,34px)}
+.player-bet-option{min-height:76px}
+.player-race-picker__footer{margin-top:16px;padding-top:15px}
+.player-race-picker .player-play-button{min-height:54px;text-decoration:none}
+.player-bet-option.is-deposit-link{opacity:1;filter:none;border-style:dashed;border-color:#78c7f878;background:#123555;color:#fff;text-decoration:none}
+.player-bet-option.is-deposit-link:hover{transform:translateY(-2px);border-color:#b4ecff;box-shadow:0 8px 24px #228ff43b}
+.player-bet-option.is-deposit-link .player-bet-option__target{color:#ffe283}
+.player-extra-section{padding:0 0 35px}
+.player-training-card,.player-history-card{min-height:0}
+.player-training-card{padding:22px}
+.player-training-card h2{margin:8px 0;font-size:24px}
+.player-training-card p{margin-bottom:15px;font-size:12px}
+.player-training-card__art>span{width:78px;height:78px;border-radius:23px}
+.player-training-card__art svg{font-size:36px}
+.player-history-card{padding:20px}
+.player-history-card h2{font-size:22px}
+.player-empty{min-height:90px}
+@media(max-width:900px){.player-hero__grid{grid-template-columns:1fr;gap:20px}.player-wallet{max-width:none}}
+@media(max-width:600px){.player-hero{padding:22px 0 20px}.player-intro h1{font-size:clamp(30px,8.3vw,42px);margin:8px 0}.player-intro>p{font-size:12px}.player-wallet{padding:15px}.player-wallet>strong{font-size:32px}.player-game-section{padding:22px 0 26px}.player-race-picker{padding:15px}.player-race-picker .player-section-title{gap:12px}.player-section-title h2{font-size:24px}.player-bet-option{min-height:70px}.player-bet-option__target{font-size:9px}.player-race-picker__footer{margin-top:13px}.player-extra-section{padding-bottom:25px}.player-training-card{padding:18px}.player-training-card h2{font-size:21px}.player-history-card{padding:17px}}

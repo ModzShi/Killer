@@ -54,14 +54,9 @@ $bets = [
         <div class="player-hero__light" aria-hidden="true"></div>
         <div class="player-shell player-hero__grid">
             <div class="player-intro">
-                <span class="player-kicker"><i></i> Sua próxima corrida começa agora</span>
-                <h1 id="player-title">Olá, <?= app_escape($firstName) ?>.<br><span>Pronto para correr?</span></h1>
-                <p>Escolha uma entrada, acompanhe a meta e jogue uma corrida por vez. Consulte as regras e condições antes de iniciar uma partida com saldo.</p>
-                <div class="player-highlights">
-                    <span><?= ui_icon('spark') ?> Partida rápida</span>
-                    <span><?= ui_icon('trophy') ?> Meta visível</span>
-                    <span><?= ui_icon('shield') ?> Saldo protegido</span>
-                </div>
+                <span class="player-kicker"><i></i> PRONTO PARA JOGAR?</span>
+                <h1 id="player-title">Olá, <?= app_escape($firstName) ?>.<br><span>Entre na corrida.</span></h1>
+                <p>Escolha uma entrada e acompanhe a meta durante o jogo.</p>
             </div>
 
             <aside class="player-wallet" aria-label="Resumo da conta">
@@ -96,19 +91,25 @@ $bets = [
                 <div class="player-section-title">
                     <div>
                         <span>Escolha sua corrida</span>
-                        <h2 id="choose-title">Selecione o valor da entrada</h2>
+                        <h2 id="choose-title">Escolha sua entrada</h2>
                     </div>
                     <div class="player-target-pill"><?= ui_icon('trophy') ?><span>Meta da rodada<strong><?= app_escape(number_format($multiplier, 0, ',', '.')) ?>× a entrada</strong></span></div>
                 </div>
 
                 <div class="player-bet-options" role="radiogroup" aria-label="Valor da entrada">
                     <?php foreach ($bets as $bet): $unavailable = $balance < $bet['value']; ?>
+                        <?php if ($unavailable && !$isDemo): ?>
+                        <a class="player-bet-option is-deposit-link" href="<?= app_url('deposito/') ?>" aria-label="Depositar para jogar com entrada de <?= app_escape($bet['label']) ?>">
+                            <span class="player-bet-option__label">Entrada</span><strong><?= app_escape($bet['label']) ?></strong><span class="player-bet-option__target">Depositar para jogar</span>
+                        </a>
+                        <?php else: ?>
                         <label class="player-bet-option<?= $firstAvailableBet === $bet['code'] ? ' is-selected' : '' ?><?= $unavailable ? ' is-disabled' : '' ?>">
                             <input type="radio" name="bet" value="<?= app_escape($bet['code']) ?>" data-target="<?= app_escape(number_format($bet['value'] * $multiplier, 2, '.', '')) ?>" <?= $firstAvailableBet === $bet['code'] ? 'checked' : '' ?> <?= $unavailable ? 'disabled' : '' ?> <?= !$unavailable && $firstAvailableBet === $bet['code'] ? 'required' : '' ?>>
                             <span class="player-bet-option__label">Entrada</span>
                             <strong><?= app_escape($bet['label']) ?></strong>
                             <span class="player-bet-option__target">Meta <?= account_money($bet['value'] * $multiplier) ?></span>
                         </label>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
 
@@ -117,16 +118,20 @@ $bets = [
                         <span><?= ui_icon('trophy') ?></span>
                         <div><small>Meta da corrida selecionada</small><strong id="player-selected-target"><?= $firstAvailableBet ? account_money((float)array_column($bets, 'value', 'code')[$firstAvailableBet] * $multiplier) : '—' ?></strong></div>
                     </div>
-                    <button type="submit" class="player-play-button" <?= $firstAvailableBet ? '' : 'disabled' ?>>
-                        <?= ui_icon('play') ?> <?= $firstAvailableBet ? 'Iniciar corrida' : 'Saldo insuficiente' ?>
-                    </button>
+                    <?php if ($firstAvailableBet): ?>
+                        <button type="submit" class="player-play-button"><?= ui_icon('play') ?> Iniciar corrida</button>
+                    <?php elseif (!$isDemo): ?>
+                        <a class="player-play-button" href="<?= app_url('deposito/') ?>"><?= ui_icon('deposit') ?> Depositar para jogar</a>
+                    <?php else: ?>
+                        <a class="player-play-button" href="<?= app_url('jogar/?demo=1&jogarsubway=5BC&SbSB1C2') ?>"><?= ui_icon('play') ?> Treinar agora</a>
+                    <?php endif; ?>
                 </div>
             </form>
 
             <?php if (!$isDemo && $balance < 5): ?>
                 <div class="player-balance-callout">
                     <span class="player-balance-callout__icon"><?= ui_icon('wallet') ?></span>
-                    <div><strong>Abasteça sua carteira e entre na corrida</strong><p>Faça um depósito para liberar as opções de partida.</p></div>
+                    <div><strong>Faltam <?= account_money(max(0, 5 - $balance)) ?> para a primeira entrada</strong><p>Adicione saldo para jogar a partir de R$ 5,00.</p></div>
                     <a href="<?= app_url('deposito/') ?>">Depositar agora <?= ui_icon('arrow') ?></a>
                 </div>
             <?php endif; ?>
@@ -138,8 +143,8 @@ $bets = [
             <article class="player-training-card">
                 <div class="player-training-card__copy">
                     <span class="player-kicker"><i></i> Aqueça antes da corrida</span>
-                    <h2>Treine os movimentos e encontre seu ritmo.</h2>
-                    <p>Pratique trocas de trilho, saltos e rolamentos com o tutorial guiado.</p>
+                    <h2>Treine antes de correr</h2>
+                    <p>Aprenda os movimentos no tutorial.</p>
                     <a href="<?= app_url('jogar/?demo=1&jogarsubway=5BC&SbSB1C2') ?>"><?= ui_icon('play') ?> Treinar agora</a>
                 </div>
                 <div class="player-training-card__art" aria-hidden="true"><span><?= ui_icon('play') ?></span></div>
@@ -164,12 +169,6 @@ $bets = [
         </div>
     </section>
 
-    <section class="player-community">
-        <div class="player-shell">
-            <div class="player-section-title"><div><span>Comunidade Subway Run</span><h2>Jogadores em movimento</h2></div></div>
-            <?php require __DIR__ . '/../components/recent-payouts.php'; ?>
-        </div>
-    </section>
 </main>
 <script>
 (() => {
