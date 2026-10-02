@@ -10,7 +10,11 @@ try {
         if (!app_check_csrf()) { http_response_code(403); $error = 'O formulário expirou. Tente novamente.'; }
         elseif (($_SESSION['auth_wait_until'] ?? 0) > time()) { http_response_code(429); $error = 'Aguarde um minuto antes de tentar novamente.'; }
         else {
-            if ($register) app_register($db, ['nome'=>$name,'senha'=>app_input('senha'),'telefone'=>$phone], is_string($_GET['aff']??null) ? $_GET['aff'] : (string)($_SESSION['landing_affiliate']??''), is_string($_GET['ref']??null) ? $_GET['ref'] : (string)($_SESSION['landing_manager_code']??''), null, is_string($_GET['by']??null) ? $_GET['by'] : (string)($_SESSION['landing_manager_influencer']??''));
+            if ($register) {
+                $managerCode=is_string($_GET['ref']??null)?$_GET['ref']:(string)($_SESSION['landing_manager_code']??'');
+                app_register($db, ['nome'=>$name,'senha'=>app_input('senha'),'telefone'=>$phone], is_string($_GET['aff']??null) ? $_GET['aff'] : (string)($_SESSION['landing_affiliate']??''), $managerCode, null, is_string($_GET['by']??null) ? $_GET['by'] : (string)($_SESSION['landing_manager_influencer']??''));
+                if($managerCode!=='') { require_once __DIR__.'/manager.php'; try { manager_pushcut_flush($db); } catch(Throwable $pushError) { error_log('manager signup notification: '.$pushError->getMessage()); } }
+            }
             if (app_signin($db, $register ? $phone : $identifier, app_input('senha'), $admin)) {
                 unset($_SESSION['auth_failures'], $_SESSION['auth_wait_until']);
                 if ($register) unset($_SESSION['landing_affiliate'], $_SESSION['landing_manager_code'], $_SESSION['landing_manager_influencer']);

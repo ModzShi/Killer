@@ -99,7 +99,9 @@ function bxpay_credit(mysqli $db, string $reference, array $verified): bool
         $stmt->bind_param('s', $reference); $stmt->execute();
         $stmt = $db->prepare("UPDATE confirmar_deposito SET status = 'PAID_OUT' WHERE externalreference = ? AND email = ?");
         $stmt->bind_param('ss', $reference, $email); $stmt->execute();
-        $db->commit(); return true;
+        $db->commit();
+        try { manager_pushcut_flush($db); } catch(Throwable $pushError) { error_log('manager deposit notification: '.$pushError->getMessage()); }
+        return true;
     } catch (Throwable $error) { $db->rollback(); throw $error; }
 }
 

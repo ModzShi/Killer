@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../app/bootstrap.php';
 require_once __DIR__ . '/../app/affiliate.php';
+require_once __DIR__ . '/../app/manager.php';
 
 /**
  * webhook/pix.php — KnucklesPay Webhook Handler
@@ -147,6 +148,14 @@ if ($transactionType === 'RECEIVEPIX' && in_array($status, ['paid', 'approved', 
     $stmtSaldo->bind_param('ds', $valorDepositado, $emailUsuario);
     $stmtSaldo->execute();
     $stmtSaldo->close();
+
+    try {
+        manager_install($conn);
+        manager_commission_record($conn,(string)$transactionId,(string)$emailUsuario,(float)$valorDepositado);
+        manager_pushcut_flush($conn);
+    } catch (Throwable $notificationError) {
+        error_log('manager legacy payment notification: '.$notificationError->getMessage());
+    }
 
     $conn->close();
     http_response_code(200);
