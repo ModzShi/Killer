@@ -35481,7 +35481,7 @@ btnSair().addEventListener('click', () => {
 						trainingRewindInProgress = true;
 						if (trainingRescueShown) trainingRewindUsed = true;
 					}
-					this.entity.body.z += 5, this.dead = !0, this.deathCause = t, this.dizzyEnd(), this.entity.jetpack.turnOff(), this.entity.pogo.turnOff(), this.entity.shadow.turnOff(), this.entity.lane.turnOff(), this.entity.jump.turnOff(), this.entity.roll.turnOff(), this.entity.hoverboard.disable(), this.entity.game.sfx.stop("special-jetpack"), this.entity.game.sfx.play("hero-death"), this.entity.freezePowerUps(), "train" === t && setTimeout(() => {
+					this.entity.body.z += 5, this.dead = !0, this.deathCause = trainingRewind ? "train" : t, this.dizzyEnd(), this.entity.jetpack.turnOff(), this.entity.pogo.turnOff(), this.entity.shadow.turnOff(), this.entity.lane.turnOff(), this.entity.jump.turnOff(), this.entity.roll.turnOff(), this.entity.hoverboard.disable(), this.entity.game.sfx.stop("special-jetpack"), this.entity.game.sfx.play("hero-death"), this.entity.freezePowerUps(), "train" === t && setTimeout(() => {
 						this.entity.game.sfx.play("hero-death-hitcam")
 					}, 600), trainingRewind || (!window.GAME_TRAINING && this.entity.game.level.isTutorial()) ? setTimeout(() => {
 						this.goBackToLastCheckPoint();
@@ -37210,6 +37210,14 @@ btnSair().addEventListener('click', () => {
 			}
 			condition() {
 				return "train" === this.player.deathCause || this.follower.entity.game.state === o.a.RUNNING && this.follower.distance > 60
+			}
+			update() {
+				var t, e;
+				null === (t = this.follower.entity.anim) || void 0 === t || t.play("Guard_run", {
+					loop: !0
+				}), null === (e = this.follower.entity.dog.anim) || void 0 === e || e.play("Dog_run", {
+					loop: !0
+				})
 			}
 		}
 		class Chaser_ChaserStateCatch extends ChaserState {
