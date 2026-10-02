@@ -7,8 +7,8 @@ $managerPartner=app_query($db,'SELECT p.* FROM manager_partners p WHERE p.influe
 $managerCommissionTotal=0.0;
 if($managerPartner){
     $invite=app_url('cadastrar/?ref='.rawurlencode($managerPartner['code']).'&by='.rawurlencode((string)$user['id']));
-    $refs=app_query($db,'SELECT a.email,a.depositou,a.data_cadastro,a.status_primeiro_deposito FROM manager_referrals r JOIN appconfig a ON a.email=r.email WHERE r.partner_id=? AND r.influencer_email=? ORDER BY r.created_at DESC LIMIT 50',[(string)$managerPartner['id'],$user['email']])->get_result()->fetch_all(MYSQLI_ASSOC);
-    $stats=app_query($db,"SELECT COUNT(*) total,COALESCE(SUM(a.status_primeiro_deposito='1'),0) active FROM manager_referrals r JOIN appconfig a ON a.email=r.email WHERE r.partner_id=? AND r.influencer_email=?",[(string)$managerPartner['id'],$user['email']])->get_result()->fetch_assoc();
+    $refs=app_query($db,'SELECT a.email,a.depositou,a.data_cadastro,a.status_primeiro_deposito FROM manager_referrals r JOIN appconfig a ON a.email COLLATE utf8mb4_unicode_ci=r.email COLLATE utf8mb4_unicode_ci WHERE r.partner_id=? AND r.influencer_email=? ORDER BY r.created_at DESC LIMIT 50',[(string)$managerPartner['id'],$user['email']])->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stats=app_query($db,"SELECT COUNT(*) total,COALESCE(SUM(a.status_primeiro_deposito='1'),0) active FROM manager_referrals r JOIN appconfig a ON a.email COLLATE utf8mb4_unicode_ci=r.email COLLATE utf8mb4_unicode_ci WHERE r.partner_id=? AND r.influencer_email=?",[(string)$managerPartner['id'],$user['email']])->get_result()->fetch_assoc();
     $earned=app_query($db,'SELECT COALESCE(SUM(influencer_amount),0) amount FROM manager_commissions WHERE partner_id=? AND influencer_email=?',[(string)$managerPartner['id'],$user['email']])->get_result()->fetch_assoc();
     $managerCommissionTotal=(float)($earned['amount']??0);
 }else{
