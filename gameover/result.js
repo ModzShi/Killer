@@ -11,6 +11,8 @@
   const button=document.getElementById('sound'), win=document.body.classList.contains('win');
   const victoryAudio=document.getElementById('victory-audio');
   let context=null, muted=false, started=false, loop=null;
+  let victoryPlayedBeforeNavigation=false;
+  try{victoryPlayedBeforeNavigation=sessionStorage.getItem('victory-audio-played')==='1';sessionStorage.removeItem('victory-audio-played')}catch(ignore){}
   victoryAudio?.addEventListener('ended',()=>{started=false;setSoundButton(false)});
   function setSoundButton(active){
     if(!button)return;
@@ -43,8 +45,8 @@
     }catch(ignore){}
   }
   function unlock(event){if(event?.target?.closest?.('#sound'))return;playResult();window.removeEventListener('pointerdown',unlock);window.removeEventListener('keydown',unlock)}
-  playResult();
-  window.addEventListener('pointerdown',unlock,{once:true});window.addEventListener('keydown',unlock,{once:true});
+  if(victoryPlayedBeforeNavigation)setSoundButton(true);
+  else{playResult();window.addEventListener('pointerdown',unlock,{once:true});window.addEventListener('keydown',unlock,{once:true})}
   button?.addEventListener('click',()=>{
     if(!started){muted=false;playResult();return}
     muted=!muted;
