@@ -13,9 +13,9 @@ function account_update_profile(mysqli $db, array $input): void {
     if($email==='') throw new RuntimeException('Sua sessão expirou. Entre novamente.');
     $name=trim((string)($input['nome']??''));
     $name=preg_replace('/\s+/u',' ',$name)??$name;
-    $phone=preg_replace('/\D/','',(string)($input['telefone']??''));
+    $phone=app_phone_normalize((string)($input['telefone']??''));
     if(!preg_match('/^.{2,120}$/usD',$name)) throw new InvalidArgumentException('Informe seu nome completo (de 2 a 120 caracteres).');
-    if(!preg_match('/^\d{10,13}$/D',$phone)) throw new InvalidArgumentException('Informe um telefone válido com DDD.');
+    if(!preg_match('/^\d{10,11}$/D',$phone)) throw new InvalidArgumentException('Informe um telefone válido com DDD.');
 
     $newPassword=(string)($input['nova_senha']??'');
     $changePassword=$newPassword!=='';
@@ -31,6 +31,7 @@ function account_update_profile(mysqli $db, array $input): void {
 
     $db->begin_transaction();
     try {
+        if(app_query($db,'SELECT id FROM appconfig WHERE telefone IN (?,?) AND email<>? LIMIT 1 FOR UPDATE',[$phone,'55'.$phone,$email])->get_result()->fetch_assoc()) throw new InvalidArgumentException('Este telefone já está vinculado a outra conta.');
         app_query($db,'UPDATE appconfig SET nome=?,telefone=? WHERE email=?',[$name,$phone,$email]);
         if((string)($account['demo']??'0')==='1'){
             $table=app_query($db,'SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?',['manager_demos'])->get_result()->fetch_assoc();

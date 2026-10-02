@@ -41,7 +41,6 @@ if ($menuLoggedIn && !empty($_SESSION['email'])) {
                 <?php foreach (array_slice($menuLinks, 2, null, true) as $path => $label): ?><a class="sk-link" href="<?= $menuEscape($menuBase . $path) ?>" <?= $menuCurrent === $path ? 'aria-current="page"' : '' ?>><?= ui_icon(['afiliate/'=>'users','perfil/'=>'user'][$path]) ?><span><?= $menuEscape($label) ?></span></a><?php endforeach; ?>
             <?php else: ?>
                 <?php foreach ($menuLinks as $path => $label): ?><a class="sk-link" href="<?= $menuEscape($menuBase . $path) ?>" <?= $menuCurrent === $path ? 'aria-current="page"' : '' ?>><?= ui_icon(['presell/jogoteste/'=>'play','login/'=>'user'][$path]) ?><span><?= $menuEscape($label) ?></span></a><?php endforeach; ?>
-                <a class="sk-cta" href="<?= $menuEscape($menuBase) ?>cadastrar/"><?= ui_icon('user') ?><span>Criar conta</span></a>
             <?php endif; ?>
             <?php if ($menuLoggedIn): ?><a class="sk-exit" href="<?= $menuEscape($menuBase) ?>logout.php"><?= ui_icon('logout') ?> Sair</a><?php endif; ?>
         </nav>

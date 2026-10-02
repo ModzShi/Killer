@@ -13,8 +13,6 @@ if ($affiliate === '' && $managerCode === '') unset($_SESSION['landing_affiliate
 if ($affiliate !== '') $_SESSION['landing_affiliate'] = $affiliate; else unset($_SESSION['landing_affiliate']);
 if ($managerCode !== '') $_SESSION['landing_manager_code'] = $managerCode; else unset($_SESSION['landing_manager_code'], $_SESSION['landing_manager_influencer']);
 if ($managerCode !== '' && $managerInfluencerId !== '') $_SESSION['landing_manager_influencer'] = $managerInfluencerId; elseif ($managerCode !== '') unset($_SESSION['landing_manager_influencer']);
-$signupQuery = array_filter(['aff' => $affiliate, 'ref' => $managerCode, 'by' => $managerInfluencerId, 'continuar' => '1']);
-$signupUrl = app_url('cadastrar/?' . http_build_query($signupQuery));
 $demoToken = 'demo_' . bin2hex(random_bytes(8));
 $gameUrl = app_url('jogar/?demo=1&jogarsubway=5BC&SbSB1C2&round=' . rawurlencode($demoToken));
 header('Cache-Control: no-store, private');
@@ -46,7 +44,6 @@ header('Cache-Control: no-store, private');
             </ul>
             <div class="intro-actions">
                 <a class="intro-button" href="<?= app_escape($gameUrl) ?>"><?= ui_icon('play') ?> Testar agora</a>
-                <a class="intro-button intro-button--secondary" href="<?= app_escape($signupUrl) ?>"><?= ui_icon('user') ?> Criar conta</a>
             </div>
             <p class="intro-truth">O treino usa uma pontuação simulada, separada do saldo da conta. Recursos com saldo e respectivas condições aparecem na plataforma após o cadastro.</p>
         </div>

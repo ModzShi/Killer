@@ -12,6 +12,11 @@ function app_query(mysqli $db, string $sql, array $params = []): mysqli_stmt {
     $stmt->execute(); return $stmt;
 }
 function app_input(string $key): string { return is_string($_POST[$key] ?? null) ? $_POST[$key] : ''; }
+function app_phone_normalize(string $phone): string {
+    $digits = preg_replace('/\D+/', '', $phone) ?? '';
+    if (strlen($digits) >= 12 && strlen($digits) <= 13 && str_starts_with($digits, '55')) $digits = substr($digits, 2);
+    return $digits;
+}
 function app_password_matches(string $password, string $stored): bool {
     if ((password_get_info($stored)['algoName'] ?? 'unknown') !== 'unknown') return password_verify($password, $stored);
     return $stored !== '' && hash_equals($stored, $password);
@@ -117,38 +122,47 @@ function app_auth_restore_remembered(mysqli $db): void {
         else $_SESSION['manager_id']=(int)$account['id'];
     }
 }
-function app_signin(mysqli $db, string $email, string $password, bool $admin = false): bool {
+function app_signin(mysqli $db, string $identifier, string $password, bool $admin = false): bool {
     $scope=$admin?'admin':'player';
-    if(!app_auth_allowed($db,$scope,$email)) return false;
+    $lookup = $admin ? strtolower(trim($identifier)) : app_phone_normalize($identifier);
+    if(!app_auth_allowed($db,$scope,$lookup)) return false;
     $table = $admin ? 'admlogin' : 'appconfig';
-    $result = app_query($db, "SELECT * FROM $table WHERE email = ?", [$email])->get_result();
-    if ($result->num_rows !== 1) { app_auth_failed($db,$scope,$email); return false; }
+    if ($admin) {
+        $result = app_query($db, 'SELECT * FROM admlogin WHERE email=? LIMIT 2', [$lookup])->get_result();
+    } else {
+        if (!preg_match('/^\d{10,11}$/D', $lookup)) { app_auth_failed($db,$scope,$lookup); return false; }
+        $withCountryCode = '55' . $lookup;
+        $result = app_query($db, 'SELECT * FROM appconfig WHERE telefone IN (?,?) LIMIT 2', [$lookup,$withCountryCode])->get_result();
+    }
+    if ($result->num_rows !== 1) { app_auth_failed($db,$scope,$lookup); return false; }
     $user = $result->fetch_assoc();
-    if (!app_password_matches($password, $user['senha'])) { app_auth_failed($db,$scope,$email); return false; }
+    if (!app_password_matches($password, $user['senha'])) { app_auth_failed($db,$scope,$lookup); return false; }
     if (!$admin && in_array(strtolower((string) ($user['bloc'] ?? '')), ['on', '1', 'true'], true)) return false;
-    if (password_needs_rehash($user['senha'], PASSWORD_DEFAULT)) app_query($db, "UPDATE $table SET senha = ? WHERE email = ? AND senha = ?", [password_hash($password, PASSWORD_DEFAULT), $email, $user['senha']]);
+    if (password_needs_rehash($user['senha'], PASSWORD_DEFAULT)) app_query($db, "UPDATE $table SET senha = ? WHERE email = ? AND senha = ?", [password_hash($password, PASSWORD_DEFAULT), $user['email'], $user['senha']]);
     session_regenerate_id(true);
-    app_auth_clear($db,$scope,$email);
+    app_auth_clear($db,$scope,$lookup);
     $_SESSION[$admin ? 'emailadm' : 'email'] = $user['email'];
     if (!$admin) { $_SESSION['user_id'] = $user['id']; $_SESSION['demo_account'] = (string)($user['demo']??'0') === '1'; }
     app_auth_remember($db,$admin?'admin':'player',(string)$user['email'],!empty($_POST['remember_me']));
     return true;
 }
 function app_register(mysqli $db, array $input, string $affiliate, string $managerCode = '', ?int $demoManagerId = null, string $managerInfluencerId = ''): string {
-    $email = strtolower(trim($input['email'])); $password = $input['senha'];
+    $email = strtolower(trim((string)($input['email'] ?? ''))); $password = (string)($input['senha'] ?? '');
     $name = trim((string)($input['nome'] ?? ''));
     $name = preg_replace('/\s+/u', ' ', $name) ?? $name;
-    $phone = preg_replace('/\D/', '', $input['telefone_confirmation']);
+    $phone = app_phone_normalize((string)($input['telefone_confirmation'] ?? ''));
     if (!preg_match('/^.{2,120}$/usD', $name)) throw new InvalidArgumentException('Informe seu nome completo (de 2 a 120 caracteres).');
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254) throw new InvalidArgumentException('Informe um e-mail válido.');
+    if ($email !== '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254)) throw new InvalidArgumentException('Informe um e-mail válido.');
     if (strlen($password) < 6 || strlen($password) > 72) throw new InvalidArgumentException('Use uma senha entre 6 e 72 caracteres.');
-    if ($password !== $input['password_confirmation']) throw new InvalidArgumentException('As senhas não coincidem.');
-    if (!preg_match('/^\d{10,13}$/D', $phone)) throw new InvalidArgumentException('Informe um telefone válido com DDD.');
+    if (isset($input['password_confirmation']) && !hash_equals($password, (string)$input['password_confirmation'])) throw new InvalidArgumentException('As senhas não coincidem.');
+    if (!preg_match('/^\d{10,11}$/D', $phone)) throw new InvalidArgumentException('Informe um celular válido com DDD. Exemplo: 21999992693.');
+    if ($email === '') $email = 'tel-' . substr(hash('sha256', $phone), 0, 32) . '@login.subwayrun.invalid';
     if ($managerCode !== '' || $demoManagerId !== null) { require_once __DIR__ . '/manager.php'; manager_install($db); }
     if ((int) $db->query("SELECT GET_LOCK('sk_account_registration', 5)")->fetch_row()[0] !== 1) throw new RuntimeException('Cadastro ocupado.');
     try {
         $db->begin_transaction();
-        if (app_query($db, 'SELECT id FROM appconfig WHERE email = ?', [$email])->get_result()->num_rows) throw new InvalidArgumentException('Já existe uma conta com esse e-mail. Entre na sua conta.');
+        if (app_query($db, 'SELECT id FROM appconfig WHERE telefone IN (?,?) LIMIT 1', [$phone,'55'.$phone])->get_result()->num_rows) throw new InvalidArgumentException('Já existe uma conta com esse telefone. Entre usando seu celular.');
+        if (app_query($db, 'SELECT id FROM appconfig WHERE email = ? LIMIT 1', [$email])->get_result()->num_rows) throw new InvalidArgumentException('Não foi possível criar a conta com este telefone. Entre em contato com o suporte.');
         $app = $db->query('SELECT cpa, revenue_share FROM app LIMIT 1')->fetch_assoc() ?: [];
         $id = (string) ((int) $db->query('SELECT MAX(CAST(id AS UNSIGNED)) FROM appconfig')->fetch_row()[0] + 1);
         $managerPartner = null; $managerInfluencerEmail = '';

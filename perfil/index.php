@@ -16,7 +16,7 @@ $deposits=app_query($db,"SELECT valor,status,data FROM confirmar_deposito WHERE 
 $total=app_query($db,'SELECT COUNT(*) n FROM game_rounds WHERE email=?',[$user['email']])->get_result()->fetch_assoc()['n'];
 $more=count($rounds)>20||count($withdrawals)>20||count($deposits)>20;
 ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meu perfil</title><link rel="stylesheet" href="<?= app_url('arquivos/account.css') ?>?v=<?= filemtime(__DIR__.'/../arquivos/account.css') ?>"></head><body><?php $menuBase='../';$menuLoggedIn=true;$menuCurrent='perfil/';include __DIR__.'/../components/menu.php'; ?>
-<main class="account-shell"><header class="account-heading"><span class="icon-tile"><?= ui_icon('user') ?></span><div><p class="eyebrow">SEU ESPAÇO</p><h1><?= app_escape($user['nome']?:'Meu perfil') ?></h1><p><?= app_escape($user['email']) ?></p></div></header>
+<main class="account-shell"><header class="account-heading"><span class="icon-tile"><?= ui_icon('user') ?></span><div><p class="eyebrow">SEU ESPAÇO</p><h1><?= app_escape($user['nome']?:'Meu perfil') ?></h1><p>Telefone · <?= app_escape($user['telefone']) ?></p></div></header>
 <div class="account-grid"><section class="account-card wallet-card"><div class="card-top"><span class="eyebrow">SALDO <?= $user['demo']==='1'?'SIMULADO':'DISPONÍVEL' ?></span><?= ui_icon('wallet') ?></div><strong class="balance"><?= account_money($user['saldo']) ?></strong><a class="account-button" href="<?= app_url('painel/') ?>"><?= ui_icon('play') ?> Jogar agora</a><a class="account-button secondary" href="<?= app_url('afiliate/') ?>"><?= ui_icon('users') ?> Minha rede</a></section><section class="account-card"><h2><?= ui_icon('shield') ?> Dados da conta</h2><div class="activity-row"><div><small>Telefone</small><strong><?= app_escape($user['telefone']) ?></strong></div></div><div class="activity-row"><div><small>Cadastro</small><strong><?= app_escape($user['data_cadastro']) ?></strong></div><span class="chip row-end"><?= $user['demo']==='1'?'Conta demo':'Conta de jogador' ?></span></div></section></div>
 <section class="account-card profile-edit-card" aria-labelledby="profile-edit-title">
   <div class="profile-edit-heading">
@@ -31,9 +31,7 @@ $more=count($rounds)>20||count($withdrawals)>20||count($deposits)>20;
     <input id="profile-name" name="nome" type="text" autocomplete="name" minlength="2" maxlength="120" value="<?= app_escape($user['nome']) ?>" required>
     <label for="profile-phone">Telefone com DDD</label>
     <input id="profile-phone" name="telefone" type="tel" autocomplete="tel" inputmode="tel" value="<?= app_escape($user['telefone']) ?>" required>
-    <label for="profile-email">E-mail de acesso</label>
-    <input id="profile-email" type="email" value="<?= app_escape($user['email']) ?>" readonly>
-    <small class="profile-help">O e-mail permanece vinculado ao login e ao histórico da conta.</small>
+    <p class="profile-help">Seu telefone é usado para entrar na conta. O histórico e os dados da conta permanecem vinculados a ele.</p>
     <details class="password-edit">
       <summary>Alterar senha</summary>
       <label for="current-password">Senha atual</label>
