@@ -2,11 +2,16 @@
 .env
 .env.*
 !.env.example
+**/.env*
+!.env.example
 conectarbanco.php
+**/conectarbanco.php
 config/local.php
 config/local.*.php
 config/secrets.php
 config/credentials.php
+config/*.php
+!config/*.example.php
 
 # Bancos, exportações e cópias de segurança
 *.sql
@@ -17,6 +22,13 @@ config/credentials.php
 *.backup
 *.backup.*
 *.dump
+*.sql.*
+*.zip
+*.rar
+*.7z
+*.tgz
+*.tar
+*.gz
 
 # Chaves, certificados privados e credenciais
 *.pem
@@ -24,6 +36,13 @@ config/credentials.php
 *.p12
 *.pfx
 *.crt
+*.phps
+*.inc
+*.orig
+*.save
+*.rej
+*~
+.htpasswd
 credentials.json
 service-account*.json
 auth.json

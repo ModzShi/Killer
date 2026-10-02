@@ -15,6 +15,7 @@ if(($_SERVER['REQUEST_METHOD']??'')==='POST'){
                 app_auth_clear($db,'manager-signup',$ipKey);
                 session_regenerate_id(true);
                 $_SESSION['manager_id']=$managerId;
+                $_SESSION['manager_auth_hash']=app_password_fingerprint((string)app_query($db,'SELECT password_hash FROM manager_accounts WHERE id=?',[(string)$managerId])->get_result()->fetch_assoc()['password_hash']);
                 app_auth_remember($db,'manager',(string)$managerId,!empty($_POST['remember_me']));
                 header('Location: '.app_url('gerente/'),true,303);exit;
             }catch(InvalidArgumentException $exception){$error=$exception->getMessage();}

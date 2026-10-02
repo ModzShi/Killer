@@ -21,6 +21,7 @@ function app_password_matches(string $password, string $stored): bool {
     if ((password_get_info($stored)['algoName'] ?? 'unknown') !== 'unknown') return password_verify($password, $stored);
     return $stored !== '' && hash_equals($stored, $password);
 }
+function app_password_fingerprint(string $stored): string { return hash('sha256', $stored); }
 function app_auth_attempt_key(string $scope,string $email): string {
     return hash('sha256',$scope.'|'.strtolower(trim($email)).'|'.($_SERVER['REMOTE_ADDR']??'cli'));
 }
@@ -105,21 +106,21 @@ function app_auth_restore_remembered(mysqli $db): void {
         }
         $subject=(string)$row['subject'];$account=null;
         if($scope==='player') {
-            $account=app_query($db,'SELECT id,email,demo,bloc FROM appconfig WHERE email=? LIMIT 1',[$subject])->get_result()->fetch_assoc();
+            $account=app_query($db,'SELECT id,email,demo,bloc,senha FROM appconfig WHERE email=? LIMIT 1',[$subject])->get_result()->fetch_assoc();
             if($account&&in_array(strtolower((string)($account['bloc']??'')),['on','1','true'],true))$account=null;
         }elseif($scope==='admin') {
-            $account=app_query($db,'SELECT email FROM admlogin WHERE email=? LIMIT 1',[$subject])->get_result()->fetch_assoc();
+            $account=app_query($db,'SELECT email,senha FROM admlogin WHERE email=? LIMIT 1',[$subject])->get_result()->fetch_assoc();
         }else {
-            $account=app_query($db,'SELECT id FROM manager_accounts WHERE id=? AND active=1 LIMIT 1',[$subject])->get_result()->fetch_assoc();
+            $account=app_query($db,'SELECT id,password_hash FROM manager_accounts WHERE id=? AND active=1 LIMIT 1',[$subject])->get_result()->fetch_assoc();
         }
         if(!$account) {
             app_query($db,'DELETE FROM auth_remember_tokens WHERE selector=? AND scope=?',[$parts[1],$scope]);
             app_auth_remember_clear_cookie($scope);continue;
         }
         if(!$regenerated){session_regenerate_id(true);$regenerated=true;}
-        if($scope==='player'){$_SESSION['email']=$account['email'];$_SESSION['user_id']=$account['id'];$_SESSION['demo_account']=(string)($account['demo']??'0')==='1';}
-        elseif($scope==='admin')$_SESSION['emailadm']=$account['email'];
-        else $_SESSION['manager_id']=(int)$account['id'];
+        if($scope==='player'){$_SESSION['email']=$account['email'];$_SESSION['user_id']=$account['id'];$_SESSION['demo_account']=(string)($account['demo']??'0')==='1';$_SESSION['player_auth_hash']=app_password_fingerprint((string)$account['senha']);}
+        elseif($scope==='admin'){$_SESSION['emailadm']=$account['email'];$_SESSION['admin_auth_hash']=app_password_fingerprint((string)$account['senha']);}
+        else {$_SESSION['manager_id']=(int)$account['id'];$_SESSION['manager_auth_hash']=app_password_fingerprint((string)$account['password_hash']);}
     }
 }
 function app_signin(mysqli $db, string $identifier, string $password, bool $admin = false): bool {
@@ -138,10 +139,16 @@ function app_signin(mysqli $db, string $identifier, string $password, bool $admi
     $user = $result->fetch_assoc();
     if (!app_password_matches($password, $user['senha'])) { app_auth_failed($db,$scope,$lookup); return false; }
     if (!$admin && in_array(strtolower((string) ($user['bloc'] ?? '')), ['on', '1', 'true'], true)) return false;
-    if (password_needs_rehash($user['senha'], PASSWORD_DEFAULT)) app_query($db, "UPDATE $table SET senha = ? WHERE email = ? AND senha = ?", [password_hash($password, PASSWORD_DEFAULT), $user['email'], $user['senha']]);
+    if (password_needs_rehash($user['senha'], PASSWORD_DEFAULT)) {
+        $newHash=password_hash($password, PASSWORD_DEFAULT);
+        $updated=app_query($db, "UPDATE $table SET senha = ? WHERE email = ? AND senha = ?", [$newHash, $user['email'], $user['senha']]);
+        if($updated->affected_rows!==1)return false;
+        $user['senha']=$newHash;
+    }
     session_regenerate_id(true);
     app_auth_clear($db,$scope,$lookup);
     $_SESSION[$admin ? 'emailadm' : 'email'] = $user['email'];
+    $_SESSION[$admin?'admin_auth_hash':'player_auth_hash']=app_password_fingerprint((string)$user['senha']);
     if (!$admin) { $_SESSION['user_id'] = $user['id']; $_SESSION['demo_account'] = (string)($user['demo']??'0') === '1'; }
     app_auth_remember($db,$admin?'admin':'player',(string)$user['email'],!empty($_POST['remember_me']));
     return true;

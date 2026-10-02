@@ -98,7 +98,7 @@ function manager_login(mysqli $db,string $email,string $password): bool {
     $row=$stmt->get_result()->fetch_assoc();
     if(!$row || !(int)$row['active'] || !password_verify($password,$row['password_hash'])) { app_auth_failed($db,'manager',$email); return false; }
     app_auth_clear($db,'manager',$email);
-    session_regenerate_id(true); $_SESSION['manager_id']=(int)$row['id'];
+    session_regenerate_id(true); $_SESSION['manager_id']=(int)$row['id']; $_SESSION['manager_auth_hash']=app_password_fingerprint((string)$row['password_hash']);
     app_auth_remember($db,'manager',(string)$row['id'],!empty($_POST['remember_me']));
     return true;
 }
@@ -176,6 +176,7 @@ function manager_demo_update(mysqli $db,int $managerId,string $email,string $nam
     if(strlen($name)<2||strlen($name)>120) throw new InvalidArgumentException('Informe um nome entre 2 e 120 caracteres.');
     if(!preg_match('/^(?:0|[1-9][0-9]{0,5})(?:\.[0-9]{1,2})?$/D',$balance)) throw new InvalidArgumentException('Informe um saldo entre R$ 0,00 e R$ 999.999,99.');
     if($password!==''&&(strlen($password)<8||strlen($password)>72)) throw new InvalidArgumentException('A nova senha deve ter de 8 a 72 caracteres.');
+    if($password!=='') app_auth_remember_install($db);
     $newBalance=number_format((float)$balance,2,'.','');
     $db->begin_transaction();
     try {
@@ -183,7 +184,7 @@ function manager_demo_update(mysqli $db,int $managerId,string $email,string $nam
         if(!$row) throw new InvalidArgumentException('Conta demo não encontrada para este gerente.');
         app_query($db,'UPDATE manager_demos SET display_name=? WHERE manager_id=? AND email=?',[$name,(string)$managerId,$email]);
         app_query($db,'UPDATE appconfig SET nome=?,saldo=? WHERE email=? AND demo=1',[$name,$newBalance,$email]);
-        if($password!=='') { app_query($db,'UPDATE appconfig SET senha=? WHERE email=? AND demo=1',[password_hash($password,PASSWORD_DEFAULT),$email]);app_query($db,'UPDATE manager_demos SET password_encrypted=? WHERE manager_id=? AND email=?',[manager_demo_encrypt_password($password),(string)$managerId,$email]); }
+        if($password!=='') { app_query($db,'UPDATE appconfig SET senha=? WHERE email=? AND demo=1',[password_hash($password,PASSWORD_DEFAULT),$email]);app_query($db,'UPDATE manager_demos SET password_encrypted=? WHERE manager_id=? AND email=?',[manager_demo_encrypt_password($password),(string)$managerId,$email]);app_query($db,"DELETE FROM auth_remember_tokens WHERE scope='player' AND subject=?",[$email]); }
         if((float)$row['saldo']!==(float)$newBalance) app_query($db,'INSERT INTO manager_demo_balance_log(manager_id,email,old_balance,new_balance) VALUES(?,?,?,?)',[(string)$managerId,$email,(string)$row['saldo'],$newBalance]);
         $db->commit();
     } catch(Throwable $error) { $db->rollback(); throw $error; }

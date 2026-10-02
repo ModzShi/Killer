@@ -150,7 +150,7 @@ $facebook_meta_key = isset($result['facebook_ads_key']) ? $result['facebook_ads_
                                 <p class="title">Google ADS TAG:</p>
                                 <p class="description">Chave para fazer o trackeamento do seu site utilizando o google
                                     ADS.</p>
-                                <input class="box-input" name="value" value="<?php echo $google_ads_tag?>" />
+                                <input class="box-input" name="value" value="<?= app_escape($google_ads_tag) ?>" />
                                 <button type="submit" class="btn box-btn btn-primary">Salvar Alterações</button>
                             </form>
                         </div>
@@ -159,7 +159,7 @@ $facebook_meta_key = isset($result['facebook_ads_key']) ? $result['facebook_ads_
                                 <p class="title">Facebook ADS TAG:</p>
                                 <p class="description">Chave para fazer o trackamento do seu site utilizando o facebook
                                     ADS</p>
-                                <input class="box-input" name="value" value="<?php echo $facebook_ads_tag?>" />
+                                <input class="box-input" name="value" value="<?= app_escape($facebook_ads_tag) ?>" />
                                 <button type="submit" class="btn box-btn btn-primary">Salvar Alterações</button>
                             </form>
                         </div>

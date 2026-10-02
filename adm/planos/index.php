@@ -483,7 +483,7 @@ $revenue_share = $result['revenue_share'];
                         <p class="description">Ganho do afiliado em cada depósito feito pelo usuário indicado.<br> Essa
                             configuração não edita o CPA de todos os usuários, somente dos novos usuários.</p>
 
-                        <input class="box-input" name="value" value="<?php echo $cpa ?>" />
+                        <input class="box-input" name="value" value="<?= app_escape($cpa) ?>" />
 
                         <button type="submit" class="btn box-btn btn-primary">Salvar Alterações</button>
 
@@ -499,7 +499,7 @@ $revenue_share = $result['revenue_share'];
 
                         <p class="description">Quantos % de cadastros irão contabilizar. (Ideal: 100%)</p>
 
-                        <input class="box-input" name="value" value="<?php echo $chance_afiliado ?>" />
+                        <input class="box-input" name="value" value="<?= app_escape($chance_afiliado) ?>" />
 
                         <button type="submit" class="btn box-btn btn-primary">Salvar Alterações</button>
 
@@ -516,7 +516,7 @@ $revenue_share = $result['revenue_share'];
                         <p class="description">Valor de depósito mínimo que os convidados do afiliado devem fazer para
                             gerar receita de CPA.</p>
 
-                        <input class="box-input" name="value" value="<?php echo $deposito_min_cpa ?>" />
+                        <input class="box-input" name="value" value="<?= app_escape($deposito_min_cpa) ?>" />
 
                         <button type="submit" class="btn box-btn btn-primary">Salvar Alterações</button>
 
@@ -532,7 +532,7 @@ $revenue_share = $result['revenue_share'];
 
                         <p class="description">Quantidade de saques máxima que um afiliado pode fazer por dia.</p>
 
-                        <input class="box-input" name="value" value="<?php echo $max_saque_cpa ?>" />
+                        <input class="box-input" name="value" value="<?= app_escape($max_saque_cpa) ?>" />
 
                         <button type="submit" class="btn box-btn btn-primary">Salvar Alterações</button>
 
@@ -548,7 +548,7 @@ $revenue_share = $result['revenue_share'];
 
                         <p class="description">Porcentagem dada aos afiliados por cada perca real dos indicados. <br>
                             Essa configuração não edita o CPA de todos os usuários, somente dos novos usuários.</p>
-                        <input class="box-input" name="value" value="<?php echo $revenue_share ?>" />
+                        <input class="box-input" name="value" value="<?= app_escape($revenue_share) ?>" />
                         <button type="submit" class="btn box-btn btn-primary">Salvar Alterações</button>
                     </form>
                 </div>

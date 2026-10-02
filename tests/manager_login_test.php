@@ -4,7 +4,7 @@ require __DIR__.'/../app/manager.php';
 $db=app_db();manager_install($db);$suffix=bin2hex(random_bytes(6));$email='manager-'.$suffix.'@example.invalid';$demo='demo-long-address-'.$suffix.'@example.invalid';$password=bin2hex(random_bytes(16));$id=0;
 $curl=curl_init();curl_setopt_array($curl,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_COOKIEFILE=>'',CURLOPT_TIMEOUT=>20]);
 function manager_http($curl,string $path,?array $post=null):array{
-    curl_setopt($curl,CURLOPT_URL,'http://localhost/Subway-Knuckles/'.$path);
+    curl_setopt($curl,CURLOPT_URL,rtrim(getenv('TEST_BASE_URL') ?: 'http://localhost/Subway-Knuckles','/').'/'.$path);
     if($post===null){curl_setopt($curl,CURLOPT_HTTPGET,true);}else{curl_setopt($curl,CURLOPT_POST,true);curl_setopt($curl,CURLOPT_POSTFIELDS,http_build_query($post));}
     $html=curl_exec($curl);if($html===false)throw new RuntimeException(curl_error($curl));return [curl_getinfo($curl,CURLINFO_RESPONSE_CODE),$html];
 }
@@ -21,9 +21,11 @@ try{
     manager_assert($code===200&&str_contains($html,$demo)&&!preg_match('/Fatal error|Warning|Deprecated/',$html),'Dashboard loads demo accounts without collation errors');
     preg_match('/name="csrf" value="([^"]+)"/',$html,$match);
     if(in_array('--preview',$argv,true))file_put_contents(__DIR__.'/../arquivos/qa-manager.html',preg_replace('/name="csrf" value="[^"]*"/','name="csrf" value="preview"',$html));
-    [$code,$html]=manager_http($curl,'gerente/',['csrf'=>$match[1],'action'=>'demo_balance','email'=>$demo,'balance'=>'1234.50']);
+    [$code,$html]=manager_http($curl,'gerente/',['csrf'=>$match[1],'action'=>'demo_update','email'=>$demo,'name'=>'Conta de teste','balance'=>'1234.50']);
     $row=app_query($db,'SELECT saldo FROM appconfig WHERE email=?',[$demo])->get_result()->fetch_assoc();
     manager_assert($code===200&&(float)$row['saldo']===1234.50&&!str_contains($html,'Fatal error'),'Demo balance update works across table collations');
+    app_query($db,'UPDATE manager_accounts SET password_hash=? WHERE id=?',[password_hash(bin2hex(random_bytes(16)),PASSWORD_DEFAULT),(string)$id]);
+    [$code,$html]=manager_http($curl,'gerente/');manager_assert($code===302,'Changing manager password revokes an open session');
     manager_http($curl,'gerente/logout.php');[$code,$html]=manager_http($curl,'gerente/');manager_assert($code===302,'Logout removes access');
 }finally{
     curl_close($curl);

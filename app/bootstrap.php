@@ -22,7 +22,7 @@ if (PHP_SAPI !== 'cli') {
     header('X-Permitted-Cross-Domain-Policies: none');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
-    header("Content-Security-Policy: frame-ancestors 'self'");
+    header("Content-Security-Policy: frame-ancestors 'self'; base-uri 'self'; object-src 'none'");
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') header('Strict-Transport-Security: max-age=15552000');
     if (session_status() !== PHP_SESSION_ACTIVE) {
         ini_set('session.use_strict_mode', '1');
@@ -41,6 +41,50 @@ if (PHP_SAPI !== 'cli') {
         } catch (Throwable $rememberError) {
             if (isset($rememberDb) && $rememberDb instanceof mysqli) $rememberDb->close();
             error_log('remembered login restore failed: '.$rememberError->getMessage());
+        }
+    }
+    // Recheck access and credential version on every authenticated PHP request.
+    // A block, deletion or password change revokes sessions that are already open.
+    if (!empty($_SESSION['email']) || !empty($_SESSION['emailadm']) || !empty($_SESSION['manager_id'])) {
+        try {
+            require_once SK_ROOT . '/app/auth.php';
+            $identityDb = app_db();
+            if (!empty($_SESSION['email'])) {
+                $player = app_query($identityDb, 'SELECT id,senha,demo,bloc FROM appconfig WHERE email=? LIMIT 1', [(string)$_SESSION['email']])->get_result()->fetch_assoc();
+                $valid = $player && !in_array(strtolower((string)($player['bloc'] ?? '')), ['1','true','on'], true)
+                    && is_string($_SESSION['player_auth_hash'] ?? null)
+                    && hash_equals(app_password_fingerprint((string)$player['senha']), $_SESSION['player_auth_hash']);
+                if (!$valid) {
+                    unset($_SESSION['email'], $_SESSION['user_id'], $_SESSION['demo_account'], $_SESSION['player_auth_hash']);
+                    app_auth_forget($identityDb, 'player');
+                } else {
+                    $_SESSION['user_id'] = $player['id'];
+                    $_SESSION['demo_account'] = (string)$player['demo'] === '1';
+                }
+            }
+            if (!empty($_SESSION['emailadm'])) {
+                $admin = app_query($identityDb, 'SELECT senha FROM admlogin WHERE email=? LIMIT 1', [(string)$_SESSION['emailadm']])->get_result()->fetch_assoc();
+                $valid = $admin && is_string($_SESSION['admin_auth_hash'] ?? null)
+                    && hash_equals(app_password_fingerprint((string)$admin['senha']), $_SESSION['admin_auth_hash']);
+                if (!$valid) {
+                    unset($_SESSION['emailadm'], $_SESSION['admin_auth_hash']);
+                    app_auth_forget($identityDb, 'admin');
+                }
+            }
+            if (!empty($_SESSION['manager_id'])) {
+                $manager = app_query($identityDb, 'SELECT password_hash FROM manager_accounts WHERE id=? AND active=1 LIMIT 1', [(string)$_SESSION['manager_id']])->get_result()->fetch_assoc();
+                $valid = $manager && is_string($_SESSION['manager_auth_hash'] ?? null)
+                    && hash_equals(app_password_fingerprint((string)$manager['password_hash']), $_SESSION['manager_auth_hash']);
+                if (!$valid) {
+                    unset($_SESSION['manager_id'], $_SESSION['manager_auth_hash']);
+                    app_auth_forget($identityDb, 'manager');
+                }
+            }
+            $identityDb->close();
+        } catch (Throwable $identityError) {
+            if (isset($identityDb) && $identityDb instanceof mysqli) $identityDb->close();
+            error_log('identity validation: '.$identityError->getMessage());
+            http_response_code(503); exit('Serviço temporariamente indisponível.');
         }
     }
     if (!empty($_SESSION['email']) || !empty($_SESSION['emailadm']) || !empty($_SESSION['manager_id'])) header('Cache-Control: private, no-store');

@@ -29,6 +29,8 @@ function account_update_profile(mysqli $db, array $input): void {
         if(!hash_equals($newPassword,$confirmation)) throw new InvalidArgumentException('A confirmação da nova senha não confere.');
     }
 
+    if($changePassword)app_auth_remember_install($db);
+    $newHash=$changePassword?password_hash($newPassword,PASSWORD_DEFAULT):'';
     $db->begin_transaction();
     try {
         if(app_query($db,'SELECT id FROM appconfig WHERE telefone IN (?,?) AND email<>? LIMIT 1 FOR UPDATE',[$phone,'55'.$phone,$email])->get_result()->fetch_assoc()) throw new InvalidArgumentException('Este telefone já está vinculado a outra conta.');
@@ -38,13 +40,16 @@ function account_update_profile(mysqli $db, array $input): void {
             if((int)($table['n']??0)>0) app_query($db,'UPDATE manager_demos SET display_name=? WHERE email=?',[$name,$email]);
         }
         if($changePassword){
-            app_query($db,'UPDATE appconfig SET senha=? WHERE email=?',[password_hash($newPassword,PASSWORD_DEFAULT),$email]);
-            app_auth_remember_install($db);
+            app_query($db,'UPDATE appconfig SET senha=? WHERE email=?',[$newHash,$email]);
             app_query($db,'DELETE FROM auth_remember_tokens WHERE scope=? AND subject=?',['player',$email]);
-            app_auth_remember($db,'player',$email,!empty($_COOKIE['SK_REMEMBER_PLAYER']));
         }
         $db->commit();
     }catch(Throwable $error){$db->rollback();throw $error;}
+    if($changePassword){
+        $_SESSION['player_auth_hash']=app_password_fingerprint($newHash);
+        try{app_auth_remember($db,'player',$email,!empty($_COOKIE['SK_REMEMBER_PLAYER']));}
+        catch(Throwable $error){error_log('remember token after password change: '.$error->getMessage());app_auth_remember_clear_cookie('player');}
+    }
 }
 function account_money($value): string { return 'R$ '.number_format((float)($value??0),2,',','.'); }
 function account_status(string $status): string {

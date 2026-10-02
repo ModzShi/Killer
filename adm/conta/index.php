@@ -25,6 +25,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             app_query($db, "DELETE FROM auth_remember_tokens WHERE scope='admin' AND subject=?", [$oldEmail]);
             $db->commit();
             $_SESSION['emailadm'] = $newEmail;
+            $_SESSION['admin_auth_hash'] = app_password_fingerprint($hash);
             session_regenerate_id(true);
             app_auth_remember_clear_cookie('admin');
             $notice = 'Acesso administrativo atualizado. Entre novamente nos outros aparelhos.';

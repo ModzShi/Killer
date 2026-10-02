@@ -22,6 +22,7 @@ try{
     $blocked=isset($_POST['bloqueado'])?'1':'0';$affiliate='1';$password=app_input('senha');
     if($password!==''&&(strlen($password)<6||strlen($password)>72))throw new InvalidArgumentException('A nova senha deve ter entre 6 e 72 caracteres.');
     if($password!==''&&(string)$current['demo']==='1')manager_install($db);
+    if($password!==''||$email!==$current['email']||$blocked==='1')app_auth_remember_install($db);
     $db->begin_transaction();$transaction=true;
     app_query($db,'UPDATE appconfig SET nome=?,email=?,telefone=?,saldo=?,comissaofake=?,plano=?,bloc=?,afiliado_ativo=? WHERE id=?',[$name,$email,$phone,$balance,$commission,$plan,$blocked,$affiliate,$id]);
     if($password!==''){
@@ -30,6 +31,7 @@ try{
             app_query($db,'UPDATE manager_demos SET password_encrypted=? WHERE email=?',[manager_demo_encrypt_password($password),$current['email']]);
         }
     }
+    if($password!==''||$email!==$current['email']||$blocked==='1')app_query($db,"DELETE FROM auth_remember_tokens WHERE scope='player' AND subject=?",[$current['email']]);
     if($email!==$current['email']){
         $table=app_query($db,'SELECT 1 FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=?',['manager_demos'])->get_result()->fetch_assoc();
         if($table)app_query($db,'UPDATE manager_demos SET email=? WHERE email=?',[$email,$current['email']]);

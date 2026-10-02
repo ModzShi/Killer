@@ -43,7 +43,10 @@ if(($_SERVER['REQUEST_METHOD']??'')==='POST'){
             if(!$account)throw new InvalidArgumentException('A conta não está disponível.');
             $current=app_input('current_password');$new=app_input('new_password');
             if($new!==''&&(!password_verify($current,(string)$account['password_hash'])||strlen($new)<10||strlen($new)>72))throw new InvalidArgumentException('Confira a senha atual. A nova senha deve ter de 10 a 72 caracteres.');
-            app_query($db,'UPDATE manager_accounts SET name=?'.($new!==''?',password_hash=?':'').' WHERE id=?', $new!==''?[$name,password_hash($new,PASSWORD_DEFAULT),(string)$managerId]:[$name,(string)$managerId]);$notice='Perfil atualizado.';$manager['name']=$name;
+            $newHash=$new!==''?password_hash($new,PASSWORD_DEFAULT):'';
+            app_query($db,'UPDATE manager_accounts SET name=?'.($new!==''?',password_hash=?':'').' WHERE id=?', $new!==''?[$name,$newHash,(string)$managerId]:[$name,(string)$managerId]);
+            if($new!==''){$_SESSION['manager_auth_hash']=app_password_fingerprint($newHash);app_auth_remember_install($db);app_query($db,"DELETE FROM auth_remember_tokens WHERE scope='manager' AND subject=?",[(string)$managerId]);app_auth_remember_clear_cookie('manager');}
+            $notice='Perfil atualizado.';$manager['name']=$name;
         }else throw new InvalidArgumentException('Ação inválida.');
     }catch(mysqli_sql_exception $e){error_log('manager panel: '.$e->getMessage());$error=$e->getCode()===1062?'Este cadastro já existe.':'Não foi possível salvar. Tente novamente.';}
     catch(InvalidArgumentException $e){$error=$e->getMessage();}
