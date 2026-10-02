@@ -159,27 +159,6 @@ btnSair().addEventListener('click', () => {
             document.body.appendChild(form);
 
             // Submeta o formulário
-            if (window.GAME_VICTORY_AUDIO) {
-                // Inicia o áudio no gesto de resgate antes de carregar a página de resultado.
-                var victoryClip = new Audio(window.GAME_VICTORY_AUDIO);
-                var victoryClipStarted = false, resultSubmitted = false;
-                var submitResult = function() {
-                    if (resultSubmitted) return;
-                    resultSubmitted = true;
-                    if (victoryClipStarted) {
-                        try { sessionStorage.setItem('victory-audio-played', '1'); } catch (ignore) {}
-                    }
-                    form.submit();
-                };
-                victoryClip.preload = 'auto';
-                victoryClip.addEventListener('playing', function() { victoryClipStarted = true; }, { once: true });
-                victoryClip.addEventListener('ended', submitResult, { once: true });
-                victoryClip.addEventListener('error', submitResult, { once: true });
-                var victoryPlayback = victoryClip.play();
-                if (victoryPlayback && typeof victoryPlayback.catch === 'function') victoryPlayback.catch(submitResult);
-                setTimeout(submitResult, 12000);
-                return;
-            }
             form.submit();
         }
     }
