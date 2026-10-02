@@ -37188,7 +37188,8 @@ btnSair().addEventListener('click', () => {
 				super(...t), c(this, "name", "far"), c(this, "distance", 70), c(this, "duration", 3), c(this, "curve", a.a.sineIn)
 			}
 			condition(t) {
-				return !!this.game.level.isTutorial() || this.follower.entity.game.state === o.a.RUNNING && (!this.follower.entity.game.hero.player.dizzy && t.either("near"))
+				const player = this.follower.entity.game.hero.player;
+				return !!this.game.level.isTutorial() || this.follower.entity.game.state === o.a.RUNNING && !player.dead && !player.dizzy && t.either("near", "catch")
 			}
 			update() {
 				var t, e, i, n;
