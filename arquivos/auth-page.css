@@ -12,3 +12,16 @@
 .sk-auth-page--admin .sk-auth-kicker{color:#ffd874!important}.sk-auth-page--admin .sk-auth-brand-mark{border-color:#ffe4a0;background:linear-gradient(145deg,#ffe186,#f6a83d);color:#2f1d08}
 @media(max-width:480px){.sk-auth-page{padding:12px 0 24px!important}.sk-auth-shell{width:calc(100% - 20px);padding:17px!important;border-radius:23px}.sk-auth-intro{padding:13px 0 17px}.sk-auth-brand{margin-bottom:23px}.sk-auth-shell .gateway-card{border-radius:19px!important}.sk-auth-shell .gateway-card form>input:not([type=hidden]){height:47px;font-size:16px}}
 @media(prefers-reduced-motion:reduce){.sk-auth-page *,.sk-auth-page *:before,.sk-auth-page *:after{transition:none!important;animation:none!important}}
+
+/* These selectors intentionally win over the shared public theme loaded later. */
+body.sk-premium.sk-auth-page{background:radial-gradient(ellipse at 50% 0,#0e72c866,transparent 48%),radial-gradient(ellipse at 5% 85%,#0b9ab834,transparent 38%),#07101f!important}
+body.sk-premium.sk-auth-page .sk-auth-shell{width:min(100% - 32px,520px)!important;max-width:520px!important;margin:0 auto!important;padding:clamp(17px,4vw,30px)!important;border-color:#62bdfb55;background:linear-gradient(150deg,#142c4beF,#0d1a31f7 65%,#0a1d32f5)}
+body.sk-premium.sk-auth-page .sk-auth-intro h1{color:#fff!important;text-shadow:0 0 27px #3cb6ff80}
+body.sk-premium.sk-auth-page .sk-auth-kicker{color:#96eafb!important}
+body.sk-premium.sk-auth-page .gateway-card{border-color:#70baf075!important;background:linear-gradient(145deg,#14375d,#0b1c33 75%)!important;box-shadow:0 18px 48px #0007,0 0 28px #128dff24!important}
+body.sk-premium.sk-auth-page .gateway-card:before{background:linear-gradient(90deg,transparent,#8edbff,transparent)}
+body.sk-premium.sk-auth-page .gateway-card form>input:not([type=hidden]):not([type=checkbox]){border-color:#65b8ef70!important;background:#09182d!important;color:#fff!important}
+body.sk-premium.sk-auth-page .gateway-card form>input:not([type=hidden]):focus{border-color:#7ddcff!important;box-shadow:0 0 0 3px #38bdf83a!important}
+body.sk-premium.sk-auth-page .gateway-card form>button{border-color:#fff0a3!important;background:linear-gradient(110deg,#ffe998,#ffc338 60%,#ffe06a)!important;color:#201d0c!important;box-shadow:0 5px 0 #99661b,0 14px 28px #e9a91b48!important}
+body.sk-premium.sk-auth-page .gateway-card .hint a,body.sk-premium.sk-auth-page .gateway-card>p:not(.notice) a{color:#a5e9ff!important}
+@media(max-width:480px){body.sk-premium.sk-auth-page .sk-auth-shell{width:calc(100% - 20px)!important;padding:17px!important;margin:0 auto!important}}

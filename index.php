@@ -33,29 +33,29 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
             <div class="home-hero__content">
                 <div class="home-eyebrow">
                     <span class="home-live-dot" aria-hidden="true"></span>
-                    Modo teste liberado
+                    SUA CORRIDA COMEÇA AQUI
                 </div>
                 <h1 id="hero-title"><span>Subway</span> Run</h1>
-                <p class="home-hero__lead"><span>Corra pelos trilhos e desvie dos obstáculos.</span><span>Colete moedas e avance</span><span>em uma corrida eletrizante a qualquer hora.</span></p>
+                <p class="home-hero__lead">Entre nos trilhos, desvie dos obstáculos e descubra o jogo no modo teste.</p>
 
                 <div class="home-hero__actions">
                     <a class="home-button home-button--primary" href="presell/jogoteste/">
                         <?= ui_icon('play', 'home-svg-21') ?>
-                        Jogar modo teste
+                        Jogar agora
                     </a>
                     <a class="home-button home-button--ghost" href="cadastrar/">Criar minha conta</a>
                 </div>
 
                 <div class="home-trust" aria-label="Destaques">
-                    <span><?= ui_icon('shield', 'home-svg-18') ?> Ambiente protegido</span>
-                    <span><?= ui_icon('spark', 'home-svg-18') ?> Jogo otimizado</span>
+                    <span><?= ui_icon('play', 'home-svg-18') ?> Comece sem cadastro</span>
+                    <span><?= ui_icon('spark', 'home-svg-18') ?> Controles simples</span>
                     <span><?= ui_icon('check', 'home-svg-18') ?> Tutorial guiado</span>
                 </div>
             </div>
 
             <div class="home-game-card" aria-label="Prévia do Subway Run">
                 <div class="home-game-card__top">
-                    <span><i aria-hidden="true"></i> Corrida ativa</span>
+                    <span><i aria-hidden="true"></i> Experimente a corrida</span>
                     <strong>Modo treino</strong>
                 </div>
                 <div class="home-game-card__scene">
@@ -63,6 +63,11 @@ $pageTitle = 'Subway Run · Corra. Desvie. Supere.';
                     <div class="home-game-card__score">
                         <small>Pontuação do treino</small>
                         <strong>+ 1 moeda</strong>
+                    </div>
+                    <div class="home-game-card__play">
+                        <span>Subway Run</span>
+                        <strong>Pronto para correr?</strong>
+                        <a href="presell/jogoteste/"><?= ui_icon('play', 'home-svg-18') ?> Testar agora</a>
                     </div>
                 </div>
                 <div class="home-game-card__footer">

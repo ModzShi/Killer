@@ -44,3 +44,23 @@
 .player-race-picker .player-play-button:disabled{border-color:#ffffff12;background:#29263c;color:#9390aa;box-shadow:none}
 @media(max-width:600px){.player-race-picker{padding:19px 15px;border-radius:21px}.player-race-picker .player-section-title{gap:15px;margin-bottom:18px}.player-bet-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.player-bet-option{min-height:78px;padding:9px 4px;border-radius:14px}.player-bet-option__label{font-size:8px}.player-bet-option>strong{font-size:clamp(15px,4.5vw,19px)}.player-bet-option__target{font-size:9px}.player-race-picker__footer{grid-template-columns:1fr;gap:13px;margin-top:17px;padding-top:15px}.player-race-picker__summary{justify-content:center;text-align:center}.player-race-picker__summary>span{width:39px;height:39px}.player-race-picker .player-play-button{width:100%;min-height:54px}}
 @media(prefers-reduced-motion:reduce){.player-bet-option,.player-race-picker .player-play-button{transition:none!important}}
+
+/* Balance and entry selector share the site's new blue arcade direction. */
+body.player-dashboard{--pd-bg:#07101f;--pd-card:#0d2039;--pd-card-2:#143459;--pd-line:rgba(101,191,250,.25);--pd-muted:#c2d4e9;--pd-mint:var(--sr-highlight,#56e2f0);--pd-cyan:#72d8ff;--pd-violet:var(--sr-accent,#168dff);--pd-gold:#ffdf72;background:#07101f}
+.player-hero{background:radial-gradient(circle at 82% 20%,#147ee25c,transparent 36%),radial-gradient(circle at 5% 100%,#07c4dc2c,transparent 38%),linear-gradient(130deg,#061427,#0c2c52 60%,#081b31)}
+.player-intro h1 span{background:linear-gradient(105deg,#fff,#b8eaff 48%,#72d5ff);-webkit-background-clip:text;background-clip:text}
+.player-wallet{border-color:#6ec9ff77;background:linear-gradient(145deg,#174578,#0e284b 60%,#0a1b36);box-shadow:0 23px 70px #0007,0 0 35px #198dff28}
+.player-wallet__icon{background:linear-gradient(145deg,var(--sr-accent,#168dff),var(--sr-highlight,#56e2f0));color:#06223b}
+.player-wallet>strong{color:#fff;text-shadow:0 0 22px #6ec9ff66}
+.player-game-section{background:linear-gradient(180deg,#071629,#07101f)}
+.player-race-picker{border-color:#6cbcff5c;background:radial-gradient(circle at 100% 0,#1274d329,transparent 38%),linear-gradient(145deg,#15395f,#0c1d35 72%);box-shadow:0 25px 70px #0008,0 0 40px #086dc01e}
+.player-bet-option{border-color:#68b8ee3d;background:linear-gradient(145deg,#214979,#153557)}
+.player-bet-option:hover:not(.is-disabled){border-color:#8cddffb8}
+.player-bet-option.is-selected{border-color:var(--sr-highlight,#56e2f0);background:linear-gradient(145deg,#3278bd,#20588f);box-shadow:inset 0 0 0 1px #a8f3ff80,0 0 28px #35b6f94a}
+.player-bet-option__target{color:#c8f3ff}
+.player-race-picker .player-play-button{border-color:#fff0a7;background:linear-gradient(110deg,#ffeb91,#ffc438 60%,#ffe369);color:#211e0b;box-shadow:0 5px 0 #986115,0 12px 28px #e9ae3561}
+.player-race-picker .player-play-button:hover:not(:disabled){box-shadow:0 7px 0 #986115,0 18px 34px #e9ae3578}
+.player-training-card{background:radial-gradient(circle at 85% 35%,#167ad345,transparent 36%),linear-gradient(135deg,#123a67,#0d2a47)}
+.player-history-card{background:linear-gradient(145deg,#112d4d,#0b1a30);border-color:#65bbee44}
+.player-community{background:linear-gradient(180deg,#071629,#07101f)}
+.player-disclosure{background:#07101f}
