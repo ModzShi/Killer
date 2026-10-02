@@ -12,9 +12,6 @@ $multiplier = max(1.0, (float) ($settings['meta_multiplier'] ?? 10));
 $difficulty = (string) ($settings['difficulty'] ?? 'medio');
 $difficultyCode = ['facil' => 'B1C2', 'medio' => 'B1C3', 'dificil' => 'B1C4'][$difficulty] ?? 'B1C3';
 $isDemo = (string) ($user['demo'] ?? '0') === '1';
-$displayName = trim((string) ($user['nome'] ?? ''));
-if ($displayName === '') $displayName = ucfirst((string) strtok((string) $user['email'], '@'));
-$firstName = explode(' ', $displayName)[0];
 $balance = (float) ($user['saldo'] ?? 0);
 $gameError = (string) ($_SESSION['game_error'] ?? '');
 unset($_SESSION['game_error']);
@@ -45,36 +42,15 @@ $bets = [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="arquivos/dashboard.css?v=<?= filemtime(__DIR__ . '/arquivos/dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= app_escape(app_url('arquivos/banner-carousel.css')) ?>?v=<?= filemtime(__DIR__ . '/../arquivos/banner-carousel.css') ?>">
 </head>
 <body class="player-dashboard">
 <?php $menuBase = '../'; $menuLoggedIn = true; $menuCurrent = 'painel/'; require __DIR__ . '/../components/menu.php'; ?>
 
 <main class="player-main">
-    <section class="player-hero" aria-labelledby="player-title">
-        <div class="player-hero__light" aria-hidden="true"></div>
-        <div class="player-shell player-hero__grid">
-            <div class="player-intro">
-                <span class="player-kicker"><i></i> PRONTO PARA JOGAR?</span>
-                <h1 id="player-title">Olá, <?= app_escape($firstName) ?>.<br><span>Entre na corrida.</span></h1>
-                <p>Escolha uma entrada e acompanhe a meta durante o jogo.</p>
-            </div>
-
-            <aside class="player-wallet" aria-label="Resumo da conta">
-                <div class="player-wallet__top">
-                    <span class="player-wallet__icon"><?= ui_icon('wallet') ?></span>
-                    <a href="<?= app_url('perfil/') ?>">Ver perfil <?= ui_icon('arrow') ?></a>
-                </div>
-                <small>Saldo disponível</small>
-                <strong data-live-balance><?= account_money($balance) ?></strong>
-                <div class="player-wallet__actions">
-                    <?php if (!$isDemo): ?>
-                        <a class="player-action player-action--primary" href="<?= app_url('deposito/') ?>"><?= ui_icon('deposit') ?> Depositar</a>
-                        <a class="player-action player-action--secondary" href="<?= app_url('saque/') ?>"><?= ui_icon('withdraw') ?> Sacar</a>
-                    <?php else: ?>
-                        <span class="player-demo-chip"><?= ui_icon('spark') ?> Conta de demonstração</span>
-                    <?php endif; ?>
-                </div>
-            </aside>
+    <section class="player-banner-section" aria-label="Artes demonstrativas do jogo">
+        <div class="player-shell">
+            <?php require __DIR__ . '/../components/game-banners.php'; ?>
         </div>
     </section>
 
@@ -183,6 +159,7 @@ $bets = [
     }));
 })();
 </script>
+<script src="<?= app_escape(app_url('arquivos/home-carousel.js')) ?>?v=<?= filemtime(__DIR__ . '/../arquivos/home-carousel.js') ?>" defer></script>
 <footer class="player-disclosure" role="note"><div class="player-shell">As notificações de exemplo exibidas nesta página são fictícias e não correspondem a saques reais. O histórico da sua conta mostra as movimentações registradas no sistema.</div></footer>
 </body>
 </html>

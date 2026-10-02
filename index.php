@@ -20,6 +20,7 @@ $pageTitle = 'Subway Run · Entre na corrida';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="arquivos/home.css?v=<?= filemtime(__DIR__ . '/arquivos/home.css') ?>">
     <link rel="stylesheet" href="arquivos/home-compact.css?v=<?= filemtime(__DIR__ . '/arquivos/home-compact.css') ?>">
+    <link rel="stylesheet" href="arquivos/banner-carousel.css?v=<?= filemtime(__DIR__ . '/arquivos/banner-carousel.css') ?>">
 </head>
 <body class="home-page">
 <?php require __DIR__ . '/components/menu.php'; ?>
@@ -36,14 +37,7 @@ $pageTitle = 'Subway Run · Entre na corrida';
                 </div>
                 <p class="home-hero__micro">Treino gratuito · Entradas a partir de R$ 5,00</p>
             </div>
-            <div class="home-arcade" aria-label="Destaques do jogo">
-                <div class="home-arcade__stage" id="home-arcade-stage">
-                    <a class="home-arcade__slide is-active" href="cadastrar/" aria-label="Criar conta para entrar na corrida" style="--slide-art:url('har-art/corrida-cidade.jpg')"><span class="home-arcade__copy"><small>MISSÃO 01</small><strong>Entre na corrida</strong><em>Crie sua conta para começar <?= ui_icon('arrow', 'home-svg-18') ?></em></span></a>
-                    <a class="home-arcade__slide" href="cadastrar/" aria-label="Criar conta para escolher a entrada" style="--slide-art:url('har-art/personagens-corrida.png')"><span class="home-arcade__copy"><small>ESCOLHA SUA ENTRADA</small><strong>Pronto para jogar?</strong><em>Entre a partir de R$ 5,00 <?= ui_icon('arrow', 'home-svg-18') ?></em></span></a>
-                    <a class="home-arcade__slide home-arcade__slide--scene" href="cadastrar/" aria-label="Criar conta e acompanhar suas corridas" style="--slide-art:url('SubwaySurfers02.jpg')"><span class="home-arcade__copy"><small>SUBWAY RUN</small><strong>Seu próximo desafio</strong><em>Acompanhe cada corrida <?= ui_icon('arrow', 'home-svg-18') ?></em></span></a>
-                </div>
-                <div class="home-arcade__bar"><span>ESCOLHA SEU CAMINHO</span><div class="home-arcade__dots" role="group" aria-label="Selecionar banner"><button type="button" class="is-active" aria-label="Banner 1" aria-current="true"></button><button type="button" aria-label="Banner 2"></button><button type="button" aria-label="Banner 3"></button></div></div>
-            </div>
+            <?php require __DIR__ . '/components/game-banners.php'; ?>
         </div>
     </section>
     <section class="home-entry" aria-label="Como começar">
