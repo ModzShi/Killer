@@ -106,4 +106,5 @@ body.win,body.loss{background:radial-gradient(ellipse at 50% 12%,#a66b215c 0,tra
 
 /* Keep the animated amount glow on the victory screen in the same gold palette. */
 .win .reward strong{animation-name:amountGlowGold}
+.loss .reward strong{animation-name:amountGlowGold}
 @keyframes amountGlowGold{to{text-shadow:0 0 14px #fff0ad,0 0 35px #ffc72cdd}}
