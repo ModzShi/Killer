@@ -153,6 +153,10 @@ if (PHP_SAPI !== 'cli') {
             }, $html, 1);
         }
         if (strpos($relativeFile, '/modo-bubble/') !== 0) {
+        // A mesma onda da marca identifica todas as páginas PHP no navegador.
+        $html = preg_replace('~<link\b(?=[^>]*\brel\s*=\s*["\'](?:icon|shortcut icon|apple-touch-icon)["\'])[^>]*>~i', '', $html);
+        $waveIcon = app_escape(app_url('img/logo.png')) . '?v=' . filemtime(SK_ROOT . '/img/logo.png');
+        $html = preg_replace('~</head>~i', '<link rel="icon" type="image/png" href="' . $waveIcon . '"><link rel="apple-touch-icon" href="' . $waveIcon . '"></head>', $html, 1);
         $html = preg_replace('~</head>~i', '<link rel="stylesheet" href="'.app_escape(app_url('arquivos/mobile-polish.css')).'?v='.filemtime(SK_ROOT.'/arquivos/mobile-polish.css').'"></head>', $html, 1);
         }
         $html = preg_replace('~<script\b[^>]*disable-devtool[^>]*>.*?</script>~is', '', $html);
