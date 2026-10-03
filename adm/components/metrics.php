@@ -14,12 +14,12 @@ function admin_metrics(mysqli $db): array
     $rounds = $db->query("SELECT COUNT(*) AS total, COALESCE(SUM(g.bet),0) AS stakes, COALESCE(SUM(g.payout),0) AS prizes,
         COALESCE(SUM(CASE WHEN g.status='WIN' THEN 1 ELSE 0 END),0) AS wins,
         COALESCE(SUM(CASE WHEN g.status='LOSS' THEN 1 ELSE 0 END),0) AS losses
-        FROM game_rounds g JOIN appconfig u ON u.email=g.email AND u.demo=0 WHERE g.status IN ('WIN','LOSS')")->fetch_assoc();
+        FROM game_rounds g JOIN appconfig u ON u.email COLLATE utf8mb4_unicode_ci = g.email COLLATE utf8mb4_unicode_ci AND u.demo=0 WHERE g.status IN ('WIN','LOSS')")->fetch_assoc();
     $depositTrend = $db->query("SELECT DATE(STR_TO_DATE(data, '%d/%m/%Y %H:%i')) AS day, COALESCE(SUM(valor),0) AS amount
         FROM confirmar_deposito WHERE status='PAID_OUT' AND STR_TO_DATE(data, '%d/%m/%Y %H:%i') >= CURDATE()-INTERVAL 6 DAY
         GROUP BY day")->fetch_all(MYSQLI_ASSOC);
     $ggrTrend = $db->query("SELECT DATE(g.settled_at) AS day, COALESCE(SUM(g.bet-g.payout),0) AS amount
-        FROM game_rounds g JOIN appconfig u ON u.email=g.email AND u.demo=0
+        FROM game_rounds g JOIN appconfig u ON u.email COLLATE utf8mb4_unicode_ci = g.email COLLATE utf8mb4_unicode_ci AND u.demo=0
         WHERE g.status IN ('WIN','LOSS') AND g.settled_at >= CURDATE()-INTERVAL 6 DAY GROUP BY day")->fetch_all(MYSQLI_ASSOC);
     $fill = static function (array $rows): array {
         $indexed=[];
