@@ -5,6 +5,7 @@ game_install($gameDb);
 $gameSettings = $gameDb->query('SELECT * FROM game_settings WHERE id=1')->fetch_assoc();
 $gameDemo = ($_GET['demo'] ?? '') === '1';
 $gameTraining = $gameDemo || !empty($_SESSION['demo_account']);
+$gameTrainingRewind = $gameTraining && empty($_SESSION['email']);
 $roundToken = (string)($_GET['round'] ?? '');
 if ($gameDemo && !preg_match('/^demo_[a-f0-9]{32}$/D', $roundToken)) {
     $roundToken = 'demo_' . bin2hex(random_bytes(16));
@@ -28,7 +29,7 @@ $gameDb->close();
 
 <head>
     <script>
-    (()=>{const token=<?= json_encode($roundToken, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,home=<?= json_encode(app_url($gameDemo?'':'painel/')) ?>;
+    (()=>{const token=<?= json_encode($roundToken, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>,home=<?= json_encode(app_url($gameDemo && empty($_SESSION['email']) ? '' : 'painel/')) ?>;
     function guard(){if(!token)return;try{if(sessionStorage.getItem('finished:'+token))location.replace(home)}catch(e){}}
     guard();addEventListener('pageshow',guard);})();
     </script>
@@ -245,6 +246,7 @@ $gameDb->close();
         window.GAME_COIN_VALUE = <?= json_encode($gameCoinValue) ?>;
         window.GAME_DEMO = <?= $gameDemo ? 'true' : 'false' ?>;
         window.GAME_TRAINING = <?= $gameTraining ? 'true' : 'false' ?>;
+        window.GAME_TRAINING_REWIND = <?= $gameTrainingRewind ? 'true' : 'false' ?>;
         window.GAME_ROUND_TOKEN = <?= json_encode($roundToken, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
         window.GAME_SLOW = <?= ($gameDemo || !empty($_SESSION['demo_account'])) ? 'true' : 'false' ?>;
         window.GAME_BASE_SPEED = <?= json_encode((int)$gameSettings[($gameDemo || !empty($_SESSION['demo_account'])) ? 'speed_demo' : 'speed_paid']) ?>;

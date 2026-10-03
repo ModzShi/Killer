@@ -9,6 +9,7 @@ if (!$preview && ($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') { header('Locati
 $token = $submittedToken;
 header('Cache-Control: no-store, private');
 $demo = $preview || $validDemoToken;
+$loggedIn = !empty($_SESSION['email']);
 $fictional = $demo || !empty($_SESSION['demo_account']);
 $betAmounts = ['1BC'=>1.0,'2BC'=>2.0,'3BC'=>5.0];
 $bet = $betAmounts[app_input('bet')] ?? 0.0;
@@ -28,7 +29,7 @@ try {
     error_log('game result: '.$e->getMessage());
 }
 $win = $gameResult === 'WIN' && $error === '';
-$again = $demo ? app_url('presell/jogoteste/') : app_url('painel/');
+$again = $demo ? ($loggedIn ? app_url('jogar/?demo=1&jogarsubway=5BC&SbSB1C2') : app_url('presell/jogoteste/')) : app_url('painel/');
 $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
 ?><!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07142c"><title><?= $error ? 'Resultado da corrida' : ($win ? 'Vitória!' : 'Fim da corrida') ?></title><link rel="stylesheet" href="<?= app_escape(app_url('gameover/result.css')) ?>?v=12"><link rel="stylesheet" href="<?= app_escape(app_url('gameover/prompt.css')) ?>"></head>
@@ -44,7 +45,7 @@ $money = static fn(float $v): string => 'R$ '.number_format($v, 2, ',', '.');
 <?php if (!$error): ?><div class="reward"><span class="reward-label"><?= $win ? ($fictional ? 'PRÊMIO DE TREINO' : 'PRÊMIO CREDITADO') : ($fictional ? 'APOSTA SIMULADA' : 'APOSTA DA RODADA') ?></span><strong id="amount" data-value="<?= $win ? app_escape((string)$payout) : app_escape((string)$bet) ?>"><?= $win ? 'R$ 0,00' : app_escape($money($bet)) ?></strong><span class="reward-detail"><?= $win ? '✦ META CONCLUÍDA ✦' : 'TENTE DE NOVO NO SEU RITMO' ?></span></div><?php endif; ?>
 <div class="actions"><a class="button primary" href="<?= app_escape($again) ?>"><span><?= $demo ? 'TREINAR DE NOVO' : 'JOGAR DE NOVO' ?></span><b aria-hidden="true">→</b></a><a class="button secondary" href="<?= app_escape(app_url('painel/')) ?>">VOLTAR AO PAINEL</a></div>
 <p class="footnote"><?= $fictional ? 'Nenhum valor real foi apostado ou recebido.' : 'Jogue com responsabilidade. Maiores de 18 anos.' ?></p></main>
-<?php if ($demo && !$error): ?>
+<?php if ($demo && !$loggedIn && !$error): ?>
 <div class="demo-prompt" id="demo-prompt" hidden>
   <div class="demo-prompt-backdrop" data-close-prompt></div>
   <section class="demo-prompt-card" role="dialog" aria-modal="true" aria-labelledby="demo-prompt-title" aria-describedby="demo-prompt-description">

@@ -3,10 +3,11 @@
     const pending = pendingNodes[0];
     if (!pending) return;
     const windowSeconds = 600;
-    const created = Number(pending.dataset.created);
-    if (!Number.isFinite(created) || created <= 0) return;
+    const age = Number(pending.dataset.age);
+    if (!Number.isFinite(age) || age < 0) return;
+    const openedAt = performance.now();
 
-    function remaining() { return Math.max(0, windowSeconds - Math.max(0, Math.floor(Date.now() / 1000 - created))); }
+    function remaining() { return Math.max(0, windowSeconds - age - Math.floor((performance.now() - openedAt) / 1000)); }
     function paint() {
         const left = remaining();
         for (const node of pendingNodes) {
@@ -25,7 +26,7 @@
     let checking = false;
     let lastCheck = 0;
     async function check() {
-        if (checking || document.hidden || remaining() === 0 || Date.now() - lastCheck < 30000) return;
+        if (checking || document.hidden || remaining() === 0 || Date.now() - lastCheck < 25000) return;
         checking = true;
         lastCheck = Date.now();
         try {
@@ -51,8 +52,8 @@
         } catch (_) { /* A próxima consulta tenta novamente. */ }
         finally { checking = false; }
     }
-    const checkTimer = window.setInterval(check, 30000);
-    window.setTimeout(check, 5000);
+    const checkTimer = window.setInterval(check, 25000);
+    window.setTimeout(check, 3000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) { paint(); check(); } });
     window.addEventListener('pagehide', () => { window.clearInterval(visualTimer); window.clearInterval(checkTimer); }, { once: true });
 })();

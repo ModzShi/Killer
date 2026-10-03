@@ -25,14 +25,14 @@ function bxpay_enabled(mysqli $db): bool
 
 function bxpay_row(mysqli $db, string $reference): ?array
 {
-    $stmt = $db->prepare('SELECT *, UNIX_TIMESTAMP(created_at) AS created_epoch FROM bxpay_deposits WHERE reference = ?');
+    $stmt = $db->prepare('SELECT *, GREATEST(0, TIMESTAMPDIFF(SECOND, created_at, NOW())) AS age_seconds FROM bxpay_deposits WHERE reference = ?');
     $stmt->bind_param('s', $reference); $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }
 
 function bxpay_active_for_email(mysqli $db, string $email): ?array
 {
-    $stmt = $db->prepare("SELECT reference, amount, status, created_at, UNIX_TIMESTAMP(created_at) AS created_epoch FROM bxpay_deposits WHERE email = ? AND status = 'PENDING' ORDER BY created_at DESC LIMIT 1");
+    $stmt = $db->prepare("SELECT reference, amount, status, created_at, GREATEST(0, TIMESTAMPDIFF(SECOND, created_at, NOW())) AS age_seconds FROM bxpay_deposits WHERE email = ? AND status = 'PENDING' ORDER BY created_at DESC LIMIT 1");
     $stmt->bind_param('s', $email); $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }

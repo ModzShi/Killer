@@ -35414,7 +35414,7 @@ btnSair().addEventListener('click', () => {
 				this.entity.body.reset(), this.entity.body.lane = 0, this.entity.body.x = e, this.entity.body.z = t, this.entity.body.lane = i || 0, this.entity.body.bottom = 0, this.entity.body.movable = !0, this.entity.body.ghost = !1, this.entity.x = this.entity.body.x, this.entity.y = this.entity.body.y, this.entity.z = this.entity.body.z, this.entity.resetModel(), this.dizzy = 0, this.jumpLocked = !1, this.rollLocked = !1, this.hoverboardLocked = !1, this.running = !1, this.cameraY = 0, this.cameraTargetY = 0, this.cameraRotX = 0, this.cameraLow = 0, this.tunnel = !1, this.dead = !1, this.deathCause = "", this.catchMode = "", this.rewindStartPoint = new N.a, this.rewindEndPoint = null
 			}
 			run(t) {
-				window.GAME_TRAINING && (trainingRewindInProgress = !1),
+				window.GAME_TRAINING_REWIND && (trainingRewindInProgress = !1),
 				t || (t = 60 * f.a.dizzyDuration), this.entity.game.level.onEnterTutorial.contains(this) || (this.entity.game.level.onEnterTutorial.add(this), this.entity.game.level.onExitTutorial.add(this)), this.entity.body.velocity.z = -f.a.speed, this.entity.body.height = this.entity.regularHeight, this.entity.body.bottom = 0, this.entity.body.movable = !0, this.running = !0, this.dizzy = t, this.entity.shadow.turnOn(), this.entity.lane.turnOn(), this.entity.jump.turnOn(), this.entity.roll.turnOn(), this.entity.hoverboard.enable(), this.entity.hoverboard.isOn() ? this.entity.anim.play(this.entity.hoverboard.animations.run, {
 					loop: !0,
 					sudden: !0
@@ -35472,11 +35472,11 @@ btnSair().addEventListener('click', () => {
 			}
 			die(t) {
 				if (!f.a.god) {
-					if (window.GAME_TRAINING && (trainingRewindInProgress || this.rewinding || this.rewindEndPoint)) return;
+					if (window.GAME_TRAINING_REWIND && (trainingRewindInProgress || this.rewinding || this.rewindEndPoint)) return;
 					if (this.entity.hoverboard.isOn()) return this.dizzyEnd(), this.entity.hoverboard.explode(), this.entity.game.level.removeObstacles(), void setTimeout(() => {
 						this.entity.hoverboard.explode(), this.entity.hoverboard.turnOff(), this.entity.game.exitTunnel(), this.entity.game.sfx.play("hero-hoverboard-crash")
 					}, 1);
-					const trainingRewind = window.GAME_TRAINING && (!trainingRescueShown || !trainingRewindUsed);
+					const trainingRewind = window.GAME_TRAINING_REWIND && (!trainingRescueShown || !trainingRewindUsed);
 					if (trainingRewind) {
 						trainingRewindInProgress = true;
 						if (trainingRescueShown) trainingRewindUsed = true;

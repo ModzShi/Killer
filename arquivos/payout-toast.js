@@ -14,6 +14,7 @@
   amount.textContent=money.format(50+Math.random()*750);
  };
  nextItem();
+ toast.hidden=true;
 
  const unlockAudio=()=>{
   if(!audio){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;audio=new AudioContextClass()}
@@ -53,8 +54,9 @@
     playBubble();
     window.setTimeout(()=>toast.classList.remove('is-entering'),450);
     cycle();
-    },5000);
+    },26000);
   },280);
-  },3000);
- cycle();
+  },3500);
+ // A primeira amostra surge depois que a página está pronta, sem cobrir a entrada.
+ window.setTimeout(()=>{toast.hidden=false;toast.classList.add('is-entering');playBubble();window.setTimeout(()=>toast.classList.remove('is-entering'),450);cycle()},12000);
 })();
