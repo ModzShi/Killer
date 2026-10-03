@@ -25,8 +25,15 @@ function bxpay_enabled(mysqli $db): bool
 
 function bxpay_row(mysqli $db, string $reference): ?array
 {
-    $stmt = $db->prepare('SELECT * FROM bxpay_deposits WHERE reference = ?');
+    $stmt = $db->prepare('SELECT *, UNIX_TIMESTAMP(created_at) AS created_epoch FROM bxpay_deposits WHERE reference = ?');
     $stmt->bind_param('s', $reference); $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
+
+function bxpay_active_for_email(mysqli $db, string $email): ?array
+{
+    $stmt = $db->prepare("SELECT reference, amount, status, created_at, UNIX_TIMESTAMP(created_at) AS created_epoch FROM bxpay_deposits WHERE email = ? AND status = 'PENDING' ORDER BY created_at DESC LIMIT 1");
+    $stmt->bind_param('s', $email); $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }
 
@@ -100,7 +107,7 @@ function bxpay_webhook_reference(mysqli $db, string $external, string $id): ?str
     if ($direct) return (string) $direct['reference'];
     if (!preg_match('/^[A-Za-z0-9]{12,35}$/D', $external)) return null;
     $pattern = '%' . $external . '%';
-    $stmt = $db->prepare("SELECT reference, pix_code FROM bxpay_deposits WHERE status IN ('PENDING','PAID_OUT') AND pix_code LIKE ? LIMIT 3");
+    $stmt = $db->prepare("SELECT reference, pix_code FROM bxpay_deposits WHERE status IN ('PENDING','CANCELED','PAID_OUT') AND pix_code LIKE ? LIMIT 3");
     $stmt->bind_param('s', $pattern);
     $stmt->execute();
     $matches = [];
@@ -132,7 +139,7 @@ function bxpay_credit(mysqli $db, string $reference, array $verified): bool
         $deposit = $stmt->get_result()->fetch_assoc();
         if (!$deposit || !bxpay_matches($deposit, $verified)) { $db->rollback(); return false; }
         if ($deposit['status'] === 'PAID_OUT') { $db->commit(); return true; }
-        if ($deposit['status'] !== 'PENDING') { $db->rollback(); return false; }
+        if (!in_array($deposit['status'], ['PENDING', 'CANCELED'], true)) { $db->rollback(); return false; }
         $email = $deposit['email']; $amount = $deposit['amount'];
         $stmt = $db->prepare('SELECT * FROM appconfig WHERE email = ? FOR UPDATE');
         $stmt->bind_param('s', $email); $stmt->execute();
@@ -173,7 +180,7 @@ function bxpay_reconcile(mysqli $db, BXPay $api, string $reference): bool
     $deposit = bxpay_row($db, $reference);
     if (!$deposit) return false;
     if ($deposit['status'] === 'PAID_OUT') return true;
-    if ($deposit['status'] !== 'PENDING') return false;
+    if (!in_array($deposit['status'], ['PENDING', 'CANCELED'], true)) return false;
     // A shared database throttle also limits unauthenticated callback triggers.
     $stmt = $db->prepare('UPDATE bxpay_deposits SET last_checked = NOW() WHERE reference = ? AND (last_checked IS NULL OR last_checked < DATE_SUB(NOW(), INTERVAL 20 SECOND))');
     $stmt->bind_param('s', $reference); $stmt->execute();

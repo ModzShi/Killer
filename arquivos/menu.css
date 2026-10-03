@@ -2,6 +2,9 @@
 .sk-header--logged{position:sticky;top:0}
 .sk-header *{box-sizing:border-box}
 .sk-header-inner{max-width:1180px;min-height:88px;margin:auto;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.sk-header--logged:has(.sk-pix-pending) .sk-header-inner{flex-wrap:wrap;column-gap:16px;row-gap:0}
+.sk-pix-pending{order:10;flex:0 0 100%;display:block;max-width:100%;margin-top:5px;padding:8px 11px;border:1px solid #48e6c15c;border-radius:12px;background:linear-gradient(110deg,#113733,#242046);color:#eefefb;text-decoration:none;box-shadow:inset 0 1px #ffffff24,0 5px 20px #0003}
+.sk-pix-pending-top{display:flex;align-items:center;gap:7px;font-size:11px}.sk-pix-pending-top strong{font-weight:850}.sk-pix-pending-top>span:last-child{margin-left:auto;color:#fae1a2;font-variant-numeric:tabular-nums;font-weight:800}.sk-pix-dot{width:7px;height:7px;flex:none;border-radius:50%;background:#4af2c5;box-shadow:0 0 9px #4af2c5;animation:skPixPulse 1.6s ease-in-out infinite}.sk-pix-pending-track{display:block;height:4px;margin:6px 0 3px;border-radius:9px;background:#ffffff24;overflow:hidden}.sk-pix-pending-track>span{display:block;width:0;height:100%;background:linear-gradient(90deg,#40e6bd,#ffe084);border-radius:inherit}.sk-pix-pending small{display:block;color:#b8d8d3;font-size:9px}.sk-pix-pending:hover{border-color:#79f9d4;color:#fff}@keyframes skPixPulse{50%{opacity:.4;transform:scale(.7)}}
 .sk-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;font-size:20px;font-weight:800;letter-spacing:-.5px;min-width:0}
 .sk-brand-mark{width:44px;height:44px;display:grid;place-items:center;border:1px solid #79ffe0;border-radius:14px;background:linear-gradient(145deg,#35f0c0,#1595d5);color:#07151a;box-shadow:0 9px 25px #19dcb54a,inset 0 1px #ffffff8c;flex-shrink:0;overflow:visible!important;line-height:1!important}
 .sk-brand-mark .ui-icon{width:21px;height:21px;display:block}
@@ -42,6 +45,8 @@
  body:has(.sk-header--logged){padding-bottom:82px!important}
  .sk-header--logged{position:sticky;top:0;backdrop-filter:none}
  .sk-header--logged .sk-header-inner{min-height:68px;padding:10px 15px;flex-wrap:nowrap}
+ .sk-header--logged:has(.sk-pix-pending) .sk-header-inner{flex-wrap:wrap;row-gap:4px}
+ .sk-header--logged .sk-pix-pending{order:4;margin-top:3px;padding:7px 10px}
  .sk-header--logged .sk-brand{font-size:15px;max-width:none;flex:1 1 auto}
  .sk-header--logged .sk-brand-mark{width:38px;height:38px;border-radius:12px}
  .sk-header--logged .sk-brand small{font-size:7px;letter-spacing:1.5px;margin-top:3px}

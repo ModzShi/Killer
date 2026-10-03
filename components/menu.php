@@ -11,12 +11,16 @@ $menuLinks = $menuLoggedIn
     : ['cadastrar/' => 'Criar conta', 'login/' => 'Entrar'];
 $menuEscape = static function ($value) { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); };
 $menuBalanceValue = null;
+$menuPendingPix = null;
 if ($menuLoggedIn && !empty($_SESSION['email'])) {
     try {
         require_once __DIR__ . '/../app/auth.php';
         $menuBalanceDb = app_db();
         $menuBalanceRow = app_query($menuBalanceDb, 'SELECT saldo FROM appconfig WHERE email=? LIMIT 1', [(string) $_SESSION['email']])->get_result()->fetch_assoc();
         if ($menuBalanceRow) $menuBalanceValue = (float) $menuBalanceRow['saldo'];
+        require_once __DIR__ . '/../payments/bxpay_service.php';
+        $menuPendingPix = bxpay_active_for_email($menuBalanceDb, (string) $_SESSION['email']);
+        if ($menuPendingPix) $_SESSION['deposit_csrf'] = $_SESSION['deposit_csrf'] ?? bin2hex(random_bytes(32));
         $menuBalanceDb->close();
     } catch (Throwable $ignored) {}
 }
@@ -29,6 +33,7 @@ if ($menuLoggedIn && !empty($_SESSION['email'])) {
         <span>Subway Run<small>PLAY. RUN. REPEAT.</small></span>
         </a>
         <?php if ($menuLoggedIn): ?><a class="sk-balance" href="<?= $menuEscape($menuBase) ?>painel/" aria-label="Saldo disponível"><span class="sk-balance-icon"><?= ui_icon('wallet') ?></span><span><small>Saldo disponível</small><strong data-live-balance><?= $menuBalanceValue === null ? 'R$ --' : 'R$ ' . number_format($menuBalanceValue, 2, ',', '.') ?></strong></span></a><?php endif; ?>
+        <?php if ($menuPendingPix): ?><a class="sk-pix-pending" href="<?= $menuEscape($menuBase . 'deposito/bxpay.php?token=' . rawurlencode($menuPendingPix['reference'])) ?>" data-pix-pending data-url="<?= $menuEscape($menuBase . 'deposito/bxpay.php?token=' . rawurlencode($menuPendingPix['reference'])) ?>" data-csrf="<?= $menuEscape($_SESSION['deposit_csrf']) ?>" data-created="<?= (int) $menuPendingPix['created_epoch'] ?>"><span class="sk-pix-pending-top"><span class="sk-pix-dot"></span><strong>PIX pendente · R$ <?= number_format((float) $menuPendingPix['amount'], 2, ',', '.') ?></strong><span data-pix-time>10:00</span></span><span class="sk-pix-pending-track"><span data-pix-progress></span></span><small data-pix-label>Acompanhar pagamento</small></a><?php endif; ?>
         <button class="sk-toggle" type="button" aria-expanded="false" aria-controls="sk-navigation" aria-label="Abrir menu" hidden>
             <span></span><span></span><span></span>
         </button>
@@ -46,5 +51,6 @@ if ($menuLoggedIn && !empty($_SESSION['email'])) {
     </div>
 </header>
 <script src="<?= $menuEscape($menuBase) ?>arquivos/menu.js?v=<?= filemtime(__DIR__.'/../arquivos/menu.js') ?>" defer></script>
+<?php if ($menuPendingPix): ?><script src="<?= $menuEscape($menuBase) ?>arquivos/pending-pix.js?v=<?= filemtime(__DIR__.'/../arquivos/pending-pix.js') ?>" defer></script><?php endif; ?>
 <?php require __DIR__.'/menu-music.php'; ?><script src="<?= $menuEscape($menuBase) ?>arquivos/menu-music.js?v=5" defer></script>
 <?php require __DIR__.'/payout-toast.php'; ?>

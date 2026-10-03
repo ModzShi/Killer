@@ -25,6 +25,7 @@ $app = $db->query('SELECT deposito_min FROM app LIMIT 1')->fetch_assoc() ?: [];
 $minimum = max(5.0, (float) ($app['deposito_min'] ?? 5));
 $useBXPay = bxpay_enabled($db);
 $balance = (float) $user['saldo'];
+$pendingDeposit = bxpay_active_for_email($db, $email);
 $db->close();
 
 $_SESSION['deposit_csrf'] = $_SESSION['deposit_csrf'] ?? bin2hex(random_bytes(32));
@@ -45,6 +46,10 @@ function deposit_cpf_is_valid(string $cpf): bool {
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    if ($pendingDeposit) {
+        header('Location: ' . app_url('deposito/bxpay.php?token=' . rawurlencode($pendingDeposit['reference'])), true, 303);
+        exit;
+    }
     $name = is_string($_POST['name'] ?? null) ? trim($_POST['name']) : '';
     $cpfInput = is_string($_POST['document'] ?? null) ? trim($_POST['document']) : '';
     $cpf = preg_replace('/\D+/', '', $cpfInput) ?? '';
@@ -98,6 +103,9 @@ $quickAmounts = array_values(array_filter([25, 50, 100, 200], static fn($value) 
             <div class="wallet-summary"><div><span>Saldo disponível</span><strong>R$ <?= number_format($balance, 2, ',', '.') ?></strong></div><span class="wallet-symbol" aria-hidden="true"><?= ui_icon('wallet') ?></span></div>
             <?php if ($errors): ?><div class="deposit-alert" role="alert"><?php foreach ($errors as $error): ?><p><?= app_escape($error) ?></p><?php endforeach; ?></div><?php endif; ?>
             <?php if (!$useBXPay): ?><div class="deposit-alert" role="status"><p>Depósitos estão indisponíveis no momento. A integração de pagamento precisa ser ativada pelo administrador.</p></div><?php endif; ?>
+            <?php if ($pendingDeposit): ?>
+            <div class="deposit-pending" data-pix-pending data-url="<?= app_escape(app_url('deposito/bxpay.php?token=' . rawurlencode($pendingDeposit['reference']))) ?>" data-csrf="<?= app_escape($_SESSION['deposit_csrf']) ?>" data-created="<?= (int) $pendingDeposit['created_epoch'] ?>"><div class="deposit-pending-head"><span class="deposit-pending-dot"></span><strong>PIX aguardando pagamento</strong><span data-pix-time>10:00</span></div><div class="deposit-pending-track"><span data-pix-progress></span></div><p data-pix-label>Verificando automaticamente por até 10 minutos.</p><strong class="deposit-pending-amount">R$ <?= number_format((float) $pendingDeposit['amount'], 2, ',', '.') ?></strong><a class="deposit-submit" href="<?= app_escape(app_url('deposito/bxpay.php?token=' . rawurlencode($pendingDeposit['reference']))) ?>">Ver código PIX e conferir</a><small>Para gerar outro PIX, cancele esta cobrança na tela do código. Um pagamento feito no banco ainda poderá ser confirmado depois.</small></div>
+            <?php else: ?>
             <form action="<?= app_escape(app_url('deposito/')) ?>" method="post" autocomplete="on">
                 <input type="hidden" name="csrf" value="<?= app_escape($_SESSION['deposit_csrf']) ?>">
                 <div class="field"><label for="name">Nome do titular</label><input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="120" placeholder="Como aparece no documento" value="<?= app_escape(is_string($_POST['name'] ?? null) ? $_POST['name'] : '') ?>" required></div>
@@ -106,6 +114,7 @@ $quickAmounts = array_values(array_filter([25, 50, 100, 200], static fn($value) 
                 <?php if ($quickAmounts): ?><p class="quick-label">Escolha um valor rápido</p><div class="quick-amounts" aria-label="Valores sugeridos"><?php foreach ($quickAmounts as $quick): ?><button class="quick-amount" type="button" data-amount="<?= (int) $quick ?>" aria-pressed="false">R$ <?= (int) $quick ?></button><?php endforeach; ?></div><?php endif; ?>
                 <button class="deposit-submit" type="submit" <?= $useBXPay ? '' : 'disabled' ?>><?= ui_icon('shield') ?> Continuar para o PIX</button>
             </form>
+            <?php endif; ?>
         </section>
         <aside class="deposit-aside">
             <span class="aside-icon" aria-hidden="true"><?= ui_icon('help') ?></span>

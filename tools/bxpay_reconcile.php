@@ -24,7 +24,7 @@ function bxpay_run_scheduled(): int
 
         // Rotate through recent pending deposits without repeatedly scanning the same ones.
         $pending = $db->query("SELECT reference, provider_id, pix_code, amount FROM bxpay_deposits
-            WHERE status = 'PENDING' AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            WHERE status IN ('PENDING','CANCELED') AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
             ORDER BY last_checked IS NULL DESC, last_checked ASC, created_at DESC LIMIT 100")
             ->fetch_all(MYSQLI_ASSOC);
         if (!$pending) return 0;

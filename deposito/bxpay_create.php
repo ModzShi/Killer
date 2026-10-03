@@ -14,7 +14,7 @@ try {
     if ((int) $lock->get_result()->fetch_row()[0] !== 1) throw new RuntimeException('Um PIX já está sendo gerado. Aguarde alguns instantes.');
     // The connection releases this advisory lock on exit, including error paths.
     // Keep a record before calling the provider, including uncertain timeouts.
-    $stmt = $conn->prepare("SELECT reference, status FROM bxpay_deposits WHERE email = ? AND created_at > DATE_SUB(NOW(), INTERVAL 60 SECOND) ORDER BY created_at DESC LIMIT 1");
+    $stmt = $conn->prepare("SELECT reference, status FROM bxpay_deposits WHERE email = ? AND (status = 'PENDING' OR (status = 'CREATING' AND created_at > DATE_SUB(NOW(), INTERVAL 60 SECOND))) ORDER BY (status = 'PENDING') DESC, created_at DESC LIMIT 1");
     $stmt->bind_param('s', $email); $stmt->execute();
     $recent = $stmt->get_result()->fetch_assoc();
     if ($recent) {
