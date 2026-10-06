@@ -1,7 +1,9 @@
 <?php
 require_once __DIR__ . '/auth.php';
 $admin = $authMode === 'admin'; $register = $authMode === 'register';
-$destination = app_url($admin ? 'adm/' : 'painel/');
+$nextMode = !$admin && is_string($_GET['next'] ?? $_POST['next'] ?? null) ? ($_GET['next'] ?? $_POST['next']) : '';
+$modeDestinations = ['trader' => 'modo-trader/', 'bubble' => 'modo-bubble/painel'];
+$destination = app_url($admin ? 'adm/' : ($modeDestinations[$nextMode] ?? 'painel/'));
 if (!empty($_SESSION[$admin ? 'emailadm' : 'email'])) { header('Location: ' . $destination); exit; }
 $error = ''; $identifier = trim(app_input($admin ? 'email' : 'telefone')); $phone = app_input('telefone'); $name = trim(app_input('nome'));
 try {
@@ -36,7 +38,7 @@ $title = $register ? 'Crie sua conta' : ($admin ? 'Acesso administrativo' : 'Ent
 <p class="lead"><?= $admin ? 'Gerencie usuários, configurações e pagamentos.' : ($register ? 'Crie seu perfil para acompanhar partidas e acessar sua conta.' : 'Entre para abrir seu painel e continuar de onde parou.') ?></p></header>
 <section class="gateway-card">
 <?php if ($error): ?><p class="notice notice-error" role="alert"><?= app_escape($error) ?></p><?php endif; ?>
-<form method="post"><input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>">
+<form method="post"><input type="hidden" name="csrf" value="<?= app_escape(app_csrf()) ?>"><?php if (isset($modeDestinations[$nextMode])): ?><input type="hidden" name="next" value="<?= app_escape($nextMode) ?>"><?php endif; ?>
 <?php if ($register): ?><label for="nome">Nome</label><input id="nome" name="nome" type="text" autocomplete="name" maxlength="120" minlength="2" placeholder="Seu nome completo" value="<?= app_escape($name) ?>" required><?php endif; ?>
 <?php if (!$admin): ?><label for="telefone"><?= $register ? 'Telefone com DDD (somente números)' : 'Telefone (somente números)' ?></label><input id="telefone" name="telefone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="11" pattern="[0-9]{10,11}" placeholder="11999990000" value="<?= app_escape($phone !== '' ? $phone : ($register ? '' : $identifier)) ?>" required>
 <?php else: ?><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="username" maxlength="254" value="<?= app_escape($identifier) ?>" required><?php endif; ?>
@@ -45,5 +47,5 @@ $title = $register ? 'Crie sua conta' : ($admin ? 'Acesso administrativo' : 'Ent
 <?php if (!$register): ?><label class="enable-option"><input type="checkbox" name="remember_me" value="1" checked> Lembrar</label><?php endif; ?>
 <label class="enable-option"><input id="show-password" type="checkbox"> Mostrar senha</label>
 <button type="submit"><?= $register ? 'Criar conta' : 'Entrar' ?></button></form>
-<?php if (!$admin && $register): ?><p><a class="back-link" href="<?= app_escape(app_url('login/')) ?>">Já tenho conta — entrar</a></p><?php elseif (!$admin): ?><p><a class="back-link" href="<?= app_escape(app_url('cadastrar/')) ?>">Ainda não tem conta? Criar conta</a></p><?php endif; ?>
+<?php if (!$admin && $register): ?><p><a class="back-link" href="<?= app_escape(app_url('login/' . (isset($modeDestinations[$nextMode]) ? '?next=' . $nextMode : ''))) ?>">Já tenho conta — entrar</a></p><?php elseif (!$admin): ?><p><a class="back-link" href="<?= app_escape(app_url('cadastrar/' . (isset($modeDestinations[$nextMode]) ? '?next=' . $nextMode : ''))) ?>">Ainda não tem conta? Criar conta</a></p><?php endif; ?>
 </section></main><script>document.querySelectorAll('input[name="telefone"]').forEach(input=>input.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,11)}));document.getElementById('show-password').addEventListener('change',function(){const el=document.getElementById('senha');if(el)el.type=this.checked?'text':'password';});</script></body></html>
