@@ -11,12 +11,12 @@
         </a>
     </div>
     <div class="sr-banners__controls">
-        <span>SUBWAY RUN <small>• BANNERS DEMONSTRATIVOS</small></span>
+        <span>SUBWAY RUN <small>• SITE 100% LEGALIZADO</small></span>
         <div class="sr-banners__dots" role="group" aria-label="Selecionar banner">
             <button type="button" class="is-active" aria-label="Banner 1" aria-current="true"></button>
             <button type="button" aria-label="Banner 2"></button>
             <button type="button" aria-label="Banner 3"></button>
         </div>
     </div>
-    <p class="sr-banners__notice">Estas artes são apenas demonstração; os valores e chamadas impressos não constituem oferta ou promessa de pagamento.</p>
+        <p class="sr-banners__notice"></p>
 </section>
