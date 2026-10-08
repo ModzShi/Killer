@@ -1,0 +1,56 @@
+/* Compact visual theme; applies only to the consultation interface. */
+body{background:radial-gradient(ellipse at top right,#10333b66,transparent 45%),#080e16}
+.consulta-topbar{height:64px;background:#09131eeb}
+.consulta-layout{grid-template-columns:190px minmax(0,1fr)}
+.consulta-sidebar{top:64px;min-height:calc(100vh - 64px);background:#0c1521}
+.consulta-main{padding:20px 24px 30px}
+.consulta-hero{min-height:140px;padding:22px 25px;border-radius:16px;border-color:#34535d;background:linear-gradient(115deg,#122530,#101a29)}
+.consulta-hero h1{font-size:32px;margin:10px 0 5px}
+.consulta-hero p{font-size:12px}
+.consulta-hero-art{transform:scale(.65);top:-7px}
+.consulta-search{height:44px;margin:16px 0 10px;border-radius:10px}
+.consulta-grid{gap:9px}
+.consulta-card{min-height:124px;padding:13px;border-radius:12px;background:linear-gradient(140deg,#172837,#101b2c)}
+.consulta-card-icon{width:35px;height:35px;border-radius:10px}
+.consulta-card-icon svg{width:21px;height:21px;animation:consulta-icon-glow 4s ease-in-out infinite}
+.consulta-card-body strong{font-size:14px}.consulta-card-body small{font-size:8px}
+.consulta-detail{padding:18px;border-radius:15px;background:#101e2d}
+.consulta-detail-top{margin-bottom:10px}.consulta-detail-icon{width:40px;height:40px}
+.consulta-detail h2{font-size:23px}.consulta-detail>p{font-size:12px}
+.consulta-field-list{margin:12px 0}.consulta-form{padding:13px;margin:14px 0;gap:7px}
+.consulta-form input,.consulta-form select{padding:10px 12px;font:inherit;font-size:13px}
+.consulta-visual-result{padding:12px}
+.consulta-result-head{padding:11px 13px}.consulta-result-head strong{font-size:13px}
+.consulta-result-head span{font-size:9px}
+.consulta-result-hero{display:flex;align-items:center;flex-wrap:nowrap;gap:14px;padding:14px;margin-bottom:12px;border-radius:12px;background:linear-gradient(115deg,#18343d,#122134);border-color:#487880}
+.consulta-identity-photo{flex:0 0 92px;width:92px;height:108px;display:grid;place-items:center;overflow:hidden;border:1px solid #74d1d79c;border-radius:9px;background:#081721}
+.consulta-identity-photo img{width:100%;height:100%;object-fit:contain}
+.consulta-identity-photo svg{width:49px;height:49px;fill:none;stroke:#99f1ef;stroke-width:1.3;stroke-linecap:round;animation:consulta-icon-glow 3s ease-in-out infinite}
+.consulta-identity-title{min-width:0;flex:1}
+.consulta-result-hero h3{font-size:clamp(17px,2.5vw,24px);margin:6px 0;line-height:1.2}
+.consulta-result-eyebrow{font-size:9px;letter-spacing:.12em}
+.consulta-result-hero p{font-size:11px}
+.consulta-result-badge{font-size:8px;padding:5px 8px;align-self:flex-start;max-width:110px;text-align:center}
+.consulta-result-tabs{display:flex;gap:6px;padding:2px 0 10px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#47687c transparent}
+.consulta-result-tabs button{flex:none;border:1px solid #3c566e;border-radius:7px;background:#111f2f;color:#b9cbdc;padding:9px 12px;font-size:11px;font-weight:800}
+.consulta-result-tabs button[aria-selected="true"]{color:#adfff2;background:#18443f;border-color:#65b4a1;box-shadow:inset 0 -2px #8ee5ca}
+.consulta-result-tabs button:focus-visible,.consulta-result-panel:focus-visible{outline:2px solid #a4f2ec;outline-offset:2px}
+.consulta-result-panel{min-width:0;padding:12px;border:1px solid #2f4b61;border-radius:10px;background:#0b1825}
+.consulta-panel-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#97e3df;margin:0 0 10px}
+.consulta-data-grid{gap:6px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.consulta-data-field{padding:9px 10px;border-radius:6px;border-color:#2c4258;background:#142333}
+.consulta-data-field small{font-size:9px;color:#9db5c9}.consulta-data-field strong{font-size:12px;line-height:1.4}
+.consulta-data-section,.consulta-data-record{padding:10px;border-radius:8px;margin-top:7px;background:#101e2d;border-color:#314a60}
+.consulta-data-record h5{font-size:12px;margin:0 0 9px}.consulta-data-section h4{font-size:12px;margin-bottom:9px}
+.consulta-data-groups{gap:8px;margin-top:9px}
+.consulta-photo-grid{grid-template-columns:repeat(auto-fit,minmax(100px,150px));margin-bottom:10px;gap:8px}
+.consulta-photo{padding:5px;border-radius:8px;box-shadow:none}.consulta-photo img{max-height:180px;border-radius:5px}
+.consulta-result-metadata{margin-top:12px;border-top:1px solid #30475b;padding-top:10px}
+.consulta-result-metadata>summary{font-size:11px;color:#a9bccd;cursor:pointer;margin-bottom:9px}
+.consulta-connection-note{padding:10px;opacity:.85}.consulta-connection-note p{font-size:10px}
+@keyframes consulta-icon-glow{50%{opacity:.7;filter:drop-shadow(0 0 5px #60dbce)}}
+@media(max-width:900px){.consulta-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:780px){.consulta-layout{display:block}.consulta-main{padding:15px}.consulta-sidebar{display:none}}
+@media(max-width:540px){.consulta-main{padding:12px}.consulta-hero{padding:17px;min-height:125px}.consulta-hero h1{font-size:26px}.consulta-card{min-height:117px;padding:11px}.consulta-detail{padding:12px}.consulta-visual-result{padding:9px}.consulta-result-hero{gap:10px;padding:10px;flex-wrap:wrap}.consulta-identity-photo{flex-basis:78px;width:78px;height:96px}.consulta-identity-title{flex-basis:calc(100% - 90px)}.consulta-result-badge{margin-left:88px;max-width:none}.consulta-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.consulta-result-panel{padding:9px}.consulta-data-field{padding:8px}.consulta-data-field strong{font-size:11px}.consulta-data-record,.consulta-data-section{padding:8px}.consulta-result-actions button{font-size:10px}}
+@media(max-width:350px){.consulta-data-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.consulta-card-icon svg,.consulta-identity-photo svg{animation:none}}

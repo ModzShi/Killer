@@ -50,6 +50,7 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
     <meta name="theme-color" content="#0a0e1e"><meta name="robots" content="noindex,nofollow">
     <title>Modo Consulta · Subway Run</title>
     <link rel="stylesheet" href="<?= $e($base) ?>consulta.css?v=<?= filemtime(__DIR__ . '/consulta.css') ?>">
+    <link rel="stylesheet" href="<?= $e($base) ?>compact.css?v=<?= filemtime(__DIR__ . '/compact.css') ?>">
 </head>
 <body>
 <div class="consulta-shell">
