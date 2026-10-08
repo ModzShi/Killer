@@ -12,9 +12,6 @@ $modeEscape = static fn(string $value): string => app_escape($value);
             <a class="sk-mode-card sk-mode-card--trader" href="<?= $modeEscape(app_url('modo-trader/')) ?>">
                 <span class="sk-mode-card__symbol" aria-hidden="true">↗</span><span><small>PAINEL DE TREINO</small><strong>Modo Trader</strong><em>Explore o mercado em treino</em></span><b aria-hidden="true">↗</b>
             </a>
-            <a class="sk-mode-card sk-mode-card--consulta" href="<?= $modeEscape(app_url('modo-consulta/')) ?>">
-                <span class="sk-mode-card__symbol" aria-hidden="true">⌕</span><span><small>NOVA CENTRAL</small><strong>Modo Consulta</strong><em>Encontre o módulo certo</em></span><b aria-hidden="true">↗</b>
-            </a>
         </div>
     </div>
 </section>

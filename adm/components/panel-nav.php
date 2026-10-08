@@ -17,6 +17,7 @@ $adminLinks = [
     ['planos', 'adm/planos/', 'Afiliados', 'link'],
     ['pixels', 'adm/pixels/', 'Pixels', 'spark'],
     ['conta', 'adm/conta/', 'Minha conta', 'user'],
+    ['consulta', 'modo-consulta/', 'Modo Consulta', 'shield'],
 ];
 ?>
 <aside class="manager-sidebar" id="admin-sidebar">

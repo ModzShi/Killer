@@ -4,7 +4,11 @@ require_once __DIR__ . '/../app/consulta.php';
 header('Cache-Control: private, no-store');
 header('X-Robots-Tag: noindex, nofollow');
 
-$logged = !empty($_SESSION['email']);
+if (empty($_SESSION['emailadm'])) {
+    header('Location: ' . app_url('adm/login/'));
+    exit;
+}
+$logged = true;
 $base = app_url('modo-consulta/');
 $catalog = consulta_catalog();
 $modules = [
@@ -56,7 +60,7 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
 <div class="consulta-shell">
     <header class="consulta-topbar">
         <a class="consulta-brand" href="<?= $e($base) ?>"><span class="consulta-brand-mark"><?= consulta_icon('fingerprint') ?></span><span>Subway <strong>Consulta</strong><small>IDENTIFICAÇÃO · ANÁLISE · ORGANIZAÇÃO</small></span></a>
-        <div class="consulta-topbar-actions"><span class="consulta-status"><i></i> Central de consultas</span><a class="consulta-back" href="<?= $e(app_url($logged ? 'painel/' : '')) ?>">Voltar ao Run <b>↗</b></a></div>
+        <div class="consulta-topbar-actions"><span class="consulta-status"><i></i> Central de consultas</span><a class="consulta-back" href="<?= $e(app_url('adm/')) ?>">Voltar ao ADM <b>↗</b></a></div>
     </header>
     <?php if (!$logged): ?>
     <main class="consulta-guest">
@@ -66,7 +70,7 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
     </main>
     <?php else: ?>
     <div class="consulta-layout">
-        <aside class="consulta-sidebar"><span>EXPLORAR</span><a class="active" href="<?= $e($base) ?>"><?= consulta_icon('grid') ?> Todos os módulos</a><a href="<?= $e(app_url('painel/')) ?>"><?= consulta_icon('arrow') ?> Painel Subway Run</a><div class="consulta-sidebar-help"><?= consulta_icon('lock') ?><strong>Pesquisa protegida</strong><small>As consultas são enviadas pelo servidor com acesso autenticado à API.</small></div></aside>
+        <aside class="consulta-sidebar"><span>EXPLORAR</span><a class="active" href="<?= $e($base) ?>"><?= consulta_icon('grid') ?> Todos os módulos</a><a href="<?= $e(app_url('adm/')) ?>"><?= consulta_icon('arrow') ?> Painel administrativo</a><div class="consulta-sidebar-help"><?= consulta_icon('lock') ?><strong>Acesso administrativo</strong><small>Área restrita à sessão do administrador.</small></div></aside>
         <main class="consulta-main">
             <section class="consulta-hero"><div><span class="consulta-kicker"><i></i> CENTRAL DE CONSULTAS</span><h1>O que você deseja <em>explorar?</em></h1><p>Encontre o módulo certo em poucos segundos.</p></div><div class="consulta-hero-art" aria-hidden="true"><span><?= consulta_icon('fingerprint') ?></span><span><?= consulta_icon('face') ?></span></div></section>
             <div class="consulta-search"><span><?= consulta_icon('search') ?></span><input id="consulta-search" type="search" placeholder="Buscar um módulo..." autocomplete="off" aria-label="Buscar módulo"><kbd>⌕</kbd></div>
@@ -98,6 +102,7 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
                     <div class="consulta-result-head"><div><span>RESULTADO DA PESQUISA</span><strong>Informações encontradas</strong></div><div class="consulta-result-actions"><button type="button" id="consulta-copy">Copiar dados</button><button type="button" id="consulta-download">Baixar dados</button></div></div>
                     <div class="consulta-visual-result" id="consulta-visual-result"></div>
                     <details class="consulta-raw-details"><summary>Ver resposta técnica completa (JSON)</summary><pre id="consulta-raw-json" tabindex="0"></pre></details>
+                    <p class="consulta-test-notice">Visualização apenas para teste no painel administrativo. Esta ficha não é um documento oficial.</p>
                 </section>
                 <button class="consulta-demo-button" type="button" data-demo-module="<?= $e($selected) ?>">Ver resultado de exemplo <?= consulta_icon('arrow') ?></button>
                 <div class="consulta-demo-result" id="consulta-demo-result" hidden aria-live="polite"></div>
@@ -106,7 +111,7 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
                 <div class="consulta-detail-empty"><span><?= consulta_icon('fingerprint') ?></span><h2 id="consulta-detail-title">Escolha um módulo</h2><p>Selecione um card para ver os campos e o fluxo de consulta previsto.</p></div>
                 <?php endif; ?>
             </section>
-            <footer class="consulta-footer">Modo Consulta · Pesquisas disponíveis para usuários logados.</footer>
+            <footer class="consulta-footer">Modo Consulta · Acesso exclusivo do administrador.</footer>
         </main>
     </div>
     <?php endif; ?>

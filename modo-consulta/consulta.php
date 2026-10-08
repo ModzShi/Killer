@@ -15,7 +15,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     header('Allow: POST');
     consulta_error(405, 'Método não permitido.');
 }
-if (empty($_SESSION['email'])) consulta_error(401, 'Entre na sua conta para consultar.');
+if (empty($_SESSION['emailadm'])) consulta_error(403, 'Acesso exclusivo do administrador.');
 if (!app_check_csrf()) consulta_error(403, 'Formulário expirado. Recarregue a página.');
 
 $catalog = consulta_catalog();

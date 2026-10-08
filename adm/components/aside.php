@@ -10,6 +10,7 @@ $legacyLinks = [
     ['adm/jogo/', 'Jogo e ganhos', 'play'], ['adm/config/', 'Configurações', 'edit'],
     ['adm/planos/', 'Afiliados', 'link'], ['adm/pixels/', 'Pixels', 'spark'],
     ['adm/conta/', 'Minha conta', 'user'],
+    ['modo-consulta/', 'Modo Consulta', 'shield'],
 ];
 ?>
 <link rel="stylesheet" href="<?= app_escape(app_url('adm/premium-admin.css')) ?>?v=<?= filemtime(dirname(__DIR__).'/premium-admin.css') ?>">
