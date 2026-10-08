@@ -2,7 +2,7 @@
 require_once __DIR__ . '/auth.php';
 $admin = $authMode === 'admin'; $register = $authMode === 'register';
 $nextMode = !$admin && is_string($_GET['next'] ?? $_POST['next'] ?? null) ? ($_GET['next'] ?? $_POST['next']) : '';
-$modeDestinations = ['trader' => 'modo-trader/', 'bubble' => 'modo-bubble/painel'];
+$modeDestinations = ['trader' => 'modo-trader/', 'bubble' => 'modo-bubble/painel', 'consulta' => 'modo-consulta/'];
 $destination = app_url($admin ? 'adm/' : ($modeDestinations[$nextMode] ?? 'painel/'));
 if (!empty($_SESSION[$admin ? 'emailadm' : 'email'])) { header('Location: ' . $destination); exit; }
 $error = ''; $identifier = trim(app_input($admin ? 'email' : 'telefone')); $phone = app_input('telefone'); $name = trim(app_input('nome'));

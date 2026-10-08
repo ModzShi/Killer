@@ -112,7 +112,7 @@ $bets = [
         </div>
     </section>
 
-    <section class="sk-modes" aria-labelledby="sk-modes-title"><div class="sk-modes__shell"><div class="sk-modes__heading"><span>OUTROS MODOS</span><h2 id="sk-modes-title">Escolha um modo</h2></div><div class="sk-modes__grid"><a class="sk-mode-card sk-mode-card--bubble" href="<?= app_escape(app_url('modo-bubble/painel')) ?>"><span class="sk-mode-card__symbol" aria-hidden="true">◉</span><span><small>ESTILO ARCADE</small><strong>Modo Bubble</strong><em>Explore o jogo de bolhas</em></span><b aria-hidden="true">↗</b></a><a class="sk-mode-card sk-mode-card--trader" href="<?= app_escape(app_url('modo-trader/')) ?>"><span class="sk-mode-card__symbol" aria-hidden="true">↗</span><span><small>NOVA EXPERIÊNCIA</small><strong>Modo Trader</strong><em>Abra o painel de treino</em></span><b aria-hidden="true">↗</b></a></div></div></section>
+    <?php $modeLoggedIn = true; require __DIR__ . '/../components/mode-cards.php'; ?>
 
     <section class="player-extra-section">
         <div class="player-shell player-extra-grid">
