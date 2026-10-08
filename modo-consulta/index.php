@@ -73,9 +73,8 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
         <aside class="consulta-sidebar"><span>EXPLORAR</span><a class="active" href="<?= $e($base) ?>"><?= consulta_icon('grid') ?> Todos os módulos</a><a href="<?= $e(app_url('adm/')) ?>"><?= consulta_icon('arrow') ?> Painel administrativo</a><div class="consulta-sidebar-help"><?= consulta_icon('lock') ?><strong>Acesso administrativo</strong><small>Área restrita à sessão do administrador.</small></div></aside>
         <main class="consulta-main">
             <section class="consulta-hero"><div><span class="consulta-kicker"><i></i> CENTRAL DE REGISTROS</span><h1>Consulta <em>organizada.</em></h1><p>Escolha um módulo para visualizar os dados em formato de ficha.</p></div><div class="consulta-hero-art" aria-hidden="true"><span><?= consulta_icon('grid') ?></span><span><?= consulta_icon('search') ?></span></div></section>
-            <div class="consulta-search"><span><?= consulta_icon('search') ?></span><input id="consulta-search" type="search" placeholder="Buscar um módulo..." autocomplete="off" aria-label="Buscar módulo"><kbd>⌕</kbd></div>
-            <div class="consulta-categories" role="group" aria-label="Filtrar módulos"><button type="button" class="active" data-category="all" aria-pressed="true">Todos</button><button type="button" data-category="Pessoas" aria-pressed="false">Pessoas</button><button type="button" data-category="Veículos" aria-pressed="false">Veículos</button><button type="button" data-category="Empresas" aria-pressed="false">Empresas</button><button type="button" data-category="Endereços" aria-pressed="false">Endereços</button><button type="button" data-category="Imagens" aria-pressed="false">Imagens</button><button type="button" data-category="Outros" aria-pressed="false">Outros</button></div>
-            <div class="consulta-section-head"><div><span>ESCOLHA UM MÓDULO</span><h2>Ferramentas disponíveis <small><?= count($modules) ?> módulos</small></h2></div></div>
+            <div class="consulta-search"><span><?= consulta_icon('search') ?></span><input id="consulta-search" type="search" placeholder="Encontrar módulo" autocomplete="off" aria-label="Encontrar módulo"></div>
+            <div class="consulta-section-head"><div><span>TIPO DE CONSULTA</span><h2>Escolha o módulo</h2></div></div>
             <div class="consulta-grid" id="consulta-grid">
                 <?php foreach ($modules as $slug => $module): ?><a class="consulta-card accent-<?= $e($module['accent']) ?><?= $selected === $slug ? ' is-selected' : '' ?>" href="<?= $e($base) ?>?modulo=<?= rawurlencode($slug) ?>#detalhe" data-category="<?= $e($module['category']) ?>" data-search="<?= $e($lower($module['title'].' '.$module['subtitle'].' '.$module['category'])) ?>"><span class="consulta-card-icon"><?= consulta_icon($module['icon']) ?></span><span class="consulta-card-body"><small><?= $e($upper($module['category'])) ?></small><strong><?= $e($module['title']) ?></strong><em><?= $e($module['subtitle']) ?></em></span><span class="consulta-card-arrow"><?= consulta_icon('arrow') ?></span></a><?php endforeach; ?>
             </div>
@@ -83,18 +82,17 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
             <section class="consulta-detail" id="detalhe" aria-labelledby="consulta-detail-title">
                 <?php if ($selected !== ''): $module = $modules[$selected]; ?>
                 <div class="consulta-detail-top"><span class="consulta-detail-icon accent-<?= $e($module['accent']) ?>"><?= consulta_icon($module['icon']) ?></span><span class="consulta-detail-state"><i></i> Pesquisa na API</span></div>
-                <span class="consulta-detail-eyebrow"><?= $e($upper($module['category'])) ?> · MÓDULO DE PESQUISA</span><h2 id="consulta-detail-title"><?= $e($module['title']) ?></h2><p><?= $e($module['detail']) ?></p>
-                <div class="consulta-field-list"><strong>FORMAS DE BUSCA</strong><div><?php foreach ($module['fields'] as $field): ?><span><?= $e($field) ?></span><?php endforeach; ?></div></div>
+                <span class="consulta-detail-eyebrow"><?= $e($upper($module['category'])) ?></span><h2 id="consulta-detail-title"><?= $e($module['title']) ?></h2>
                 <form class="consulta-form" id="consulta-form" action="<?= $e(app_url('modo-consulta/consulta.php')) ?>" method="post">
                     <input type="hidden" name="csrf" value="<?= $e(app_csrf()) ?>">
-                    <label for="consulta-query">Tipo de consulta</label>
+                    <div class="consulta-form-field"><label for="consulta-query">Tipo de consulta</label>
                     <select id="consulta-query" name="query_id" required>
                         <?php foreach ($catalog as $id => $entry): if ($entry['module'] !== $selected) continue; ?>
                         <option value="<?= $e($id) ?>" data-param="<?= $e($entry['param'] === 'valor' ? ($entry['fixed']['campo'] ?? 'valor') : $entry['param']) ?>"><?= $e($entry['label']) ?></option>
                         <?php endforeach; ?>
-                    </select>
-                    <label for="consulta-value" id="consulta-value-label">Dado para pesquisar</label>
-                    <input id="consulta-value" name="value" type="text" maxlength="120" autocomplete="off" spellcheck="false" required placeholder="Digite o dado solicitado">
+                    </select></div>
+                    <div class="consulta-form-field"><label for="consulta-value" id="consulta-value-label">Dado para pesquisar</label>
+                    <input id="consulta-value" name="value" type="text" maxlength="120" autocomplete="off" spellcheck="false" required placeholder="Digite o dado solicitado"></div>
                     <button type="submit" class="consulta-primary">Pesquisar na API <?= consulta_icon('search') ?></button>
                     <p class="consulta-form-message" id="consulta-form-message" role="status" aria-live="polite"></p>
                 </form>
@@ -111,6 +109,7 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
                 <div class="consulta-detail-empty"><span><?= consulta_icon('fingerprint') ?></span><h2 id="consulta-detail-title">Escolha um módulo</h2><p>Selecione um card para ver os campos e o fluxo de consulta previsto.</p></div>
                 <?php endif; ?>
             </section>
+            <dialog class="consulta-error-dialog" id="consulta-error-dialog" aria-labelledby="consulta-error-title" aria-describedby="consulta-error-text"><div class="consulta-error-symbol" aria-hidden="true">!</div><h2 id="consulta-error-title">Não foi possível consultar</h2><p id="consulta-error-text"></p><button type="button" id="consulta-error-close">Entendi</button></dialog>
             <footer class="consulta-footer">Modo Consulta · Acesso exclusivo do administrador.</footer>
         </main>
     </div>

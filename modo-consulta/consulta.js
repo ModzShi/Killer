@@ -50,6 +50,9 @@
   const rawJson = document.getElementById('consulta-raw-json');
   const copyButton = document.getElementById('consulta-copy');
   const downloadButton = document.getElementById('consulta-download');
+  const errorDialog = document.getElementById('consulta-error-dialog');
+  const errorText = document.getElementById('consulta-error-text');
+  document.getElementById('consulta-error-close')?.addEventListener('click', () => errorDialog?.close());
   let fullResponse = '';
   const fieldLabels = {cpf:'CPF',cpf_parente:'CPF',cnpj:'CNPJ',telefone:'Telefone',telephone:'Telefone',email:'E-mail',nome:'Nome',nome_mae:'Nome',mae:'Nome',pai:'Nome',placa:'Placa',chassi:'Chassi',renavam:'Renavam',cep:'CEP',rg:'RG',id:'Identificador',doc:'Documento',identity:'Documento',valor:'Identificador'};
   const refreshField = () => {
@@ -81,6 +84,9 @@
         throw new Error(error);
       }
       const data = JSON.parse(body);
+      if (data && typeof data === 'object' && (data.success === false || data.sucesso === false)) {
+        throw new Error(typeof data.mensagem === 'string' ? data.mensagem : typeof data.message === 'string' ? data.message : 'A consulta não encontrou um resultado disponível.');
+      }
       fullResponse = body;
       if (rawJson) rawJson.textContent = body;
       if (visualResult) {
@@ -90,7 +96,12 @@
       if (apiResult) { apiResult.hidden = false; apiResult.scrollIntoView({behavior:'smooth',block:'nearest'}); }
       if (message) { message.textContent = 'Resultado exibido abaixo. Todos os campos continuam disponíveis na resposta técnica.'; message.dataset.state = 'success'; }
     } catch (error) {
-      if (message) { message.textContent = error instanceof Error ? error.message : 'Falha na consulta.'; message.dataset.state = 'error'; }
+      const detail = error instanceof Error ? error.message : 'Falha na consulta.';
+      if (errorDialog?.showModal && errorText) {
+        errorText.textContent = detail;
+        if (!errorDialog.open) errorDialog.showModal();
+        if (message) { message.textContent = ''; message.dataset.state = 'error'; }
+      } else if (message) { message.textContent = detail; message.dataset.state = 'error'; }
     } finally {
       if (submit) submit.disabled = false;
     }
