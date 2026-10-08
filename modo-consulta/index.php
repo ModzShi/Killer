@@ -94,8 +94,9 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
                     <p class="consulta-form-message" id="consulta-form-message" role="status" aria-live="polite"></p>
                 </form>
                 <section class="consulta-api-result" id="consulta-api-result" hidden aria-live="polite">
-                    <div class="consulta-result-head"><div><span>RESPOSTA DA API</span><strong>Dados completos</strong></div><div class="consulta-result-actions"><button type="button" id="consulta-copy">Copiar JSON</button><button type="button" id="consulta-download">Baixar JSON</button></div></div>
-                    <pre id="consulta-raw-json" tabindex="0"></pre>
+                    <div class="consulta-result-head"><div><span>RESULTADO DA PESQUISA</span><strong>Informações encontradas</strong></div><div class="consulta-result-actions"><button type="button" id="consulta-copy">Copiar dados</button><button type="button" id="consulta-download">Baixar dados</button></div></div>
+                    <div class="consulta-visual-result" id="consulta-visual-result"></div>
+                    <details class="consulta-raw-details"><summary>Ver resposta técnica completa (JSON)</summary><pre id="consulta-raw-json" tabindex="0"></pre></details>
                 </section>
                 <button class="consulta-demo-button" type="button" data-demo-module="<?= $e($selected) ?>">Ver resultado de exemplo <?= consulta_icon('arrow') ?></button>
                 <div class="consulta-demo-result" id="consulta-demo-result" hidden aria-live="polite"></div>
@@ -109,5 +110,6 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
     </div>
     <?php endif; ?>
 </div>
+<script src="<?= $e($base) ?>result-view.js?v=<?= filemtime(__DIR__ . '/result-view.js') ?>" defer></script>
 <script src="<?= $e($base) ?>consulta.js?v=<?= filemtime(__DIR__ . '/consulta.js') ?>" defer></script>
 </body></html>

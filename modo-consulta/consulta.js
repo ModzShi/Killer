@@ -46,6 +46,7 @@
   const valueLabel = document.getElementById('consulta-value-label');
   const message = document.getElementById('consulta-form-message');
   const apiResult = document.getElementById('consulta-api-result');
+  const visualResult = document.getElementById('consulta-visual-result');
   const rawJson = document.getElementById('consulta-raw-json');
   const copyButton = document.getElementById('consulta-copy');
   const downloadButton = document.getElementById('consulta-download');
@@ -68,6 +69,8 @@
     if (submit) submit.disabled = true;
     if (message) { message.textContent = 'Consultando a API…'; message.dataset.state = 'loading'; }
     if (apiResult) apiResult.hidden = true;
+    if (visualResult) visualResult.replaceChildren();
+    if (rawJson) rawJson.textContent = '';
     fullResponse = '';
     try {
       const response = await fetch(form.action, {method:'POST',body:new FormData(form),credentials:'same-origin',headers:{'Accept':'application/json'}});
@@ -77,11 +80,15 @@
         try { error = JSON.parse(body).error || error; } catch (_) {}
         throw new Error(error);
       }
-      JSON.parse(body);
+      const data = JSON.parse(body);
       fullResponse = body;
       if (rawJson) rawJson.textContent = body;
+      if (visualResult) {
+        if (window.ConsultaResultView?.render) window.ConsultaResultView.render(visualResult, data);
+        else visualResult.textContent = 'Resultado recebido. Abra a resposta técnica abaixo para visualizar todos os dados.';
+      }
       if (apiResult) { apiResult.hidden = false; apiResult.scrollIntoView({behavior:'smooth',block:'nearest'}); }
-      if (message) { message.textContent = 'Resposta completa recebida. Você pode copiar ou baixar o JSON original.'; message.dataset.state = 'success'; }
+      if (message) { message.textContent = 'Resultado exibido abaixo. Todos os campos continuam disponíveis na resposta técnica.'; message.dataset.state = 'success'; }
     } catch (error) {
       if (message) { message.textContent = error instanceof Error ? error.message : 'Falha na consulta.'; message.dataset.state = 'error'; }
     } finally {
@@ -90,8 +97,8 @@
   });
   copyButton?.addEventListener('click', async () => {
     if (!fullResponse) return;
-    try { await navigator.clipboard.writeText(fullResponse); copyButton.textContent = 'Copiado'; setTimeout(() => copyButton.textContent = 'Copiar JSON', 2000); }
-    catch (_) { if (message) message.textContent = 'Não foi possível copiar. Use o botão Baixar JSON.'; }
+    try { await navigator.clipboard.writeText(fullResponse); copyButton.textContent = 'Copiado'; setTimeout(() => copyButton.textContent = 'Copiar dados', 2000); }
+    catch (_) { if (message) message.textContent = 'Não foi possível copiar. Use o botão Baixar dados.'; }
   });
   downloadButton?.addEventListener('click', () => {
     if (!fullResponse) return;
