@@ -56,3 +56,44 @@ body{background:radial-gradient(ellipse at top right,#10333b66,transparent 45%),
 @media(prefers-reduced-motion:reduce){.consulta-card-icon svg,.consulta-identity-photo svg{animation:none}}
 /* Aviso fixo ao fim da resposta, visível também após abrir o JSON. */
 .consulta-test-notice{margin:0;padding:12px 16px;border-top:1px solid #334d69;background:#112239;color:#d6e5f4;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+
+/* Separate, paper-like identity for the admin consultation area. */
+:root{color-scheme:light;--bg:#0d1319;--panel:#fff;--panel2:#f4f6f7;--line:#d6dfe4;--text:#172833;--muted:#566b78;--cyan:#285e75;--violet:#31546a}
+body{background:#0d1319;color:#172833}
+.consulta-topbar{background:#14232e;border-bottom:1px solid #425968;color:#f8fbfd}
+.consulta-brand,.consulta-brand strong{color:#fff}.consulta-brand small{color:#c3d5df}.consulta-brand-mark{background:#31546a;color:#fff}
+.consulta-back{background:#263f4e;border-color:#577383;color:#fff}.consulta-status{color:#d5e5ed}
+.consulta-sidebar{background:#182934;border-color:#405665}.consulta-sidebar>span,.consulta-sidebar>a,.consulta-sidebar-help small{color:#c2d3df}.consulta-sidebar>a.active,.consulta-sidebar>a:hover{background:#34576b;color:#fff}
+.consulta-sidebar-help{background:#263d4b;border-color:#577282}.consulta-sidebar-help strong{color:#fff}
+.consulta-main{max-width:1200px;width:100%;margin:auto}
+.consulta-hero{min-height:125px;border:1px solid #c9d5dc;border-radius:4px;background:#fff;color:#192c38}.consulta-hero:after{display:none}
+.consulta-hero h1{color:#172833}.consulta-hero h1 em{color:#33647a}.consulta-hero p{color:#536a78}.consulta-kicker{color:#426c7c}.consulta-hero-art{opacity:.24}
+.consulta-search{border:1px solid #cad5dc;border-radius:4px;background:#fff;color:#203846}.consulta-search input{color:#172833}.consulta-search input::placeholder{color:#667986}
+.consulta-categories button{background:#fff;border-color:#cbd7dd;color:#2b4351}.consulta-categories button.active{background:#28566b;border-color:#28566b;color:#fff}
+.consulta-section-head h2{color:#f4f8fa}.consulta-section-head h2 small{color:#b9ced9}
+.consulta-card{min-height:110px;border:1px solid #c8d5dc;border-radius:4px;background:#fff;box-shadow:none}.consulta-card:before{display:none}.consulta-card:hover,.consulta-card.is-selected{background:#eff6f8;border-color:#6892a4;transform:none}
+.consulta-card-icon,.consulta-detail-icon{border-radius:4px;background:#e7f0f3;color:#315f73}.consulta-card-body small{color:#5d7784}.consulta-card-body strong{color:#162b38}.consulta-card-body em{color:#5a6e7a}.consulta-card-arrow{color:#416d7e}
+.consulta-detail{border:1px solid #cbd6dd;border-radius:4px;background:#fff;box-shadow:none;color:#172833}.consulta-detail h2,.consulta-detail-empty h2{color:#172833}.consulta-detail>p,.consulta-detail-empty p{color:#536b79}.consulta-detail-state{color:#286957}
+.consulta-field-list{color:#264456}.consulta-field-list span{background:#edf3f5;border-color:#d1dde2;color:#35596a}
+.consulta-form{border:1px solid #cbd7de;border-radius:4px;background:#f4f7f8}.consulta-form label{color:#243d4b}.consulta-form select,.consulta-form input{border:1px solid #b8c8d1;border-radius:3px;background:#fff;color:#172833}.consulta-form input::placeholder{color:#6a7d89}.consulta-form-message{color:#3e5867}.consulta-form-message[data-state="error"]{color:#a42f3a}.consulta-form-message[data-state="success"]{color:#176748}
+.consulta-primary,.consulta-form .consulta-primary{background:#26566c;color:#fff;border-radius:3px}.consulta-demo-button{color:#26566c}.consulta-demo-result,.consulta-connection-note{background:#f2f5f6;border-color:#d0dbe0;color:#314b5a}.consulta-connection-note strong{color:#243d4b}.consulta-connection-note p{color:#536b78}.consulta-footer{color:#b5cad4}
+
+/* Results remain complete, with every section visible on one sheet. */
+.consulta-api-result{max-width:880px;margin:16px auto 22px;border:1px solid #cbd5db;border-radius:2px;background:#fff;box-shadow:0 20px 45px #0003}
+.consulta-result-head{padding:15px 20px;border-bottom:1px solid #dce4e8;background:#fff}.consulta-result-head span{color:#607682}.consulta-result-head strong{color:#172833}
+.consulta-result-actions button{border:1px solid #bbccd4;border-radius:3px;background:#eef3f5;color:#294b5c}.consulta-result-actions button:hover{background:#dcebef}
+.consulta-visual-result{padding:20px}.consulta-result-hero{align-items:flex-start;gap:16px;flex-wrap:wrap;margin:0 0 14px;padding:3px 0 18px;border:0;border-bottom:2px solid #b8c8d0;border-radius:0;background:#fff;box-shadow:none}
+.consulta-identity-photo{flex:0 0 105px;width:105px;height:130px;border:1px solid #c6d0d6;border-radius:2px;background:#edf2f4}.consulta-identity-photo svg{stroke:#6b8998;animation:none}
+.consulta-identity-title{padding-top:5px}.consulta-result-eyebrow{color:#3c6173}.consulta-result-hero h3{color:#152b38}.consulta-result-hero p{color:#617784}
+.consulta-result-badge{border:1px solid #b8d0be;border-radius:3px;background:#eaf5ed;color:#206343}.consulta-result-badge.is-error{border-color:#e1c1b9;background:#f9eeea;color:#993c30}
+.consulta-result-tabs{gap:6px;margin:0 0 16px;padding:0 0 9px;border-bottom:1px solid #dde5e9}.consulta-result-tabs button,.consulta-result-tabs button[aria-selected="true"]{border:1px solid #cad6dc;border-radius:3px;background:#f1f5f6;color:#2d5264;box-shadow:none}.consulta-result-tabs button:hover{background:#e0ecef}.consulta-result-tabs button:focus-visible,.consulta-result-panel:focus-visible{outline:2px solid #477e95;outline-offset:2px}
+.consulta-result-panels{display:grid;gap:16px}.consulta-result-panel{padding:0;border:0;border-radius:0;background:#fff;scroll-margin-top:78px}
+.consulta-panel-title,.consulta-data-section h4{margin:0 0 10px;padding:8px 10px;background:#e5eaed;color:#243a48;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+.consulta-data-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:0}.consulta-data-field{padding:6px 9px 9px;border:0;border-right:1px solid #edf1f3;border-bottom:1px solid #e4ebee;border-radius:0;background:#fff}.consulta-data-field small{color:#657783;font-size:10px;letter-spacing:0}.consulta-data-field strong{color:#152b38;font-size:12px}
+.consulta-data-groups{gap:14px;margin-top:12px}.consulta-data-section,.consulta-data-record{padding:0;border:0;border-radius:0;background:#fff}.consulta-data-record{margin:9px 0 0;padding-bottom:9px;border-bottom:1px solid #d9e2e6}.consulta-data-record h5{margin:0 0 6px;padding:4px 8px;border-left:3px solid #5b8092;color:#284354;font-size:12px}
+.consulta-photo{border:1px solid #cbd7dc;border-radius:2px;background:#fff;box-shadow:none}.consulta-photo img{border-radius:0;background:#edf2f4}.consulta-photo figcaption{color:#466171}.consulta-no-data,.consulta-record-value{color:#5a6f7b}
+.consulta-result-metadata{border-color:#dce5e9;color:#294252}.consulta-result-metadata>summary{color:#315b6d}.consulta-raw-details{border-top-color:#dbe4e8}.consulta-raw-details>summary,.consulta-raw-details>summary:hover{color:#315b6d}.consulta-api-result pre{border-top-color:#dbe4e8;background:#f7f9fa;color:#263c49}
+.consulta-test-notice{border-top-color:#d5e0e5;background:#edf2f4;color:#354f5d}
+@media(max-width:900px){.consulta-data-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:540px){.consulta-main{padding:10px}.consulta-hero{padding:16px}.consulta-card{min-height:105px}.consulta-api-result{margin-left:-6px;margin-right:-6px}.consulta-result-head{padding:12px}.consulta-visual-result{padding:12px}.consulta-result-hero{gap:10px}.consulta-identity-photo{flex-basis:82px;width:82px;height:106px}.consulta-result-badge{margin-left:92px}.consulta-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.consulta-data-field{padding:6px}.consulta-data-field strong{font-size:11px}}
+@media(max-width:350px){.consulta-data-grid{grid-template-columns:1fr}.consulta-result-badge{margin-left:0}}

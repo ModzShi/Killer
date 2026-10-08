@@ -51,15 +51,15 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-    <meta name="theme-color" content="#0a0e1e"><meta name="robots" content="noindex,nofollow">
-    <title>Modo Consulta · Subway Run</title>
+    <meta name="theme-color" content="#14232e"><meta name="robots" content="noindex,nofollow">
+    <title>Central de Registros · Consulta</title>
     <link rel="stylesheet" href="<?= $e($base) ?>consulta.css?v=<?= filemtime(__DIR__ . '/consulta.css') ?>">
     <link rel="stylesheet" href="<?= $e($base) ?>compact.css?v=<?= filemtime(__DIR__ . '/compact.css') ?>">
 </head>
 <body>
 <div class="consulta-shell">
     <header class="consulta-topbar">
-        <a class="consulta-brand" href="<?= $e($base) ?>"><span class="consulta-brand-mark"><?= consulta_icon('fingerprint') ?></span><span>Subway <strong>Consulta</strong><small>IDENTIFICAÇÃO · ANÁLISE · ORGANIZAÇÃO</small></span></a>
+        <a class="consulta-brand" href="<?= $e($base) ?>"><span class="consulta-brand-mark"><?= consulta_icon('grid') ?></span><span>Central de <strong>Registros</strong><small>ÁREA DE CONSULTA · TESTE</small></span></a>
         <div class="consulta-topbar-actions"><span class="consulta-status"><i></i> Central de consultas</span><a class="consulta-back" href="<?= $e(app_url('adm/')) ?>">Voltar ao ADM <b>↗</b></a></div>
     </header>
     <?php if (!$logged): ?>
@@ -72,7 +72,7 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
     <div class="consulta-layout">
         <aside class="consulta-sidebar"><span>EXPLORAR</span><a class="active" href="<?= $e($base) ?>"><?= consulta_icon('grid') ?> Todos os módulos</a><a href="<?= $e(app_url('adm/')) ?>"><?= consulta_icon('arrow') ?> Painel administrativo</a><div class="consulta-sidebar-help"><?= consulta_icon('lock') ?><strong>Acesso administrativo</strong><small>Área restrita à sessão do administrador.</small></div></aside>
         <main class="consulta-main">
-            <section class="consulta-hero"><div><span class="consulta-kicker"><i></i> CENTRAL DE CONSULTAS</span><h1>O que você deseja <em>explorar?</em></h1><p>Encontre o módulo certo em poucos segundos.</p></div><div class="consulta-hero-art" aria-hidden="true"><span><?= consulta_icon('fingerprint') ?></span><span><?= consulta_icon('face') ?></span></div></section>
+            <section class="consulta-hero"><div><span class="consulta-kicker"><i></i> CENTRAL DE REGISTROS</span><h1>Consulta <em>organizada.</em></h1><p>Escolha um módulo para visualizar os dados em formato de ficha.</p></div><div class="consulta-hero-art" aria-hidden="true"><span><?= consulta_icon('grid') ?></span><span><?= consulta_icon('search') ?></span></div></section>
             <div class="consulta-search"><span><?= consulta_icon('search') ?></span><input id="consulta-search" type="search" placeholder="Buscar um módulo..." autocomplete="off" aria-label="Buscar módulo"><kbd>⌕</kbd></div>
             <div class="consulta-categories" role="group" aria-label="Filtrar módulos"><button type="button" class="active" data-category="all" aria-pressed="true">Todos</button><button type="button" data-category="Pessoas" aria-pressed="false">Pessoas</button><button type="button" data-category="Veículos" aria-pressed="false">Veículos</button><button type="button" data-category="Empresas" aria-pressed="false">Empresas</button><button type="button" data-category="Endereços" aria-pressed="false">Endereços</button><button type="button" data-category="Imagens" aria-pressed="false">Imagens</button><button type="button" data-category="Outros" aria-pressed="false">Outros</button></div>
             <div class="consulta-section-head"><div><span>ESCOLHA UM MÓDULO</span><h2>Ferramentas disponíveis <small><?= count($modules) ?> módulos</small></h2></div></div>

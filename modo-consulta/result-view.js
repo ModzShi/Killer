@@ -135,7 +135,7 @@
     header.append(portrait);
     const titleBox = node('div');
     titleBox.className = 'consulta-identity-title';
-    titleBox.append(node('span', 'consulta-result-eyebrow', 'IDENTIFICAÇÃO · RESULTADO'));
+    titleBox.append(node('span', 'consulta-result-eyebrow', 'FICHA DE CONSULTA · ÁREA DE TESTE'));
     const title = recordName(data) || recordName(data.resultado) || (Array.isArray(data.dados) ? recordName(data.dados[0]) : '') || 'Informações encontradas';
     titleBox.append(node('h3', '', title));
     const total = data.estatisticas?.total_registros;
@@ -157,27 +157,17 @@
     });
     if (Object.keys(scalar).length) sections.push([sections.length ? 'Outras informações' : 'Dados principais', scalar]);
     if (!sections.length) container.append(node('p', 'consulta-no-data', 'Nenhuma informação disponível nesta resposta.'));
-    const tabs = node('div', 'consulta-result-tabs');
-    tabs.setAttribute('role', 'tablist');
-    tabs.setAttribute('aria-label', 'Seções do resultado');
+    const tabs = node('nav', 'consulta-result-tabs');
+    tabs.setAttribute('aria-label', 'Ir para uma seção do resultado');
     const panels = node('div', 'consulta-result-panels');
     const prefix = 'consulta-view-' + (++viewSequence);
-    const activate = index => {
-      Array.from(tabs.children).forEach((button, i) => {
-        button.setAttribute('aria-selected', String(i === index));
-        button.tabIndex = i === index ? 0 : -1;
-        panels.children[i].hidden = i !== index;
-      });
-    };
     sections.forEach(([title, value], index) => {
       const button = node('button', '', title);
       button.type = 'button';
       button.id = prefix + '-tab-' + index;
-      button.setAttribute('role', 'tab');
       button.setAttribute('aria-controls', prefix + '-panel-' + index);
       const panel = node('section', 'consulta-result-panel');
       panel.id = prefix + '-panel-' + index;
-      panel.setAttribute('role', 'tabpanel');
       panel.setAttribute('aria-labelledby', button.id);
       panel.tabIndex = 0;
       panel.append(node('h4', 'consulta-panel-title', title));
@@ -190,19 +180,10 @@
           panel.append(card);
         });
       } else appendEntries(panel, value, photo ? identity : null);
-      button.addEventListener('click', () => activate(index));
-      button.addEventListener('keydown', event => {
-        let next = index;
-        if (event.key === 'ArrowRight') next = (index + 1) % sections.length;
-        else if (event.key === 'ArrowLeft') next = (index - 1 + sections.length) % sections.length;
-        else if (event.key === 'Home') next = 0;
-        else if (event.key === 'End') next = sections.length - 1;
-        else return;
-        event.preventDefault(); activate(next); tabs.children[next].focus();
-      });
+      button.addEventListener('click', () => panel.scrollIntoView({behavior: 'smooth', block: 'start'}));
       tabs.append(button); panels.append(panel);
     });
-    if (sections.length) { container.append(tabs, panels); activate(0); }
+    if (sections.length) container.append(tabs, panels);
     if (Object.keys(metadata).length) {
       const details = node('details', 'consulta-result-metadata');
       details.append(node('summary', '', 'Detalhes da consulta'));
