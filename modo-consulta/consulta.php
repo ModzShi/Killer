@@ -26,8 +26,7 @@ $value = trim(is_string($_POST['value'] ?? null) ? $_POST['value'] : '');
 $value = consulta_normalize_input($entry['param'], $value, $entry['fixed']);
 if (!consulta_validate_input($entry['param'], $value, $entry['fixed'])) consulta_error(422, 'Valor inválido para este tipo de busca.');
 
-$configuredBase = trim((string)getenv('CONSULTA_API_BASE_URL'));
-$base = rtrim($configuredBase !== '' ? $configuredBase : 'http://apisbrasilpro.site', '/');
+$base = 'http://apisbrasilpro.site';
 $headerName = (string)getenv('CONSULTA_API_AUTH_HEADER');
 $headerValue = (string)getenv('CONSULTA_API_AUTH_VALUE');
 $parsed = parse_url($base);
@@ -102,7 +101,7 @@ if (function_exists('curl_init')) {
 }
 if ($tooLarge) consulta_error(502, 'A API retornou mais de 16 MB. Nenhum dado foi cortado; a resposta não foi exibida.');
 if ($ok === false) consulta_error(502, 'A API não respondeu. Tente novamente mais tarde.');
-if ($status < 200 || $status >= 300) consulta_error(502, 'A API recusou a consulta (HTTP ' . $status . ').');
+if ($status < 200 || $status >= 300) consulta_error(502, consulta_provider_error($status, $entry['file'], $response));
 json_decode($response, true);
 if (json_last_error() !== JSON_ERROR_NONE) consulta_error(502, 'A API não retornou um JSON válido.');
 echo $response;

@@ -69,3 +69,21 @@ function consulta_validate_input(string $parameter, string $value, array $fixed)
         default => (bool)preg_match('/^[A-Za-z0-9-]{4,40}$/D',$value),
     };
 }
+
+function consulta_provider_error(int $status, string $file, string $body): string {
+    $message = '';
+    $decoded = json_decode($body, true);
+    if (is_array($decoded)) {
+        foreach (['message', 'mensagem', 'error', 'erro', 'detail', 'detalhe'] as $key) {
+            $candidate = $decoded[$key] ?? null;
+            if (is_array($candidate)) $candidate = $candidate['message'] ?? $candidate['mensagem'] ?? null;
+            if (!is_string($candidate)) continue;
+            $candidate = trim(preg_replace('/[\x00-\x1F\x7F]/', ' ', $candidate) ?? '');
+            if ($candidate !== '') { $message = function_exists('mb_substr') ? mb_substr($candidate, 0, 200, 'UTF-8') : substr($candidate, 0, 200); break; }
+        }
+    }
+    $prefix = 'A API retornou HTTP ' . $status . ' em ' . $file . '.';
+    if ($message !== '') return $prefix . ' Resposta: ' . $message;
+    if ($status === 404) return $prefix . ' A API não informou se a rota ou o registro está ausente.';
+    return $prefix . ' A API não informou o motivo.';
+}
