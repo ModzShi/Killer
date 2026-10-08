@@ -102,6 +102,6 @@ if (function_exists('curl_init')) {
 if ($tooLarge) consulta_error(502, 'A API retornou mais de 16 MB. Nenhum dado foi cortado; a resposta não foi exibida.');
 if ($ok === false) consulta_error(502, 'A API não respondeu. Tente novamente mais tarde.');
 if ($status < 200 || $status >= 300) consulta_error(502, consulta_provider_error($status, $entry['file'], $response));
-json_decode($response, true);
-if (json_last_error() !== JSON_ERROR_NONE) consulta_error(502, 'A API não retornou um JSON válido.');
-echo $response;
+$json = consulta_extract_json($response);
+if ($json === null) consulta_error(502, 'A API não retornou um objeto JSON válido.');
+echo $json;

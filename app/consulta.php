@@ -70,9 +70,44 @@ function consulta_validate_input(string $parameter, string $value, array $fixed)
     };
 }
 
+/** Extract an intact JSON object/array when the provider prints a banner before it. */
+function consulta_extract_json(string $body): ?string {
+    $length = strlen($body);
+    for ($start = 0; $start < $length; $start++) {
+        if ($body[$start] !== '{' && $body[$start] !== '[') continue;
+        $stack = [];
+        $quoted = false;
+        $escaped = false;
+        for ($end = $start; $end < $length; $end++) {
+            $character = $body[$end];
+            if ($quoted) {
+                if ($escaped) $escaped = false;
+                elseif ($character === '\\') $escaped = true;
+                elseif ($character === '"') $quoted = false;
+                continue;
+            }
+            if ($character === '"') { $quoted = true; continue; }
+            if ($character === '{') $stack[] = '}';
+            elseif ($character === '[') $stack[] = ']';
+            elseif ($character === '}' || $character === ']') {
+                if (array_pop($stack) !== $character) break;
+                if ($stack === []) {
+                    $json = substr($body, $start, $end - $start + 1);
+                    $decoded = json_decode($json, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) return $json;
+                    break;
+                }
+            }
+        }
+        $start = $end;
+    }
+    return null;
+}
+
 function consulta_provider_error(int $status, string $file, string $body): string {
     $message = '';
-    $decoded = json_decode($body, true);
+    $json = consulta_extract_json($body);
+    $decoded = $json === null ? null : json_decode($json, true);
     if (is_array($decoded)) {
         foreach (['message', 'mensagem', 'error', 'erro', 'detail', 'detalhe'] as $key) {
             $candidate = $decoded[$key] ?? null;
