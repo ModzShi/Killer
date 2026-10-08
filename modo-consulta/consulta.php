@@ -26,18 +26,21 @@ $value = trim(is_string($_POST['value'] ?? null) ? $_POST['value'] : '');
 $value = consulta_normalize_input($entry['param'], $value, $entry['fixed']);
 if (!consulta_validate_input($entry['param'], $value, $entry['fixed'])) consulta_error(422, 'Valor inválido para este tipo de busca.');
 
-$base = rtrim((string)getenv('CONSULTA_API_BASE_URL'), '/');
+$configuredBase = trim((string)getenv('CONSULTA_API_BASE_URL'));
+$base = rtrim($configuredBase !== '' ? $configuredBase : 'http://apisbrasilpro.site', '/');
 $headerName = (string)getenv('CONSULTA_API_AUTH_HEADER');
 $headerValue = (string)getenv('CONSULTA_API_AUTH_VALUE');
 $parsed = parse_url($base);
-if (!$parsed || strtolower((string)($parsed['scheme'] ?? '')) !== 'https'
+$scheme = is_array($parsed) ? strtolower((string)($parsed['scheme'] ?? '')) : '';
+if (!$parsed || !in_array($scheme, ['http','https'], true)
     || strtolower((string)($parsed['host'] ?? '')) !== 'apisbrasilpro.site'
     || isset($parsed['port']) || isset($parsed['user']) || isset($parsed['pass'])
     || ($parsed['path'] ?? '') !== '' || isset($parsed['query']) || isset($parsed['fragment'])
-    || !preg_match('/^[A-Za-z0-9-]{1,60}$/D', $headerName)
-    || $headerValue === '' || strlen($headerValue) > 2048 || preg_match('/[\r\n\x00]/', $headerValue)
-    || !function_exists('curl_init')) {
-    consulta_error(503, 'A conexão HTTPS autenticada da API ainda não foi configurada.');
+    || (($headerName === '') !== ($headerValue === ''))
+    || ($headerName !== '' && !preg_match('/^[A-Za-z0-9-]{1,60}$/D', $headerName))
+    || strlen($headerValue) > 2048 || preg_match('/[\r\n\x00]/', $headerValue)
+    || (!function_exists('curl_init') && !(bool)ini_get('allow_url_fopen'))) {
+    consulta_error(503, 'A conexão com a API não está disponível.');
 }
 
 $window = (int)($_SESSION['consulta_window'] ?? 0);
@@ -51,27 +54,52 @@ $url = $base . '/' . $entry['file'] . '?' . http_build_query($query, '', '&', PH
 $response = '';
 $tooLarge = false;
 $limit = 16 * 1024 * 1024;
-$curl = curl_init($url);
-if ($curl === false) consulta_error(503, 'Não foi possível iniciar a conexão.');
-curl_setopt_array($curl, [
-    CURLOPT_HTTPGET => true,
-    CURLOPT_HTTPHEADER => ['Accept: application/json', $headerName . ': ' . $headerValue],
-    CURLOPT_FOLLOWLOCATION => false,
-    CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
-    CURLOPT_CONNECTTIMEOUT => 5,
-    CURLOPT_TIMEOUT => 20,
-    CURLOPT_SSL_VERIFYPEER => true,
-    CURLOPT_SSL_VERIFYHOST => 2,
-    CURLOPT_USERAGENT => 'SubwayRun-Consulta/1.0',
-    CURLOPT_WRITEFUNCTION => static function($handle, string $chunk) use (&$response, &$tooLarge, $limit): int {
-        if (strlen($response) + strlen($chunk) > $limit) { $tooLarge = true; return 0; }
-        $response .= $chunk;
-        return strlen($chunk);
-    },
-]);
-$ok = curl_exec($curl);
-$status = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
-curl_close($curl);
+$headers = ['Accept: application/json'];
+if ($headerName !== '') $headers[] = $headerName . ': ' . $headerValue;
+if (function_exists('curl_init')) {
+    $curl = curl_init($url);
+    if ($curl === false) consulta_error(503, 'Não foi possível iniciar a conexão.');
+    curl_setopt_array($curl, [
+        CURLOPT_HTTPGET => true,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_PROTOCOLS => $scheme === 'https' ? CURLPROTO_HTTPS : CURLPROTO_HTTP,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 20,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_USERAGENT => 'SubwayRun-Consulta/1.0',
+        CURLOPT_WRITEFUNCTION => static function($handle, string $chunk) use (&$response, &$tooLarge, $limit): int {
+            if (strlen($response) + strlen($chunk) > $limit) { $tooLarge = true; return 0; }
+            $response .= $chunk;
+            return strlen($chunk);
+        },
+    ]);
+    $ok = curl_exec($curl);
+    $status = (int)curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+} else {
+    $context = stream_context_create(['http'=>[
+        'method'=>'GET', 'header'=>implode("\r\n", array_merge($headers, ['User-Agent: SubwayRun-Consulta/1.0'])),
+        'timeout'=>20, 'follow_location'=>0, 'max_redirects'=>0, 'ignore_errors'=>true,
+    ], 'ssl'=>['verify_peer'=>true, 'verify_peer_name'=>true]]);
+    $stream = @fopen($url, 'rb', false, $context);
+    $ok = $stream !== false;
+    $status = 0;
+    if ($stream !== false) {
+        $metadata = stream_get_meta_data($stream);
+        $statusLine = $metadata['wrapper_data'][0] ?? '';
+        if (preg_match('/^HTTP\/\S+\s+(\d{3})/', (string)$statusLine, $match)) $status = (int)$match[1];
+        while (!feof($stream)) {
+            $chunk = fread($stream, min(8192, $limit + 1 - strlen($response)));
+            if ($chunk === false) { $ok = false; break; }
+            if ($chunk === '') break;
+            $response .= $chunk;
+            if (strlen($response) > $limit) { $tooLarge = true; break; }
+        }
+        fclose($stream);
+    }
+}
 if ($tooLarge) consulta_error(502, 'A API retornou mais de 16 MB. Nenhum dado foi cortado; a resposta não foi exibida.');
 if ($ok === false) consulta_error(502, 'A API não respondeu. Tente novamente mais tarde.');
 if ($status < 200 || $status >= 300) consulta_error(502, 'A API recusou a consulta (HTTP ' . $status . ').');

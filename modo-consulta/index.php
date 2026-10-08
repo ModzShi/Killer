@@ -61,7 +61,7 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
     <main class="consulta-guest">
         <div class="consulta-guest-copy"><span class="consulta-kicker"><i></i> NOVO MODO · CONSULTA</span><h1>Informação organizada.<br><em>Decisões mais claras.</em></h1><p>Um espaço para reunir módulos de identificação, contatos, veículos e empresas. Entre na sua conta para explorar o painel.</p><div class="consulta-guest-actions"><a class="consulta-primary" href="<?= $e(app_url('login/?next=consulta')) ?>">Entrar no painel <?= consulta_icon('arrow') ?></a><a class="consulta-ghost" href="<?= $e(app_url('cadastrar/?next=consulta')) ?>">Criar conta</a></div></div>
         <div class="consulta-guest-art" aria-hidden="true"><div class="consulta-orbit consulta-orbit-a"></div><div class="consulta-orbit consulta-orbit-b"></div><div class="consulta-scan-face"><?= consulta_icon('face') ?></div><span class="consulta-art-chip consulta-art-chip-a"><?= consulta_icon('fingerprint') ?></span><span class="consulta-art-chip consulta-art-chip-b"><?= consulta_icon('shield') ?></span><div class="consulta-scan-line"></div></div>
-        <p class="consulta-guest-note">A pesquisa requer login e uma conexão HTTPS autenticada com a API.</p>
+        <p class="consulta-guest-note">Entre na sua conta para pesquisar. O provedor informado usa HTTP; os dados trafegam sem criptografia até a API.</p>
     </main>
     <?php else: ?>
     <div class="consulta-layout">
@@ -99,12 +99,12 @@ $upper = static fn(string $value): string => function_exists('mb_strtoupper') ? 
                 </section>
                 <button class="consulta-demo-button" type="button" data-demo-module="<?= $e($selected) ?>">Ver resultado de exemplo <?= consulta_icon('arrow') ?></button>
                 <div class="consulta-demo-result" id="consulta-demo-result" hidden aria-live="polite"></div>
-                <div class="consulta-connection-note"><?= consulta_icon('lock') ?><div><strong>Conexão segura</strong><p>A pesquisa real exige que a URL HTTPS e a autenticação da API estejam configuradas no servidor. O exemplo acima é gerado localmente.</p></div></div>
+                <div class="consulta-connection-note"><?= consulta_icon('lock') ?><div><strong>Consulta à API informada</strong><p>A conexão atual com o provedor usa HTTP. Dados pesquisados e respostas trafegam sem criptografia nesse trecho. O botão de exemplo gera dados apenas neste navegador.</p></div></div>
                 <?php else: ?>
                 <div class="consulta-detail-empty"><span><?= consulta_icon('fingerprint') ?></span><h2 id="consulta-detail-title">Escolha um módulo</h2><p>Selecione um card para ver os campos e o fluxo de consulta previsto.</p></div>
                 <?php endif; ?>
             </section>
-            <footer class="consulta-footer">Modo Consulta · Pesquisas disponíveis para usuários logados após configurar a API.</footer>
+            <footer class="consulta-footer">Modo Consulta · Pesquisas disponíveis para usuários logados.</footer>
         </main>
     </div>
     <?php endif; ?>
