@@ -119,6 +119,10 @@ function consulta_provider_error(int $status, string $file, string $body): strin
     }
     $prefix = 'A API retornou HTTP ' . $status . ' em ' . $file . '.';
     if ($message !== '') return $prefix . ' Resposta: ' . $message;
+    if ($status === 530) {
+        $diagnostic = preg_match('/(?:Error\s+|error\s+code:\s*)(1\d{3})\b/i', $body, $match) ? ' Código de diagnóstico: ' . $match[1] . '.' : '';
+        return $prefix . ' O provedor está com uma falha de conexão com o próprio servidor. Tente novamente mais tarde; se persistir, envie este código ao suporte da API.' . $diagnostic;
+    }
     if ($status === 404) return $prefix . ' A API não informou se a rota ou o registro está ausente.';
     return $prefix . ' A API não informou o motivo.';
 }
