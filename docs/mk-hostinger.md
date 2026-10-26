@@ -8,6 +8,10 @@ Copie `mk/lib.php`, `mk/api.php`, `adm/mk/index.php` e a entrada `MK Keys` de `a
 
 ## Migracao
 
+Com deploy automatico pelo GitHub, entre como administrador em `/adm/mk/setup.php` e envie os quatro arquivos pequenos (`server-secret.bin`, `licenses.json`, `accounts.json`, `releases/index.json`). Depois envie a DLL no segundo formulario. Os arquivos ficam no servidor, fora da raiz publica quando a hospedagem permite escrita no diretorio pai. O formulario exige a sessao administrativa e CSRF.
+
+Alternativa pelo hPanel/phpMyAdmin:
+
 1. Faça backup do banco remoto. Abra `/adm/mk/` com a conta de administrador para criar as tabelas.
 2. Importe `mk-data-import.sql` pelo phpMyAdmin no banco do Subway. Esse arquivo contem hashes de senha, vinculos de dispositivo e dados de licenca; nao o coloque em `public_html`.
 3. Copie o arquivo original `server-secret.bin` para `mk-private/server-secret.bin` acima da raiz publica no servidor. Sem o mesmo segredo, as keys antigas nao serao aceitas. Nao publique esse arquivo no Git.

@@ -7,6 +7,7 @@ $route = (string)($_GET['route'] ?? '');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 try {
     $db = app_db();
+    mk_install($db);
     if ($method === 'GET' && $route === 'releases/latest') {
         $row = $db->query('SELECT * FROM mk_releases ORDER BY id DESC LIMIT 1')->fetch_assoc();
         if (!$row) { http_response_code(404); exit; }
