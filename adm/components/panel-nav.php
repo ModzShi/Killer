@@ -5,6 +5,7 @@ $adminActive = $adminActive ?? 'dashboard';
 $adminTitle = $adminTitle ?? 'Painel de controle';
 $adminLinks = [
     ['dashboard', 'adm/', 'Painel', 'wallet'],
+    ['mk', 'adm/mk/', 'MK Keys', 'shield'],
     ['ggr', 'adm/GGR/', 'GGR', 'coins'],
     ['usuarios', 'adm/usuarios/', 'Usuários', 'users'],
     ['depositos', 'adm/depositos/', 'Depósitos', 'deposit'],

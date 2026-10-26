@@ -80,3 +80,7 @@ Desktop.ini
 *.zip
 *.tar
 *.tar.gz
+
+# MK runtime secrets and releases
+/config/mk-secret.bin
+/config/mk-releases/
